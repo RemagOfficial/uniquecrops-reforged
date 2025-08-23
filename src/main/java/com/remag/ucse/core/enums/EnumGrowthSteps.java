@@ -40,7 +40,7 @@ public enum EnumGrowthSteps {
         @Override
         public boolean canAdvance(Level world, BlockPos pos, BlockState state) {
 
-            return world.getMoonPhase() == 1.0F;
+            return world.getMoonPhase() == 0;
         }
     },
     HASTORCH(UCStrings.HASTORCH, UCConfig.COMMON.hasTorch.get()) {
@@ -102,7 +102,7 @@ public enum EnumGrowthSteps {
             List<Player> players = world.getEntitiesOfClass(Player.class, new AABB(pos.offset(-range, -range, -range), pos.offset(range, range, range)));
             for (Player player : players) {
                 if (player.getUUID().equals(getTile(world, pos).getOwner())) {
-                    if (player.isOnFire() && !player.fireImmune())
+                    if (player.isOnFire())
                         return true;
                 }
             }
@@ -165,7 +165,7 @@ public enum EnumGrowthSteps {
 
             List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(pos, pos.offset(1, 1, 1)));
             for (ItemEntity item : items) {
-                if (!item.isAlive() && !item.getItem().isEmpty()) {
+                if (item.isAlive() && !item.getItem().isEmpty()) {
                     if (item.getItem().getItem().isEdible()) {
                         UCPacketHandler.sendToNearbyPlayers(world, pos, new PacketUCEffect(EnumParticle.CLOUD, pos.getX(), pos.getY(), pos.getZ(), 6));
                         item.getItem().shrink(1);
@@ -246,7 +246,7 @@ public enum EnumGrowthSteps {
         @Override
         public boolean canAdvance(Level world, BlockPos pos, BlockState state) {
 
-            int light = world.getBrightness(LightLayer.BLOCK, pos.above());
+            int light = world.getBrightness(LightLayer.BLOCK, pos);
             return light >= 13;
         }
     },
@@ -285,7 +285,7 @@ public enum EnumGrowthSteps {
             return flag;
         }
     },
-    LIKESBREWING(UCStrings.LIKESBREWING, UCConfig.COMMON.likesBrewing.get()) {
+    LIKESBREWING(UCStrings.LIKESBREWING, alwaysFalse()) {
 
         final int range = 6;
 
@@ -374,6 +374,10 @@ public enum EnumGrowthSteps {
     public boolean isEnabled() {
 
         return this.enabled;
+    }
+
+    public static boolean alwaysFalse() {
+        return false;
     }
 
     public TileFeroxia getTile(Level world, BlockPos pos) {

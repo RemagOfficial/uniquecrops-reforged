@@ -12,6 +12,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -275,6 +276,46 @@ public class UCItems {
 
         id = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "multiblock");
         ForgeRegistries.RECIPE_TYPES.register(id, MULTIBLOCK_TYPE);
+    }
+
+    public static void registerCompostables( ) {
+        // 30% chance, seeds (leave out Easter Eggs, abstract and merlinia
+        ComposterBlock.COMPOSTABLES.put(UCItems.ARTISIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.CINDERBELLA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.COLLIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.COBBLONIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DEVILSNARE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DIRIGIBLE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DONUTSTEEL_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DYEIUS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.ENDERLILY_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.EULA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.FEROXIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.HEXIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.IMPERIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.INDUSTRIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.INSTABILIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.INVISIBILIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.KNOWLEDGE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.LACUSIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MAGNES_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MALLEATORIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MARYJANE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MILLENNIUM_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MUSICA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.NORMAL_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.PETRAMIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.PIXELSIUS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.PRECISION_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.QUARRY_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.SUCCO_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.WAFFLONIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.WEEPINGBELLS_SEED.get(), 0.3F);
+
+        // 50% chance, organic outputs
+        ComposterBlock.COMPOSTABLES.put(UCItems.DIRIGIBLEPLUM.get(), 0.5F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.GOLDENRODS.get(), 0.5F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.UNCOOKEDWAFFLE.get(), 0.5F);
     }
 
     private static class ModRecipeType<T extends Recipe<?>> implements RecipeType<T> {

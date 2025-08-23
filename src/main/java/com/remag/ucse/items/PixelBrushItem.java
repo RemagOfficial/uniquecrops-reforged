@@ -51,7 +51,10 @@ public class PixelBrushItem extends ItemBaseUC {
         if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_BIOME)) {
             ResourceLocation biomeId = ResourceLocation.tryParse(stack.getTag().getString(UCStrings.TAG_BIOME));
             Biome biome = world.registryAccess().registryOrThrow(Registries.BIOME).get(biomeId);
-            list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + ForgeRegistries.BIOMES.getKey(biome).getPath()));
+            if (biome.getRegistryName() == null || biome.getRegistryName().getPath().isEmpty())
+                list.add(new TextComponent(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + biomeId.toString()));
+            else
+                list.add(new TextComponent(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + biome.getRegistryName().getPath()));
         } else {
             list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + "<NONE>"));
         }

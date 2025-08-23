@@ -1,5 +1,6 @@
 package com.remag.ucse;
 
+import com.remag.ucse.core.DyeUtils;
 import com.remag.ucse.core.UCConfig;
 import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.core.UCTab;
@@ -7,12 +8,18 @@ import com.remag.ucse.core.UCWorldData;
 import com.remag.ucse.data.DataGenerators;
 import com.remag.ucse.events.UCEventHandlerCommon;
 import com.remag.ucse.init.*;
+import com.remag.ucse.items.DyedBonemealItem;
 import com.remag.ucse.items.curios.EmblemIronStomach;
 import com.remag.ucse.items.curios.EmblemScarab;
 import com.remag.ucse.network.UCPacketHandler;
 import com.remag.ucse.proxies.ClientProxy;
 import com.remag.ucse.proxies.CommonProxy;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -78,7 +85,23 @@ public class UniqueCrops {
             UCFeatures.registerOre();
             UCRecipes.registerBrews();
             UCPacketHandler.init();
+            UCItems.registerCompostables();
         });
+
+        DyeUtils.BONEMEAL_DYE.forEach((color, dbItem) -> {
+            DispenserBlock.registerBehavior(dbItem, new OptionalDispenseItemBehavior() {
+                protected ItemStack execute(BlockSource pBlockSource, ItemStack pItemStack) {
+                    this.setSuccess(true);
+                    Level level = pBlockSource.getLevel();
+                    BlockPos blockpos = pBlockSource.getPos().relative(pBlockSource.getBlockState().getValue(DispenserBlock.FACING));
+                    if (!DyedBonemealItem.dispenseOn(pItemStack, level, blockpos)) {
+                        this.setSuccess(false);
+                    }
+                    return pItemStack;
+                }
+            });
+        });
+
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {

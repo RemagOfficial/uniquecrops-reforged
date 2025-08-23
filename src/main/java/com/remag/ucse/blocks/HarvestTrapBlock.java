@@ -2,6 +2,7 @@ package com.remag.ucse.blocks;
 
 import com.remag.ucse.blocks.tiles.TileHarvestTrap;
 import com.remag.ucse.core.UCUtils;
+import net.minecraft.core.particles.ParticleOptions;
 import com.remag.ucse.core.enums.EnumParticle;
 import com.remag.ucse.init.UCItems;
 import com.remag.ucse.network.PacketUCEffect;
@@ -69,7 +70,7 @@ public class HarvestTrapBlock extends Block implements EntityBlock {
 
         BlockEntity tile = world.getBlockEntity(pos);
         if (tile instanceof TileHarvestTrap trap) {
-            if (!trap.hasSpirit() && !trap.isCollected()) {
+            if (!trap.hasSpirit() && (trap.getBaitPower() == 0)) {
                 if (player.getItemInHand(hand).getItem() == UCItems.SPIRITBAIT.get()) {
                     trap.setBaitPower(3);
                     player.getItemInHand(hand).shrink(1);
@@ -94,7 +95,7 @@ public class HarvestTrapBlock extends Block implements EntityBlock {
         BlockEntity tile = world.getBlockEntity(pos);
         if (tile instanceof TileHarvestTrap trap) {
             if (UCUtils.getClosest(pos, 10.0D, TileHarvestTrap.class) != null) {
-                UCPacketHandler.sendToNearbyPlayers(world, pos, new PacketUCEffect(EnumParticle.BARRIER, pos.getX(), pos.getY() + 0.75, pos.getZ(), 0));
+                UCPacketHandler.sendToNearbyPlayers(world, pos, new PacketUCEffect(EnumParticle.ANGRY, pos.getX(), pos.getY() + 1.0, pos.getZ(), 0));
                 return;
             }
             if (trap.hasSpirit()) return;
@@ -128,16 +129,16 @@ public class HarvestTrapBlock extends Block implements EntityBlock {
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
 
         BlockEntity tile = world.getBlockEntity(pos);
-        if (tile instanceof TileHarvestTrap trap && trap.hasSpirit()) {
-            for (int i = 0; i < 5; i++) {
-                double d0 = (double)pos.getX() + rand.nextFloat();
-                double d1 = (double)pos.getY() + 0.55F;
-                double d2 = (double)pos.getZ() + rand.nextFloat();
+        if (tile instanceof TileHarvestTrap) {
+            TileHarvestTrap trap = (TileHarvestTrap) tile;
+            if (trap.hasSpirit()) {
+                ParticleOptions sparkle = trap.isCollected() ? EnumParticle.GREEN_SPARK.getType() : EnumParticle.ORANGE_SPARK.getType();
+                for (int i = 0; i < 4; i++) {
+                    double d0 = (double) pos.getX() + rand.nextFloat();
+                    double d1 = (double) pos.getY() + 0.85F;
+                    double d2 = (double) pos.getZ() + rand.nextFloat();
 
-                float[] color = trap.getSpiritColor();
-
-                if (world.isClientSide()) {
-                    world.addParticle(EnumParticle.SPARK.getType(), d0, d1, d2, color[0], color[1], color[2]);
+                    world.addParticle(sparkle, d0, d1, d2, 0.0, 0.33, 0.0);
                 }
             }
         }

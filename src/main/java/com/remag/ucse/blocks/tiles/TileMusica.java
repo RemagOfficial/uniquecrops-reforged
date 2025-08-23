@@ -16,8 +16,7 @@ import java.util.List;
 public class TileMusica extends BaseTileUC{
 
     private final List<Beat> beats = new ArrayList<>();
-    private long lastBeat = 0L;
-    private int musicStrength;
+    private long oldestBeatTime = 0L;
 
     public TileMusica(BlockPos pos, BlockState state) {
 
@@ -32,29 +31,30 @@ public class TileMusica extends BaseTileUC{
         if (this.level.isClientSide || (beats.isEmpty() || beats.size() == 0))
             return;
 
-        for (int i = 0; i < beats.size(); i++) {
+        int otherBeats = 0;
+        for (int i = beats.size() - 1; i >= 0; i--) {
             Beat beat = beats.get(i);
-            listenAndRemove(beat, i);
+            if (!removeIfTooOld(beat, i))
+                if ((oldestBeatTime > 0L) && (beat.getTime() != oldestBeatTime))
+                    ++otherBeats;
+        }
 
-            List<Integer> timelist = new ArrayList<Integer>();
-
-            int elapsedtime = (int)beat.getTimeElapsed(level.getGameTime(), beat.getTime());
-            if (beat.getTime() != lastBeat && elapsedtime % 2 == 0 /*&& (lastBeat - elapsedtime) % 2 == 0*/)
-                timelist.add(elapsedtime);
-
-            if (!timelist.isEmpty() && !beats.isEmpty()) {
-                if (level.getGameTime() % 10 == 0 && lastBeat > 0) {
-                    int randomtick = (level.random.nextInt(100) + 5) - timelist.size();
-                    if (this.getPercussion() != null && (randomtick < this.getPercussion().getTimeElapsed(level.getGameTime(), lastBeat)))
-                    {
-                        level.setBlock(worldPosition, getBlockState().setValue(BaseCropsBlock.AGE, getBlockState().getValue(BaseCropsBlock.AGE) + 1), 2);
-                        return;
-                    }
+        // If plant's clock is on a half-second, we've heard at least 2 notes in the last 2.5 sec,
+        // and at least one of those is percussion, then grow 1.1% of the time.
+        // (roughly 3x the speed of a baseline best-case vanilla crop)
+        if (level.getGameTime() % 10 == 0) {
+            if ((otherBeats > 0) && !beats.isEmpty()) {
+                int dicethrow = level.random.nextInt(90);
+                if (this.oldestPercussion() != null && (dicethrow == 0))
+                {
+                    level.setBlock(worldPosition, getBlockState().setValue(BaseCropsBlock.AGE, getBlockState().getValue(BaseCropsBlock.AGE) + 1), 2);
+                    removeOldestBeat();
+                    return;
                 }
             }
+            if (this.oldestPercussion() != null)
+                oldestBeatTime = this.oldestPercussion().getTime();
         }
-        if (lastBeat == 0L && this.getPercussion() != null)
-            lastBeat = this.getPercussion().getTime();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class TileMusica extends BaseTileUC{
             NoteBlockInstrument taginst = NoteBlockInstrument.values()[tag2.getInt(UCStrings.TAG_INST)];
             NoteBlockEvent.Octave tagoct = NoteBlockEvent.Octave.values()[tag2.getInt(UCStrings.TAG_OCT)];
             long tagtime = tag2.getLong(UCStrings.TAG_TIME);
-            this.setNote(tagnote, taginst, tagoct, tagtime);
+            this.addNote(tagnote, taginst, tagoct, tagtime);
         }
     }
 
@@ -89,6 +89,14 @@ public class TileMusica extends BaseTileUC{
         }
     }
 
+    public long getTimeDelta(long newtime, long oldtime) {
+
+        if (newtime < oldtime)
+            return (oldtime - newtime);
+
+        return (newtime - oldtime);
+    }
+
     public List<Beat> getBeats() {
 
         return beats;
@@ -99,11 +107,15 @@ public class TileMusica extends BaseTileUC{
         return this.beats.size() < 12;
     }
 
-    public Beat setNote(NoteBlockEvent.Note note, NoteBlockInstrument instrument, NoteBlockEvent.Octave octave, long time) {
+    public Beat addNote(Beat beatToAdd) {
 
-        Beat beat = new Beat(note, instrument, octave, time);
-        beats.add(beat);
-        return beat;
+        beats.add(beatToAdd);
+        return beatToAdd;
+    }
+
+    public Beat addNote(NoteBlockEvent.Note note, NoteBlockInstrument instrument, NoteBlockEvent.Octave octave, long time) {
+
+        return addNote(new Beat(note, instrument, octave, time));
     }
 
     public Beat setNewBeatTime(int index, long newtime) {
@@ -113,19 +125,33 @@ public class TileMusica extends BaseTileUC{
         return beat;
     }
 
+    public void removeOldestBeat() {
+        if (beats.isEmpty() || beats.size() == 0) {
+            oldestBeatTime = 0L;
+            return;
+        }
+        beats.remove(0);
+        if (this.oldestPercussion() == null)
+            oldestBeatTime = 0L;
+        else
+            oldestBeatTime = this.oldestPercussion().getTime();
+    }
+
     public void clearBeats() {
 
         beats.clear();
     }
 
-    public void listenAndRemove(Beat beat, int index) {
+    public boolean removeIfTooOld(Beat beat, int index) {
 
-        long diff = beat.getTimeElapsed(level.getGameTime(), beat.getTime());
+        long diff = getTimeDelta(level.getGameTime(), beat.getTime());
         if (diff > 50) {
-            if (beat.getTime() == lastBeat)
-                lastBeat = 0L;
+            if (beat.getTime() == oldestBeatTime)
+                oldestBeatTime = 0L;
             beats.remove(index);
+            return true;
         }
+        return false;
     }
 
     public boolean isPercussion(NoteBlockInstrument instrument) {
@@ -133,7 +159,7 @@ public class TileMusica extends BaseTileUC{
         return instrument == NoteBlockInstrument.SNARE || instrument == NoteBlockInstrument.BASEDRUM;
     }
 
-    public Beat getPercussion() {
+    public Beat oldestPercussion() {
 
         for (Beat beat : beats) {
             if (isPercussion(beat.getInstrument()))
@@ -173,14 +199,6 @@ public class TileMusica extends BaseTileUC{
         public long getTime() {
 
             return worldtime;
-        }
-
-        public long getTimeElapsed(long newtime, long oldtime) {
-
-            if (newtime < oldtime)
-                return (oldtime - newtime);
-
-            return (newtime - oldtime);
         }
 
         public boolean beatMatches(Beat newbeat) {

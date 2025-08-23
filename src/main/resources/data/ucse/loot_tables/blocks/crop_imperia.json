@@ -6,25 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:air"
-        }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:block_state_property",
-          "block": "ucse:crop_imperia",
-          "properties": {
-            "age": "7"
-          }
-        }
-      ]
-    },
-    {
-      "rolls": 1,
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "ucse:seedimperia"
+          "name": "uniquecrops:seedimperia"
         }
       ],
       "conditions": [

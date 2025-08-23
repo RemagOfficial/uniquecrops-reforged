@@ -1,12 +1,18 @@
 package com.remag.ucse.blocks.tiles;
 
 import com.remag.ucse.blocks.BaseCropsBlock;
+import com.remag.ucse.core.UCUtils;
+import com.remag.ucse.init.UCBlocks;
 import com.remag.ucse.init.UCTiles;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
@@ -22,6 +28,7 @@ public class TileDigger extends BaseTileUC {
 
     BlockPos digPos = BlockPos.ZERO;
     boolean jobDone = false;
+    private static TagKey<Block> farmlandTagKey = BlockTags.create(new ResourceLocation("forge", "farmland"));
 
     public TileDigger(BlockPos pos, BlockState state) {
 
@@ -56,7 +63,12 @@ public class TileDigger extends BaseTileUC {
 
         if (digPos == BlockPos.ZERO) return false;
         BlockState digState = digWorld.getBlockState(digPos);
-        if (digState.getDestroySpeed(digWorld, digPos) < 0 || digState.getBlock() instanceof FarmBlock || digState.getBlock() instanceof CropBlock || digState.getBlock() instanceof BaseCropsBlock) {
+        if (digState.getDestroySpeed(digWorld, digPos) < 0 ||
+                digState.getBlock() == UCBlocks.DARK_BLOCK.get() ||
+                digState.getBlock() instanceof FarmBlock ||
+                digState.getBlock() instanceof CropBlock ||
+                digState.getBlock() instanceof BaseCropsBlock ||
+                UCUtils.hasTag(farmlandTagKey, digState.getBlock())) {
             advance(digWorld);
             return false;
         }
@@ -80,6 +92,7 @@ public class TileDigger extends BaseTileUC {
         if (digStack.isEmpty()) return true;
 
         BlockEntity tile = digWorld.getBlockEntity(getBlockPos().above());
+        if (tile == null) return false;
         LazyOptional<IItemHandler> inventory = tile.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.DOWN);
         if (!inventory.isPresent()) return false;
 
@@ -95,7 +108,7 @@ public class TileDigger extends BaseTileUC {
     private void startDig(Level digWorld) {
 
         ChunkPos chunkPos = new ChunkPos(getBlockPos());
-        digPos = new BlockPos(chunkPos.getMinBlockX(), getBlockPos().getY(), chunkPos.getMinBlockZ());
+        digPos = new BlockPos(chunkPos.getMinBlockX(), getBlockPos().getY()-1, chunkPos.getMinBlockZ());
     }
 
     private void advance(Level digWorld) {
@@ -106,13 +119,13 @@ public class TileDigger extends BaseTileUC {
         if (digPos.getY() < digWorld.getMinBuildHeight() + 1) {
             ChunkPos cPos = new ChunkPos(digPos);
             if (digPos.getX() < cPos.getMaxBlockX()) {
-                digPos = digPos.offset(1, 0, 0).atY(getBlockPos().getY());
+                digPos = digPos.offset(1, 0, 0).atY(getBlockPos().getY()-1);
                 if (digWorld.isEmptyBlock(digPos))
                     advance(digWorld);
                 return;
             }
             if (digPos.getZ() < cPos.getMaxBlockZ()) {
-                digPos = digPos.offset(-15, 0, 1).atY(getBlockPos().getY());
+                digPos = digPos.offset(-15, 0, 1).atY(getBlockPos().getY()-1);
                 if (digWorld.isEmptyBlock(digPos))
                     advance(digWorld);
             }

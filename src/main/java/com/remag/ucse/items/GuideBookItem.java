@@ -7,7 +7,6 @@ import com.remag.ucse.init.UCItems;
 import com.remag.ucse.items.base.ItemBaseUC;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -54,6 +53,14 @@ public class GuideBookItem extends ItemBaseUC {
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
+        if (!world.isClientSide && stack.getItem() == this) {
+            ListTag playerTagList = UCUtils.getServerTaglist(player.getUUID());
+            if (playerTagList != null) {
+                if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_GROWTHSTAGES))
+                    stack.getTag().remove(UCStrings.TAG_GROWTHSTAGES);
+                stack.addTagElement(UCStrings.TAG_GROWTHSTAGES, playerTagList);
+            }
+        }
         if (!world.isClientSide && player instanceof ServerPlayer serverPlayer) {
             // Use the ResourceLocation ID of the Patchouli book, not the item ID
             ResourceLocation bookId = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "book_guide");
@@ -62,20 +69,6 @@ public class GuideBookItem extends ItemBaseUC {
         }
 
         return InteractionResultHolder.pass(stack); // Pass on client or if not server player
-    }
-
-    @Override
-    public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean isSelected) {
-
-        if (!(entity instanceof Player)) return;
-
-        if (stack.getItem() == this && isSelected) {
-            if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_GROWTHSTAGES)) return;
-            if (world.isClientSide) return;
-            ListTag tagList = UCUtils.getServerTaglist(entity.getUUID());
-            if (tagList != null)
-                stack.addTagElement(UCStrings.TAG_GROWTHSTAGES, tagList);
-        }
     }
 
     @Override

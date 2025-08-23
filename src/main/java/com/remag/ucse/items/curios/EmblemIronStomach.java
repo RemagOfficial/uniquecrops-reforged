@@ -8,14 +8,15 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.Tags;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class EmblemIronStomach extends ItemCurioUC {
 
-    private static final Map<TagKey<Item>, FoodProperties> STRANGE_FOODS = new HashMap<>();
+    private static final Map<TagKey<Item>, FoodProperties> STRANGE_FOODS = new LinkedHashMap<>();
 
     public static void init() {
 
@@ -31,6 +32,7 @@ public class EmblemIronStomach extends ItemCurioUC {
 
     public static boolean containsTag(Item item) {
 
+        if (item == UCItems.PREGEM.get()) return true;  // kludge
         if (STRANGE_FOODS.isEmpty()) return false;
         for (Map.Entry<TagKey<Item>, FoodProperties> tag : STRANGE_FOODS.entrySet()) {
             if (UCUtils.hasTag(tag.getKey(), item)) return true;
@@ -39,6 +41,9 @@ public class EmblemIronStomach extends ItemCurioUC {
     }
 
     public static FoodProperties getFood(Item item) {
+
+        if (item == UCItems.PREGEM.get())
+            return UCFoods.EDIBLE_DIAMOND;      // kludge
 
         if (STRANGE_FOODS.isEmpty()) return null;
         for (Map.Entry<TagKey<Item>, FoodProperties> tag : STRANGE_FOODS.entrySet()) {

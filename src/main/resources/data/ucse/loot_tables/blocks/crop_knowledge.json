@@ -6,13 +6,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ucse:book_discount"
+          "name": "uniquecrops:book_discount"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "ucse:crop_knowledge",
+          "block": "uniquecrops:crop_knowledge",
           "properties": {
             "age": "7"
           }
@@ -24,12 +24,41 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ucse:seedknowledge"
+          "name": "uniquecrops:seedknowledge"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:survives_explosion"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uniquecrops:seedknowledge",
+          "functions": [
+            {
+              "function": "minecraft:apply_bonus",
+              "enchantment": "minecraft:fortune",
+              "formula": "minecraft:binomial_with_bonus_count",
+              "parameters": {
+                "extra": 2,
+                "probability": 0.5714286
+              }
+            }
+          ],
+		  "conditions": [
+			{
+			  "condition": "minecraft:block_state_property",
+			  "block": "uniquecrops:crop_knowledge",
+			  "properties": {
+				"age": "7"
+			  }
+			}
+		  ]
         }
       ]
     }
