@@ -256,10 +256,12 @@ public class UCUtils {
 
         chunk.setUnsaved(true);
 
+
         if (world instanceof ServerLevel serverLevel) {
             PacketChangeBiome msg = new PacketChangeBiome(pos, biomeId);
             UCPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
         }
+
 
         return true;
     }
