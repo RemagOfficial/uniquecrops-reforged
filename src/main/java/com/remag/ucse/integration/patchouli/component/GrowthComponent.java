@@ -59,6 +59,6 @@ public class GrowthComponent implements ICustomComponent {
 
     private void renderBlank(GuiGraphics guiGraphics, Font font) {
         guiGraphics.drawString(font, Component.literal("Feroxia Growth Steps"), x, y, 0, false);
-        font.draw(ms, new TranslatableComponent(UniqueCrops.MOD_ID + ".blank_feroxia_steps"), x, y + 20, 0);
+        guiGraphics.drawString(font, Component.translatable(UniqueCrops.MOD_ID + ".blank_feroxia_steps"), x, y + 20, 0, false);
     }
 }

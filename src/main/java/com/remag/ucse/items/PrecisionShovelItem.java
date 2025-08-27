@@ -47,7 +47,7 @@ public class PrecisionShovelItem extends ShovelItem implements IBookUpgradeable 
 
         if (event.getEntity() instanceof FallingBlockEntity) {
             FallingBlockEntity fbEntity = (FallingBlockEntity) event.getEntity();
-            Player player = fbEntity.level.getNearestPlayer(fbEntity, RANGE);
+            Player player = fbEntity.level().getNearestPlayer(fbEntity, RANGE);
             if (player != null && player.getMainHandItem().getItem() == this) {
                 if (isMaxLevel(player.getMainHandItem())) {
                     Block fallingBlock = fbEntity.getBlockState().getBlock();
@@ -55,7 +55,7 @@ public class PrecisionShovelItem extends ShovelItem implements IBookUpgradeable 
                             fallingBlock instanceof SandBlock ||
                             fallingBlock instanceof GravelBlock) {
                         event.setCanceled(true);
-                        fbEntity.level.setBlock(fbEntity.getStartPos(), fbEntity.getBlockState(), Block.UPDATE_NONE);
+                        fbEntity.level().setBlock(fbEntity.getStartPos(), fbEntity.getBlockState(), Block.UPDATE_NONE);
                         // This new block will immediately try to fall again. Need to find a setBlock() that
                         // doesn't call the block's onPlace() method.
                     }

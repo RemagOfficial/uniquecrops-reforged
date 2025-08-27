@@ -162,10 +162,13 @@ public class BaseCropsBlock extends CropBlock  {
         return getMaxAge();
     }
 
+/*
+**  Can't Override this in 1.20
     public boolean isMaxAge(BlockState state) {
 
         return state.getValue(this.getAgeProperty()) >= this.getMaxAge();
     }
+ */
 
     public BlockState setValueAge(int age) {
 

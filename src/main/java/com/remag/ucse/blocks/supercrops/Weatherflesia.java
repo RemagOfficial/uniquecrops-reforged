@@ -6,6 +6,9 @@ import com.remag.ucse.core.NBTUtils;
 import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.core.enums.EnumDirectional;
 import com.remag.ucse.init.UCItems;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -58,8 +61,10 @@ public class Weatherflesia extends BaseSuperCropsBlock implements EntityBlock {
             if (stack.getItem() == UCItems.PIXEL_BRUSH.get() && !player.isCrouching()) {
                 if (!world.isClientSide()) {
                     Biome biome = world.getBiome(pos).value();
-                    String biomeId = biome.getRegistryName().toString();
-                    NBTUtils.setString(stack, UCStrings.TAG_BIOME, biomeId);
+                    ResourceLocation rl = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+
+                    //String biomeId = biome.getRegistryName().toString();
+                    NBTUtils.setString(stack, UCStrings.TAG_BIOME, rl.getPath());
                     weather.setBrush(stack);
                     player.setItemInHand(hand, ItemStack.EMPTY);
                     weather.markBlockForUpdate();

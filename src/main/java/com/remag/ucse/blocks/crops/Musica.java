@@ -58,7 +58,8 @@ public class Musica extends BaseCropsBlock implements EntityBlock {
         if (event.getLevel().isClientSide()) return;
 
         BlockPos eventPos = event.getPos();
-        TileMusica.Beat eventBeat = new TileMusica.Beat(event.getNote(), event.getInstrument(), event.getOctave(), ((ServerLevel)event.getWorld()).getGameTime());
+        long beatTime = ((ServerLevel)event.getLevel()).getGameTime();
+        TileMusica.Beat eventBeat = new TileMusica.Beat(event.getNote(), event.getInstrument(), event.getOctave(), beatTime);
         for (BlockPos pos : BlockPos.betweenClosed(eventPos.offset(-RANGE, -2, -RANGE), eventPos.offset(RANGE, 2, RANGE))) {
             BlockEntity te = event.getLevel().getBlockEntity(pos);
             if (te instanceof TileMusica plant) {
@@ -66,7 +67,7 @@ public class Musica extends BaseCropsBlock implements EntityBlock {
                     for (int i = 0; i < plant.getBeats().size(); i++) {
                         TileMusica.Beat beat = plant.getBeats().get(i);
                         if (beat.beatMatches(eventBeat)) {
-                            plant.setNewBeatTime(i, ((ServerLevel)event.getLevel()).getGameTime());
+                            plant.setNewBeatTime(i, beatTime);
                             break;
                         }
                     }
