@@ -94,7 +94,7 @@ public class UCItems {
     public static final RegistryObject<Item> STEVE_HEART = registerFood("steveheart", UCFoods.STEVE_HEART);
     public static final RegistryObject<Item> GOLDEN_BREAD = registerFood("golden_bread", UCFoods.GOLDEN_BREAD);
     public static final RegistryObject<Item> DIET_PILLS = registerFood("diet_pills", UCFoods.DIET_PILLS);
-    public static final RegistryObject<Item> UNCOOKEDWAFFLE = register("uncookedwaffle", ItemBaseUC::new);
+    public static final RegistryObject<Item> UNCOOKEDWAFFLE = registerItem("uncookedwaffle", ItemBaseUC::new);
     public static final RegistryObject<Item> WAFFLE = registerFood("waffle", UCFoods.WAFFLE);
     public static final RegistryObject<Item> YOGURT = registerFood("yogurt", UCFoods.YOGURT);
     public static final RegistryObject<Item> EGGNOG = registerFood("eggnog", UCFoods.EGGNOG);
@@ -216,15 +216,16 @@ public class UCItems {
     public static final RegistryObject<Item> DUMMY_HEATER = addToTab(ITEMS.register("dummy_heater", ItemDummyUC::new));
     public static final RegistryObject<Item> DUMMY_FASCINO = addToTab(ITEMS.register("dummy_fascino", ItemRenderUC::new));
 
-    public static <I extends Item> RegistryObject<I> register(String name, Supplier<I> supplier) {
+    public static <I extends Item> RegistryObject<I> registerItem(String name, Supplier<I> supplier) {
 
         return addToTab(ITEMS.register(name, supplier));
     }
 
-    public static RegistryObject<BlockItem> register(String name, RegistryObject<Block> block) {
-
+/*  unused
+    public static RegistryObject<BlockItem> registerBlock(String name, RegistryObject<Block> block) {
         return addToTab(ITEMS.register(name, () -> new BlockItem(block.get(), defaultBuilder())));
     }
+ */
 
     public static RegistryObject<Item> registerFood(String name, FoodProperties food) {
 

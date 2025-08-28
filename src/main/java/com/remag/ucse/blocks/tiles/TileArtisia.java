@@ -10,6 +10,7 @@ import com.remag.ucse.network.PacketUCEffect;
 import com.remag.ucse.network.UCPacketDispatcher;
 import com.remag.ucse.network.UCPacketHandler;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -118,7 +119,8 @@ public class TileArtisia extends BaseTileUC {
             }
             if (ei.getItem().getCount() <= 0) ei.discard();
 
-            Optional<IArtisiaRecipe> seedRecipe = level.getRecipeManager().getRecipeFor(UCItems.ARTISIA_TYPE, UCUtils.wrap(stacks), level);
+            RecipeManager RM = level.getRecipeManager();
+            Optional<IArtisiaRecipe> seedRecipe = RM.getRecipeFor(UCItems.ARTISIA_TYPE, UCUtils.wrap(stacks), level);
             seedRecipe.ifPresent(recipe -> {
                if (!getLevel().isClientSide) {
                    RegistryAccess registryAccess = getLevel().registryAccess();

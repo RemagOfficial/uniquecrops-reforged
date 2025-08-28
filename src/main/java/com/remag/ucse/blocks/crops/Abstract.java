@@ -17,6 +17,8 @@ public class Abstract extends BaseCropsBlock {
     public Abstract() {
 
         super(UCItems.ABSTRACT, UCItems.ABSTRACT_SEED);
+        setBonemealable(false);
+        setClickHarvest(false);
     }
 
     @Override

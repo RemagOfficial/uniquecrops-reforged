@@ -40,7 +40,9 @@ public class Musica extends BaseCropsBlock implements EntityBlock {
             Items.MUSIC_DISC_STRAD,
             Items.MUSIC_DISC_WAIT,
             Items.MUSIC_DISC_WARD,
-            Items.MUSIC_DISC_OTHERSIDE
+            Items.MUSIC_DISC_OTHERSIDE,
+            Items.MUSIC_DISC_5,
+            Items.MUSIC_DISC_RELIC
     };
     static final int RANGE = 6;
 

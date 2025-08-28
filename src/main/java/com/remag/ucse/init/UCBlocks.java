@@ -164,9 +164,9 @@ public class UCBlocks {
         RegistryObject<B> block = BLOCKS.register(name, supplier);
         if (itemBlock) {
             if (!custom)
-                UCItems.ITEMS.register(name, () -> new BlockItem(block.get(), UCItems.defaultBuilder()));
+                UCItems.registerItem(name, () -> new BlockItem(block.get(), UCItems.defaultBuilder()));
             else
-                UCItems.ITEMS.register(name, () -> new ItemBlockUC(block.get()));
+                UCItems.registerItem(name, () -> new ItemBlockUC(block.get()));
         }
         return block;
     }
