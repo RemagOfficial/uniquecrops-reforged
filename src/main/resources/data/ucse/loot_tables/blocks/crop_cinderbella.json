@@ -12,17 +12,17 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_cinderbella",
+                  "block": "ucse:crop_cinderbella",
                   "properties": {
                     "age": "7"
                   }
                 }
               ],
-              "name": "uniquecrops:slipperglass"
+              "name": "ucse:slipperglass"
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedcinderbella"
+              "name": "ucse:seedcinderbella"
             }
           ]
         }
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedcinderbella",
+          "name": "ucse:seedcinderbella",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -48,7 +48,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_cinderbella",
+			  "block": "ucse:crop_cinderbella",
 			  "properties": {
 				"age": "7"
 			  }

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedhexis",
+          "name": "ucse:seedhexis",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -21,7 +21,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_hexis",
+			  "block": "ucse:crop_hexis",
 			  "properties": {
 				"age": "7"
 			  }
@@ -35,7 +35,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedhexis"
+          "name": "ucse:seedhexis"
         }
       ],
       "conditions": [

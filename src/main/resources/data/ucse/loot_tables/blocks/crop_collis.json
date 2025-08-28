@@ -12,17 +12,17 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_collis",
+                  "block": "ucse:crop_collis",
                   "properties": {
                     "age": "7"
                   }
                 }
               ],
-              "name": "uniquecrops:goldenrods"
+              "name": "ucse:goldenrods"
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedcollis"
+              "name": "ucse:seedcollis"
             }
           ]
         }
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedcollis",
+          "name": "ucse:seedcollis",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -48,7 +48,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_collis",
+			  "block": "ucse:crop_collis",
 			  "properties": {
 				"age": "7"
 			  }

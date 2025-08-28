@@ -9,11 +9,11 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:legalstuff",
+              "name": "ucse:legalstuff",
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_eula",
+                  "block": "ucse:crop_eula",
                   "properties": {
                     "age": "7"
                   }
@@ -22,7 +22,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedeula"
+              "name": "ucse:seedeula"
             }
           ]
         }
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedeula",
+          "name": "ucse:seedeula",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -48,7 +48,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_eula",
+			  "block": "ucse:crop_eula",
 			  "properties": {
 				"age": "7"
 			  }

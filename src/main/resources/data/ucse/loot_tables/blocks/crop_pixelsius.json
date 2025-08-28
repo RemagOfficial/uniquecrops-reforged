@@ -10,11 +10,11 @@
           "children": [
             {
               "type": "minecraft:item",
-			  "name": "uniquecrops:pixels",
+			  "name": "ucse:pixels",
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_pixelsius",
+                  "block": "ucse:crop_pixelsius",
                   "properties": {
                     "age": "7"
                   }
@@ -23,7 +23,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedpixelsius"
+              "name": "ucse:seedpixelsius"
             }
           ]
         }
@@ -35,7 +35,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedpixelsius",
+          "name": "ucse:seedpixelsius",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -52,7 +52,7 @@
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "uniquecrops:crop_pixelsius",
+          "block": "ucse:crop_pixelsius",
           "properties": {
             "age": "7"
           }

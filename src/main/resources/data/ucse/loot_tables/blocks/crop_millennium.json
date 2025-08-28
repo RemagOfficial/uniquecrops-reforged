@@ -9,11 +9,11 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:millenniumeye",
+              "name": "ucse:millenniumeye",
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_millennium",
+                  "block": "ucse:crop_millennium",
                   "properties": {
                     "age": "7"
                   }
@@ -22,7 +22,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedmillennium"
+              "name": "ucse:seedmillennium"
             }
           ]
         }
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedmillennium",
+          "name": "ucse:seedmillennium",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -48,7 +48,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_millennium",
+			  "block": "ucse:crop_millennium",
 			  "properties": {
 				"age": "7"
 			  }

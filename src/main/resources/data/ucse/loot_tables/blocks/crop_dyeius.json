@@ -328,7 +328,7 @@
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "uniquecrops:crop_dyeius",
+          "block": "ucse:crop_dyeius",
           "properties": {
             "age": "7"
           }
@@ -351,13 +351,13 @@
               }
             }
           ],
-          "name": "uniquecrops:seeddyeius"
+          "name": "ucse:seeddyeius"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "uniquecrops:crop_dyeius",
+          "block": "ucse:crop_dyeius",
           "properties": {
             "age": "7"
           }
@@ -369,7 +369,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seeddyeius"
+          "name": "ucse:seeddyeius"
         }
       ],
       "conditions": [

@@ -6,13 +6,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:book_discount"
+          "name": "ucse:book_discount"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "uniquecrops:crop_knowledge",
+          "block": "ucse:crop_knowledge",
           "properties": {
             "age": "7"
           }
@@ -24,7 +24,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedknowledge"
+          "name": "ucse:seedknowledge"
         }
       ],
       "conditions": [
@@ -38,7 +38,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedknowledge",
+          "name": "ucse:seedknowledge",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -53,7 +53,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_knowledge",
+			  "block": "ucse:crop_knowledge",
 			  "properties": {
 				"age": "7"
 			  }

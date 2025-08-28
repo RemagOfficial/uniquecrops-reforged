@@ -9,7 +9,7 @@
           "children": [
             {
               "type": "minecraft:item",
-			  "name": "uniquecrops:seedindustria",
+			  "name": "ucse:seedindustria",
 			  "functions": [
 				{
 				  "function": "minecraft:apply_bonus",
@@ -24,7 +24,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_industria",
+                  "block": "ucse:crop_industria",
                   "properties": {
                     "age": "7"
                   }
@@ -33,7 +33,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedindustria"
+              "name": "ucse:seedindustria"
             }
           ]
         }

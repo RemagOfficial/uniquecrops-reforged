@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seeddonutsteel"
+          "name": "ucse:seeddonutsteel"
         }
       ],
       "conditions": [

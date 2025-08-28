@@ -9,11 +9,11 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:weepingtear",
+              "name": "ucse:weepingtear",
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_weepingbells",
+                  "block": "ucse:crop_weepingbells",
                   "properties": {
                     "age": "7"
                   }
@@ -22,7 +22,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedweepingbells"
+              "name": "ucse:seedweepingbells"
             }
           ]
         }
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedweepingbells",
+          "name": "ucse:seedweepingbells",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -48,7 +48,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_weepingbells",
+			  "block": "ucse:crop_weepingbells",
 			  "properties": {
 				"age": "7"
 			  }

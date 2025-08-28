@@ -9,11 +9,11 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:lilytwine",
+              "name": "ucse:lilytwine",
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_enderlily",
+                  "block": "ucse:crop_enderlily",
                   "properties": {
                     "age": "7"
                   }
@@ -22,7 +22,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedenderlily"
+              "name": "ucse:seedenderlily"
             }
           ]
         }
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedenderlily",
+          "name": "ucse:seedenderlily",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -48,7 +48,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_enderlily",
+			  "block": "ucse:crop_enderlily",
 			  "properties": {
 				"age": "7"
 			  }

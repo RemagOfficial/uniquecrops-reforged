@@ -13,17 +13,17 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_invisibilia",
+                  "block": "ucse:crop_invisibilia",
                   "properties": {
                     "age": "7"
                   }
                 }
               ],
-              "name": "uniquecrops:invisitwine"
+              "name": "ucse:invisitwine"
             },
             {
               "type": "minecraft:item",
-              "name": "uniquecrops:seedinvisibilia"
+              "name": "ucse:seedinvisibilia"
             }
           ]
         }
@@ -46,13 +46,13 @@
               }
             }
           ],
-          "name": "uniquecrops:seedinvisibilia"
+          "name": "ucse:seedinvisibilia"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "uniquecrops:crop_invisibilia",
+          "block": "ucse:crop_invisibilia",
           "properties": {
             "age": "7"
           }

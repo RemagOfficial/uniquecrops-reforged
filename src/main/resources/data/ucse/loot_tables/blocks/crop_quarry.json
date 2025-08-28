@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedquarry"
+          "name": "ucse:seedquarry"
         }
       ],
       "conditions": [

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedpetramia"
+          "name": "ucse:seedpetramia"
         }
       ],
       "conditions": [

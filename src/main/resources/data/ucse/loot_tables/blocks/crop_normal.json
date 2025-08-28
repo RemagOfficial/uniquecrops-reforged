@@ -12,7 +12,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "uniquecrops:crop_normal",
+                  "block": "ucse:crop_normal",
                   "properties": {
                     "age": "7"
                   }
@@ -23,7 +23,7 @@
             },
 			{
 			  "type": "minecraft:item",
-			  "name": "uniquecrops:seednormal"
+			  "name": "ucse:seednormal"
 			}
           ]
         }
@@ -34,7 +34,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-		  "name": "uniquecrops:seednormal",
+		  "name": "ucse:seednormal",
           "functions": [
             {
               "function": "minecraft:apply_bonus",
@@ -49,7 +49,7 @@
 		  "conditions": [
 			{
 			  "condition": "minecraft:block_state_property",
-			  "block": "uniquecrops:crop_normal",
+			  "block": "ucse:crop_normal",
 			  "properties": {
 				"age": "7"
 			  }

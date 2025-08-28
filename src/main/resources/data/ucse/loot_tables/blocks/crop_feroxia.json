@@ -17,13 +17,13 @@
               }
             }
           ],
-          "name": "uniquecrops:savageessence"
+          "name": "ucse:savageessence"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "uniquecrops:crop_feroxia",
+          "block": "ucse:crop_feroxia",
           "properties": {
             "age": "7"
           }
@@ -35,7 +35,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedferoxia"
+          "name": "ucse:seedferoxia"
         }
       ],
       "conditions": [

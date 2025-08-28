@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedwafflonia"
+          "name": "ucse:seedwafflonia"
         }
       ]
     },
@@ -17,11 +17,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:seedwafflonia",
+          "name": "ucse:seedwafflonia",
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "uniquecrops:crop_wafflonia",
+              "block": "ucse:crop_wafflonia",
               "properties": {
                 "age": "7"
               }
@@ -47,11 +47,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uniquecrops:uncookedwaffle",
+          "name": "ucse:uncookedwaffle",
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "uniquecrops:crop_wafflonia",
+              "block": "ucse:crop_wafflonia",
               "properties": {
                 "age": "7"
               }
