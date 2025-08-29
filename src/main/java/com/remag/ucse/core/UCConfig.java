@@ -81,6 +81,8 @@ public final class UCConfig {
                     .comment("Lets the Petramia crop convert obsidian instead of bedrock. Use if there are no bedrock nearby to convert.")
                     .define("convertObsidian", false);
 
+            builder.comment("At least 7 of these must be true, not counting selfSacrifice.");
+            builder.comment("NOTE: likesBrewing ignores this config and is always false");
             moonPhase = builder.define("moonPhase", true);
             hasTorch = builder.define("hasTorch", true);
             likesDarkness = builder.define("likesDarkness", true);

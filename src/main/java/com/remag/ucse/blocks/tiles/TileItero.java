@@ -62,9 +62,9 @@ public class TileItero extends BaseTileUC {
         if (gameCombos != null)
             return false;
 
-        int rand = 4 + level.random.nextInt(age + 1);
-        gameCombos = new int[rand];
-        for (int i = 0; i < gameCombos.length; i++) {
+        int puzzleSteps = 3 + (age / 2);
+        gameCombos = new int[puzzleSteps];
+        for (int i = 0; i < puzzleSteps; i++) {
             gameCombos[i] = level.random.nextInt(PLATES.length);
         }
         return true;
