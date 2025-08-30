@@ -630,6 +630,38 @@ public class UCRecipeProvider extends RecipeProvider {
                 .pattern("PPP")
                 .unlockedBy("has_item", has(UCBlocks.ROSEWOOD_PLANKS.get()))
                 .save(consumer);
+        recipe(RecipeCategory.MISC, UCItems.PRECISION_PICK.get(), 1)
+                .define('P', UCItems.PREGEM.get())
+                .define('S', Items.STICK)
+                .pattern("PPP")
+                .pattern(" S ")
+                .pattern(" S ")
+                .unlockedBy("has_item", has(UCItems.PREGEM.get()))
+                .save(consumer);
+        recipe(RecipeCategory.MISC, UCItems.PRECISION_AXE.get(), 1)
+                .define('P', UCItems.PREGEM.get())
+                .define('S', Items.STICK)
+                .pattern("PP ")
+                .pattern("PS ")
+                .pattern(" S ")
+                .unlockedBy("has_item", has(UCItems.PREGEM.get()))
+                .save(consumer);
+        recipe(RecipeCategory.MISC, UCItems.PRECISION_SHOVEL.get(), 1)
+                .define('P', UCItems.PREGEM.get())
+                .define('S', Items.STICK)
+                .pattern(" P ")
+                .pattern(" S ")
+                .pattern(" S ")
+                .unlockedBy("has_item", has(UCItems.PREGEM.get()))
+                .save(consumer);
+        recipe(RecipeCategory.MISC, UCItems.PRECISION_SWORD.get(), 1)
+                .define('P', UCItems.PREGEM.get())
+                .define('S', Items.STICK)
+                .pattern(" P ")
+                .pattern(" P ")
+                .pattern(" S ")
+                .unlockedBy("has_item", has(UCItems.PREGEM.get()))
+                .save(consumer);
 
         // stonecutting
 
