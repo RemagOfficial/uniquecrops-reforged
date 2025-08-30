@@ -66,9 +66,8 @@ public class PrecisionAxeItem extends AxeItem implements IBookUpgradeable {
             if (player.getMainHandItem().getItem() == this) {
                 ItemStack axe = player.getMainHandItem();
                 if (((IBookUpgradeable)axe.getItem()).isMaxLevel(axe)) {
-                    Random rand = (Random) el.level().random;
                     int looting = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, player.getMainHandItem());
-                    if (rand.nextInt(15) <= 2 + looting) {
+                    if (player.level().random.nextInt(15) <= 2 + looting) {
                         if (el instanceof Skeleton)
                             addDrop(event, new ItemStack(Items.SKELETON_SKULL));
                         if (el instanceof WitherSkeleton)
