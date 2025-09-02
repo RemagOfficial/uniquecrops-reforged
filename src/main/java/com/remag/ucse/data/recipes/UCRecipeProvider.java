@@ -522,9 +522,9 @@ public class UCRecipeProvider extends RecipeProvider {
                 .save(consumer);
         storage(RecipeCategory.MISC, UCBlocks.NORMIECRATE.get(), UCItems.NORMAL_SEED.get()).save(consumer);
         shapeless(RecipeCategory.MISC, UCItems.NORMAL_SEED.get(), UCBlocks.NORMIECRATE.get(), 9).save(consumer);
-        shapeless(RecipeCategory.MISC, Items.DIAMOND, UCBlocks.OLDDIAMOND.get(), 9).save(consumer);
-        shapeless(RecipeCategory.MISC, Items.GOLD_INGOT, UCBlocks.OLDGOLD.get(), 9).save(consumer);
-        shapeless(RecipeCategory.MISC, Items.IRON_INGOT, UCBlocks.OLDIRON.get(), 9).save(consumer);
+        shapeless(RecipeCategory.MISC, Items.DIAMOND, UCBlocks.OLDDIAMOND.get(), 9).save(consumer, "ucse:old_diamonds");
+        shapeless(RecipeCategory.MISC, Items.GOLD_INGOT, UCBlocks.OLDGOLD.get(), 9).save(consumer, "ucse:old_gold_ingots");
+        shapeless(RecipeCategory.MISC, Items.IRON_INGOT, UCBlocks.OLDIRON.get(), 9).save(consumer, "ucse:old_iron_ingots");
         recipe(RecipeCategory.MISC, UCItems.PIXEL_BRUSH.get(), 1)
                 .define('P', UCItems.PIXELS.get())
                 .define('I', UCItems.INVISITWINE.get())
@@ -661,6 +661,37 @@ public class UCRecipeProvider extends RecipeProvider {
                 .pattern(" P ")
                 .pattern(" S ")
                 .unlockedBy("has_item", has(UCItems.PREGEM.get()))
+                .save(consumer);
+        recipe(RecipeCategory.MISC, UCItems.PHANTOMSTAFF.get(), 1)
+                .define('L', Items.LEATHER)
+                .define('E', UCItems.MILLENNIUMEYE.get())
+                .define('S', Items.STICK)
+                .pattern("LEL")
+                .pattern(" S ")
+                .pattern(" S ")
+                .unlockedBy("has_item", has(UCItems.MILLENNIUMEYE.get()))
+                .save(consumer);
+        recipe(RecipeCategory.MISC, UCBlocks.DREAMCATCHER.get(), 1)
+                .define('E', Items.EMERALD)
+                .define('W', Items.COBWEB)
+                .define('S', UCItems.PHANTOMSTAFF.get())
+                .define('L', Items.LEATHER)
+                .pattern("SLS")
+                .pattern("LWL")
+                .pattern("ELE")
+                .unlockedBy("has_item", has(UCItems.PHANTOMSTAFF.get()))
+                .save(consumer);
+        recipe(RecipeCategory.MISC, UCItems.RUBIKS_CUBE.get(), 1)
+                .define('C', UCItems.CUBEYTHINGY.get())
+                .pattern("CCC")
+                .pattern("CCC")
+                .pattern("CCC")
+                .unlockedBy("has_item", has(UCItems.CUBEYTHINGY.get()))
+                .save(consumer);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, UCItems.ZOMBIE_SLURRY.get())
+                .requires(UCItems.PIXELS.get())
+                .requires(Items.ROTTEN_FLESH)
+                .unlockedBy("has_item", has(UCItems.PIXELS.get()))
                 .save(consumer);
 
         // stonecutting
