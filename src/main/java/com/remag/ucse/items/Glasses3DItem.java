@@ -22,12 +22,12 @@ public class Glasses3DItem extends ItemArmorUC implements IBookUpgradeable {
 
         if (world.isClientSide) return;
         if (!isMaxLevel(stack)) return;
-        if ((world.getGameTime() % 180) != 0) return;
+        if ((world.getGameTime() % 40) != 0) return;
 
         int light = world.getRawBrightness(player.blockPosition().offset(0, (int) player.getEyeHeight(), 0),
                                            world.getSkyDarken());
         if (light <= 3)
-            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 400));
+            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 250));
     }
 
     @Override
