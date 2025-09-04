@@ -35,6 +35,11 @@ public class Magnes extends BaseCropsBlock {
     }
 
     @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return true;
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 
         super.createBlockStateDefinition(builder);
@@ -75,9 +80,10 @@ public class Magnes extends BaseCropsBlock {
     @Override
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
-        super.randomTick(state, world, pos, rand);
         if (this.isMaxAge(state))
             magnetize(world, pos, state);
+        else
+            super.randomTick(state, world, pos, rand);
     }
 
     private void magnetize(ServerLevel world, BlockPos pos, BlockState state) {
