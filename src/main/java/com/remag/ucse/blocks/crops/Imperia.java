@@ -47,12 +47,20 @@ public class Imperia extends BaseCropsBlock {
         MinecraftForge.EVENT_BUS.addListener(this::checkEntityDeath);
     }
 
+    @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return true;
+    }
+
     private void checkDenySpawn(MobSpawnEvent.FinalizeSpawn event) {
 
+        if (event.getLevel().isClientSide())  return;
         ChunkPos cPos = new ChunkPos(event.getEntity().blockPosition());
-        if (!event.getLevel().isClientSide() && !event.getSpawnType().equals(MobSpawnType.SPAWNER) && event.getEntity() instanceof Monster || event.getEntity() instanceof Slime) {
-            if (UCProtectionHandler.getInstance().getChunkInfo(event.getEntity().level()).contains(cPos))
+        if (event.getSpawnType().equals(MobSpawnType.NATURAL) && event.getEntity() instanceof Monster || event.getEntity() instanceof Slime) {
+            if (UCProtectionHandler.getInstance().getChunkInfo(event.getEntity().level()).contains(cPos)) {
                 event.setResult(Event.Result.DENY);
+                event.setSpawnCancelled(true);
+            }
         }
     }
 
@@ -76,23 +84,19 @@ public class Imperia extends BaseCropsBlock {
     @Override
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
-        if (world.getDifficulty() != Difficulty.PEACEFUL) {
-            if (isMaxAge(state)) {
-                setChunksAsNeeded(world, pos, false);
-                return;
-            }
-            String[] mobList = new String[] { "minecraft:witch", "minecraft:skeleton", "minecraft:zombie", "minecraft:spider" };
-            EntityType type = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(mobList[rand.nextInt(mobList.length)]));
-            Entity entity = type.create(world);
-            if (!(entity instanceof LivingEntity)) return;
+        if (isMaxAge(state) || world.isClientSide() || (world.getDifficulty() == Difficulty.PEACEFUL))
+            return;
 
-            entity.setPos(pos.getX(), pos.getY() + 0.5D, pos.getZ());
-            CompoundTag tag = entity.getPersistentData();
-            tag.put("ImperiaPosTag", NbtUtils.writeBlockPos(pos));
-            tag.putInt("ImperiaStage", getAge(state));
-            world.addFreshEntity(entity);
-        }
-        super.randomTick(state, world, pos, rand);
+        String[] mobList = new String[] { "minecraft:witch", "minecraft:skeleton", "minecraft:zombie", "minecraft:spider" };
+        EntityType type = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(mobList[rand.nextInt(mobList.length)]));
+        Entity entity = type.create(world);
+        if (!(entity instanceof LivingEntity)) return;
+
+        entity.setPos(pos.getX(), pos.getY() + 0.25D, pos.getZ());
+        CompoundTag tag = entity.getPersistentData();
+        tag.put("ImperiaPosTag", NbtUtils.writeBlockPos(pos));
+        tag.putInt("ImperiaStage", getAge(state));
+        world.addFreshEntity(entity);
     }
 
     @Override
@@ -110,7 +114,7 @@ public class Imperia extends BaseCropsBlock {
         if (getAge(state) + 1 >= getMaxAge())
             setChunksAsNeeded(world, pos, false);
 
-        UCPacketHandler.sendToNearbyPlayers(world, pos, new PacketUCEffect(EnumParticle.CLOUD, pos.getX(), pos.getY(), pos.getZ(), 6));
+        UCPacketHandler.sendToNearbyPlayers(world, pos, new PacketUCEffect(EnumParticle.CLOUD, pos.getX()-0.5D, pos.getY()+0.5D, pos.getZ()-0.5D, 6));
         world.setBlock(pos, this.setValueAge(getAge(state) + 1), 3);
     }
 
