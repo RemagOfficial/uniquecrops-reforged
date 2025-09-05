@@ -1,5 +1,6 @@
 package com.remag.ucse.core.enums;
 
+import com.remag.ucse.blocks.crops.Feroxia;
 import com.remag.ucse.blocks.tiles.TileFeroxia;
 import com.remag.ucse.core.UCConfig;
 import com.remag.ucse.core.UCStrings;
@@ -32,6 +33,8 @@ import java.util.List;
 
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+
+import static net.minecraft.world.level.block.Block.UPDATE_ALL;
 
 public enum EnumGrowthSteps {
 
@@ -348,8 +351,12 @@ public enum EnumGrowthSteps {
                 if (!world.isClientSide && player != null) {
                     CompoundTag tag = player.getPersistentData();
                     if (!tag.contains("hasSacrificed")) {
-                        player.sendSystemMessage(Component.literal(ChatFormatting.RED + "The savage plant whispers: \"The Time is right to perform a self sacrifice.\""));
+                        player.sendSystemMessage(Component.literal(ChatFormatting.WHITE + "The savage plant whispers: \"The Time is right to perform a self sacrifice.\""));
                         tag.putBoolean("hasSacrificed", false);
+                    } else if (tag.getBoolean("hasSacrificed")) {
+                        Feroxia fc = (Feroxia) state.getBlock();
+                        world.setBlock(pos, fc.setValueAge(fc.getMaxAge()), UPDATE_ALL);
+                        tag.remove("hasSacrificed");
                     }
                 }
             }
