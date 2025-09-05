@@ -25,7 +25,6 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Random;
 
 public class PrecisionAxeItem extends AxeItem implements IBookUpgradeable {
 
@@ -52,12 +51,13 @@ public class PrecisionAxeItem extends AxeItem implements IBookUpgradeable {
             LivingEntity el = event.getEntity();
             ItemStack boots = el.getItemBySlot(EquipmentSlot.FEET);
             if (!boots.isEmpty() && player.getInventory().contains(new ItemStack(UCItems.SLIPPERGLASS.get()))) {
-                if (player.level().random.nextInt(5) == 0) {
+                if (player.level().random.nextInt(2) == 0) {
                     addDrop(event, new ItemStack(UCItems.GLASS_SLIPPERS.get()));
                     for (int i = 0; i < player.getInventory().items.size(); i++) {
-                        ItemStack oneboot = player.getInventory().getItem(i);
-                        if (oneboot.getItem() == UCItems.SLIPPERGLASS.get()) {
-                            player.getInventory().setItem(i, ItemStack.EMPTY);
+                        ItemStack singleslipper = player.getInventory().getItem(i);
+                        if (singleslipper.getItem() == UCItems.SLIPPERGLASS.get()) {
+                            singleslipper.shrink(1);
+                            //player.getInventory().setItem(i, ItemStack.EMPTY);
                             break;
                         }
                     }
