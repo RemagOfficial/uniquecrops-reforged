@@ -66,7 +66,7 @@ public class UCBlocks {
     public static final RegistryObject<Block> RUINEDBRICKSRED = register("ruinedbricksred", () -> new RotatedPillarBlock(Properties.copy(Blocks.STONE_BRICKS)));
     public static final RegistryObject<Block> DREAMCATCHER = register("dreamcatcher", DreamcatcherBlock::new);
     public static final RegistryObject<Block> HARVEST_TRAP = register("harvest_trap", HarvestTrapBlock::new);
-    public static final RegistryObject<Block> CROP_PORTAL = register("crop_portal", CropPortalBlock::new, false, false);
+    //public static final RegistryObject<Block> CROP_PORTAL = register("crop_portal", CropPortalBlock::new, false, false);
     public static final RegistryObject<Block> DEMO_CORD = register("demo_cord", DemoCordBlock::new);
     public static final RegistryObject<Block> TOTEMHEAD = register("totemhead", TotemheadBlock::new);
     public static final RegistryObject<Block> SUN_DIAL = register("sun_dial", SundialBlock::new);

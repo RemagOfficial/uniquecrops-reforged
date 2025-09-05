@@ -84,7 +84,7 @@ public class UCClient {
         ItemBlockRenderTypes.setRenderLayer(UCBlocks.ROSEWOOD_TRAPDOOR.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(UCBlocks.DREAMCATCHER.get(), RenderType.cutout());
 
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.CROP_PORTAL.get(), RenderType.translucent());
+        //ItemBlockRenderTypes.setRenderLayer(UCBlocks.CROP_PORTAL.get(), RenderType.translucent());
     }
 
     private static void registerScreens() {

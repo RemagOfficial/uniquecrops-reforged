@@ -896,6 +896,7 @@ public class UCRecipeProvider extends RecipeProvider {
                     put('G', new RecipeMultiblock.Slot(UCBlocks.WEATHERFLESIA.get().defaultBlockState().setValue(Weatherflesia.RAFFLESIA, EnumDirectional.SOUTHEAST)));
                 }}
         ));
+        /*
         consumer.accept(createMultiblock("cropworldportal",
                 UCItems.WILDWOOD_STAFF.get(),
                 50,
@@ -925,6 +926,7 @@ public class UCRecipeProvider extends RecipeProvider {
                     put('P', new RecipeMultiblock.Slot(UCBlocks.CROP_PORTAL.get()));
                 }}
         ));
+        */
         consumer.accept(createMultiblock("lignator",
                 UCItems.EMERADIC_DIAMOND.get(),
                 0,
