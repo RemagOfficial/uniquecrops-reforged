@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -78,6 +79,9 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
             else
                 slot.setChanged();
 
+            if (stack1.getCount() == stack.getCount())
+                return ItemStack.EMPTY;
+
             slot.onTake(player, stack1);
         }
         return stack;
@@ -101,6 +105,16 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
         }
 
         @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+
+        @Override
+        public int getMaxStackSize(@NotNull ItemStack stack) {
+            return 1;
+        }
+
+        @Override
         public void setChanged() {
 
             IItemHandler handler = getItemHandler();
@@ -114,6 +128,7 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
                 tile.setResult(result.get());
                 tile.setChanged();
             }
+            super.setChanged();
         }
 
         @Override
