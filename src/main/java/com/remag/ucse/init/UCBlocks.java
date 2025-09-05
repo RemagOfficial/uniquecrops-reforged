@@ -46,10 +46,10 @@ public class UCBlocks {
     public static final RegistryObject<Block> EGG_BASKET = register("egg_basket", EggBasketBlock::new);
     public static final RegistryObject<Block> GOBLET = register("goblet", GobletBlock::new);
     public static final RegistryObject<Block> HOURGLASS = register("hourglass", HourglassBlock::new, true, true);
-    public static final RegistryObject<Block> LILY_ENDER = registerLily("enderlily", () -> new BaseLilyBlock(EnumLily.ENDER));
-    public static final RegistryObject<Block> LILY_ICE = registerLily("icelily", () -> new BaseLilyBlock(EnumLily.ICE));
-    public static final RegistryObject<Block> LILY_JUNGLE = registerLily("junglelily", () -> new BaseLilyBlock(EnumLily.JUNGLE));
-    public static final RegistryObject<Block> LILY_LAVA = registerLily("lavalily", () -> new BaseLilyBlock(EnumLily.LAVA));
+    public static final RegistryObject<Block> LILY_ENDER = register("enderlily", () -> new BaseLilyBlock(EnumLily.ENDER));
+    public static final RegistryObject<Block> LILY_ICE = register("icelily", () -> new BaseLilyBlock(EnumLily.ICE));
+    public static final RegistryObject<Block> LILY_JUNGLE = register("junglelily", () -> new BaseLilyBlock(EnumLily.JUNGLE));
+    public static final RegistryObject<Block> LILY_LAVA = register("lavalily", () -> new BaseLilyBlock(EnumLily.LAVA));
     public static final RegistryObject<Block> NORMIECRATE = register("normiecrate", () -> new Block(Properties.of().sound(SoundType.WOOD).strength(0.25F, 5.0F).mapColor(MapColor.WOOD)));
     public static final RegistryObject<Block> OBTUSE_PLATFORM = register("obtuse_platform", ObtusePlatformBlock::new);
     public static final RegistryObject<Block> OLDCOBBLE = register("oldcobble", () -> new Block(Properties.copy(Blocks.COBBLESTONE)));
@@ -144,14 +144,6 @@ public class UCBlocks {
     public static <B extends BaseCropsBlock> RegistryObject<B> registerCrop(String name, Supplier<? extends B> supplier) {
 
         return BLOCKS.register("crop_" + name, supplier);
-    }
-
-    public static <B extends Block> RegistryObject<B> registerLily(String name, Supplier<? extends B> supplier) {
-
-        RegistryObject<B> block = BLOCKS.register(name, supplier);
-        UCItems.ITEMS.register(name, () -> new BlockItem(block.get(), UCItems.defaultBuilder()));
-
-        return block;
     }
 
     private static <B extends Block> RegistryObject<B> register(String name, Supplier<? extends B> supplier) {
