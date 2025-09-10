@@ -1,5 +1,7 @@
 package com.remag.ucse.entities;
 
+import com.remag.ucse.api.IHeaterRecipe;
+import com.remag.ucse.api.IHourglassRecipe;
 import com.remag.ucse.core.enums.EnumParticle;
 import com.remag.ucse.init.UCItems;
 import com.remag.ucse.network.PacketUCEffect;
@@ -11,11 +13,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -46,15 +50,13 @@ public class CookingItemEntity extends ItemEntity {
     @Override
     public void tick() {
 
-        super.tick();
-
         int cookTime = getCookingTime();
-        if (cookTime > 0 && random.nextBoolean())
+        if (cookTime > 0 && random.nextInt(6) == 0)
             UCPacketHandler.sendToNearbyPlayers(this.level(), this.blockPosition(), new PacketUCEffect(EnumParticle.SMOKE, this.getX() - 0.5, this.getY() + 0.1, this.getZ() - 0.5, 0));
         if (cookTime >= 100) {
             UCPacketHandler.sendToNearbyPlayers(this.level(), this.blockPosition(), new PacketUCEffect(EnumParticle.FLAME, this.getX(), this.getY() + 0.2, this.getZ(), 5));
             if (!this.level().isClientSide)
-                Containers.dropItemStack(this.level(), this.getX(), this.getY(), this.getZ(), getCookedItem());
+                Containers.dropItemStack(this.level(), this.getX(), this.getY()+0.5D, this.getZ(), getCookedItem());
             this.discard();
             return;
         }
@@ -64,6 +66,8 @@ public class CookingItemEntity extends ItemEntity {
             setCustomName(Component.literal(cookTime + "%"));
             setCookingTime(++cookTime);
         }
+
+        super.tick();
     }
 
     public void setCookingTime(int time) {
@@ -80,16 +84,18 @@ public class CookingItemEntity extends ItemEntity {
 
         RegistryAccess registryAccess = this.level().registryAccess();
         AtomicReference<ItemStack> result = new AtomicReference<>(new ItemStack(UCItems.USELESS_LUMP.get()));
-        this.level().getRecipeManager().getRecipeFor(UCItems.HEATER_TYPE, wrap(this.getItem()), this.level())
-                .ifPresent(recipe -> {
-                   result.set(recipe.getResultItem(registryAccess).copy());
-                   result.get().setCount(this.getItem().getCount());
-                });
-        this.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, wrap(this.getItem()), this.level())
-                .ifPresent(recipe -> {
-                   result.set(recipe.getResultItem(registryAccess).copy());
-                   result.get().setCount(this.getItem().getCount());
-                });
+
+        IHeaterRecipe ihr = findRecipe(this.level(), this.getItem());
+        if (ihr != null) {  // Cocito-specific smelting recipe
+           result.set(ihr.getResultItem());
+           result.get().setCount(this.getItem().getCount());
+        } else {
+            this.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, wrap(this.getItem()), this.level())
+                    .ifPresent(recipe -> {
+                        result.set(recipe.getResultItem(registryAccess).copy());
+                        result.get().setCount(this.getItem().getCount());
+                    });
+        }
         return result.get();
     }
 
@@ -99,5 +105,15 @@ public class CookingItemEntity extends ItemEntity {
         inv.setItem(0, stack);
 
         return inv;
+    }
+
+    private static IHeaterRecipe findRecipe(Level world, ItemStack stack) {
+
+        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
+            if (recipe instanceof IHeaterRecipe && ((IHeaterRecipe)recipe).matches(stack))
+                return ((IHeaterRecipe)recipe);
+        }
+
+        return null;
     }
 }

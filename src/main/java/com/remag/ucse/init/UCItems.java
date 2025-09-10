@@ -4,6 +4,7 @@ import com.remag.ucse.UniqueCrops;
 import com.remag.ucse.api.*;
 import com.remag.ucse.blocks.BaseCropsBlock;
 import com.remag.ucse.core.enums.EnumArmorMaterial;
+import com.remag.ucse.crafting.RecipeEnchanter;
 import com.remag.ucse.items.*;
 import com.remag.ucse.items.base.*;
 import com.remag.ucse.items.curios.*;

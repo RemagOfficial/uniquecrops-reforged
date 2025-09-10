@@ -23,7 +23,7 @@ public interface IEnchanterRecipe extends Recipe<Container> {
     @Override
     default boolean canCraftInDimensions(int width, int height) {
 
-        return false;
+        return true;
     }
 
     @Override

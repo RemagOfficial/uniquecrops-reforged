@@ -22,7 +22,8 @@ public enum EnumParticle {
     WHITE_ASH(ParticleTypes.WHITE_ASH),
     GREEN_SPARK(ParticleTypes.SCRAPE),
     ORANGE_SPARK(ParticleTypes.WAX_ON),
-    ANGRY(ParticleTypes.ANGRY_VILLAGER);
+    ANGRY(ParticleTypes.ANGRY_VILLAGER),
+    ENCHANT(ParticleTypes.ENCHANT);
 
     final ParticleOptions type;
 

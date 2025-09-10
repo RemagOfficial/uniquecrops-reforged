@@ -1,17 +1,21 @@
 package com.remag.ucse.blocks.tiles;
 
 import com.remag.ucse.api.IEnchanterRecipe;
+import com.remag.ucse.api.IHeaterRecipe;
 import com.remag.ucse.blocks.BaseCropsBlock;
 import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.core.enums.EnumParticle;
 import com.remag.ucse.init.UCBlocks;
 import com.remag.ucse.init.UCItems;
+import com.remag.ucse.init.UCRecipes;
 import com.remag.ucse.init.UCTiles;
 import com.remag.ucse.items.StaffWildwoodItem;
 import com.remag.ucse.network.PacketUCEffect;
 import com.remag.ucse.network.UCPacketHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -67,7 +71,7 @@ public class TileFascino extends BaseTileUC {
 
     public void tickServer() {
 
-        if (showMissingCrops)
+        if (showMissingCrops && (enchantingTicks % 3 == 0))
             loopMissingCrops();
 
         if (stage == Stage.IDLE) return;
@@ -82,49 +86,49 @@ public class TileFascino extends BaseTileUC {
             BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
             BlockState loopState = level.getBlockState(loopPos);
             if (loopState.getBlock() != UCBlocks.HEXIS_CROP.get()) {
-                UCPacketHandler.sendToNearbyPlayers(level, loopPos, new PacketUCEffect(EnumParticle.SMOKE, loopPos.getX() - 0.5, loopPos.getY() + 0.1, loopPos.getZ() - 0.5, 4));
+                UCPacketHandler.sendToNearbyPlayers(level, loopPos, new PacketUCEffect(EnumParticle.ENCHANT, loopPos.getX() - 0.5D, loopPos.getY() + 0.25D, loopPos.getZ() - 0.5D, 2));
             }
         }
     }
 
     public void checkEnchants(Player player, ItemStack staff) {
 
-            Optional<IEnchanterRecipe> fascinoRecipe = level.getRecipeManager().getRecipeFor(UCItems.ENCHANTER_TYPE, wrap(), level);
-            if (!fascinoRecipe.isPresent())
+            IEnchanterRecipe fascinoRecipe = findRecipe(level, wrap());
+            if (fascinoRecipe == null) {
                 player.displayClientMessage(Component.translatable("ucse.enchanting.unknownrecipe"), true);
+                return;
+            }
 
-            fascinoRecipe.ifPresent(recipe -> {
-                    ItemStack heldItem = ItemStack.EMPTY;
-                    this.showMissingCrops = false;
-                    for (ItemStack stack : player.getHandSlots()) {
-                        if (!stack.isEmpty() && stack.getItem().isEnchantable(stack) && stack.getItem() != UCItems.WILDWOOD_STAFF.get()) {
-                            heldItem = stack;
-                            break;
-                        }
-                    }
-                    if (heldItem.isEmpty()) {
-                        player.displayClientMessage(Component.translatable("ucse.enchanting.nothing"), true);
-                        return;
-                    }
-                    if (!recipe.getEnchantment().category.canEnchant(heldItem.getItem())) {
-                        player.displayClientMessage(Component.translatable("ucse.enchanting.unenchantable",heldItem.getDisplayName()), true);
-                        return;
-                    }
-                    if (EnchantmentHelper.getEnchantments(heldItem).containsKey(recipe.getEnchantment())) {
-                        player.displayClientMessage(Component.translatable("ucse.enchanting.enchantmentexists"), true);
-                        return;
-                    }
-                    Map<Enchantment, Integer> enchantSet = EnchantmentHelper.getEnchantments(heldItem);
-                    Set<Enchantment> enchantments = enchantSet.keySet();
-                    for (Enchantment ench : enchantments) {
-                        if (!ench.isCompatibleWith(recipe.getEnchantment())) {
-                            player.displayClientMessage(Component.translatable("ucse.enchanting.incompatible", ench.getDescriptionId()), true);
-                            return;
-                        }
-                    }
-                    prepareEnchanting(player, heldItem.getEnchantmentTags().size() + 1, staff, recipe.getCost());
-                    enchantItem = heldItem;
-            });
+            ItemStack heldItem = ItemStack.EMPTY;
+            this.showMissingCrops = false;
+            for (ItemStack stack : player.getHandSlots()) {
+                if (!stack.isEmpty() && stack.getItem().isEnchantable(stack) && stack.getItem() != UCItems.WILDWOOD_STAFF.get()) {
+                    heldItem = stack;
+                    break;
+                }
+            }
+            if (heldItem.isEmpty()) {
+                player.displayClientMessage(Component.translatable("ucse.enchanting.nothing"), true);
+                return;
+            }
+            if (!fascinoRecipe.getEnchantment().category.canEnchant(heldItem.getItem())) {
+                player.displayClientMessage(Component.translatable("ucse.enchanting.unenchantable",heldItem.getDisplayName()), true);
+                return;
+            }
+            if (EnchantmentHelper.getEnchantments(heldItem).containsKey(fascinoRecipe.getEnchantment())) {
+                player.displayClientMessage(Component.translatable("ucse.enchanting.enchantmentexists"), true);
+                return;
+            }
+            Map<Enchantment, Integer> enchantSet = EnchantmentHelper.getEnchantments(heldItem);
+            Set<Enchantment> enchantments = enchantSet.keySet();
+            for (Enchantment ench : enchantments) {
+                if (!ench.isCompatibleWith(fascinoRecipe.getEnchantment())) {
+                    player.displayClientMessage(Component.translatable("ucse.enchanting.incompatible", ench.getDescriptionId()), true);
+                    return;
+                }
+            }
+            prepareEnchanting(player, heldItem.getEnchantmentTags().size() + 1, staff, fascinoRecipe.getCost());
+            enchantItem = heldItem;
     }
 
     private SimpleContainer wrap() {
@@ -142,16 +146,26 @@ public class TileFascino extends BaseTileUC {
         return inv;
     }
 
+    private static IEnchanterRecipe findRecipe(Level world, SimpleContainer con) {
+
+        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
+            if (recipe instanceof IEnchanterRecipe && ((IEnchanterRecipe)recipe).matches(con, world))
+                return ((IEnchanterRecipe)recipe);
+        }
+
+        return null;
+    }
+
     private void prepareEnchanting(Player player, int enchantmentSize, ItemStack staff, int powerCost) {
 
-        int maxGrowth = 7;
+        int youngestAge = 7;
         for (int i = 0; i < ENCHPOS.length; i++) {
             BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
             BlockState loopState = level.getBlockState(loopPos);
             if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
                 int age = loopState.getValue(BaseCropsBlock.AGE);
-                if (age < maxGrowth)
-                    maxGrowth = age;
+                if (age < youngestAge)
+                    youngestAge = age;
             }
             else {
                 player.displayClientMessage(Component.translatable("ucse.enchanting.missingcrops"), true);
@@ -160,12 +174,12 @@ public class TileFascino extends BaseTileUC {
                 return;
             }
         }
-        if (maxGrowth < enchantmentSize) {
-            player.displayClientMessage(Component.translatable("ucse.enchanting.cropgrowth",enchantmentSize), true);
+        if (youngestAge < enchantmentSize) {
+            player.displayClientMessage(Component.translatable("ucse.enchanting.cropgrowth", enchantmentSize), true);
             enchantItem = ItemStack.EMPTY;
             return;
         }
-        if (!StaffWildwoodItem.adjustPower(staff, powerCost)) {
+        if (!StaffWildwoodItem.adjustPower(staff, (player.isCreative() ? 0 : powerCost))) {
             player.displayClientMessage(Component.translatable("ucse.enchanting.notenoughpower", powerCost), true);
             enchantItem = ItemStack.EMPTY;
             return;
@@ -242,17 +256,23 @@ public class TileFascino extends BaseTileUC {
             enchantItem = ItemStack.EMPTY;
             return;
         }
-        Optional<IEnchanterRecipe> enchanterRecipe = level.getRecipeManager().getRecipeFor(UCItems.ENCHANTER_TYPE, wrap(), level);
-        if (!enchanterRecipe.isPresent()) {
+        IEnchanterRecipe enchanterRecipe = findRecipe(level, wrap());
+        if (enchanterRecipe == null) {
             advanceStage();
             player.displayClientMessage(Component.translatable("ucse.enchanting.unknownrecipe"), true);
-        }
-        if (enchanterRecipe.isPresent()) {
-            IEnchanterRecipe recipe = enchanterRecipe.get();
-            recipe.applyEnchantment(heldItem);
+        } else {
+            enchanterRecipe.applyEnchantment(heldItem);
             this.clearInv();
             advanceStage();
             level.levelEvent(2004, getBlockPos().offset(0, 1, 0), 0);
+            for (int i = 0; i < ENCHPOS.length; i++) {
+                BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
+                BlockState loopState = level.getBlockState(loopPos);
+                if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
+                    int age = loopState.getValue(BaseCropsBlock.AGE);
+                    level.setBlockAndUpdate(loopPos, loopState.setValue(BaseCropsBlock.AGE, Math.max(age - 1, 0)));
+                }
+            }
         }
         enchantItem = ItemStack.EMPTY;
     }
@@ -264,7 +284,7 @@ public class TileFascino extends BaseTileUC {
             BlockState loopState = level.getBlockState(loopPos);
             if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
                 int size = 4;
-                ((ServerLevel)level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, loopState), loopPos.getX(), (double)loopPos.getY() + loopState.getShape(level, loopPos).max(Direction.Axis.Y), loopPos.getZ(), size, ((double)this.getBlockPos().getX() - loopPos.getX()) / 8, 0, ((double)this.getBlockPos().getZ() - loopPos.getZ()) / 8, 0.25F);
+                ((ServerLevel)level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, loopState), loopPos.getX(), (double)loopPos.getY() + 0.25D + loopState.getShape(level, loopPos).max(Direction.Axis.Y), loopPos.getZ(), size, ((double)this.getBlockPos().getX() - loopPos.getX()) / 8, 0, ((double)this.getBlockPos().getZ() - loopPos.getZ()) / 8, 0.25F);
             }
         }
     }

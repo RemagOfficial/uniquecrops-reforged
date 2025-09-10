@@ -4,13 +4,13 @@ import com.remag.ucse.api.IArtisiaRecipe;
 import com.remag.ucse.blocks.crops.Artisia;
 import com.remag.ucse.core.UCUtils;
 import com.remag.ucse.core.enums.EnumParticle;
-import com.remag.ucse.init.UCItems;
+import com.remag.ucse.crafting.RecipeArtisia;
 import com.remag.ucse.init.UCTiles;
 import com.remag.ucse.network.PacketUCEffect;
 import com.remag.ucse.network.UCPacketDispatcher;
 import com.remag.ucse.network.UCPacketHandler;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +21,6 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class TileArtisia extends BaseTileUC {
 
@@ -119,18 +118,27 @@ public class TileArtisia extends BaseTileUC {
             }
             if (ei.getItem().getCount() <= 0) ei.discard();
 
-            RecipeManager RM = level.getRecipeManager();
-            Optional<IArtisiaRecipe> seedRecipe = RM.getRecipeFor(UCItems.ARTISIA_TYPE, UCUtils.wrap(stacks), level);
-            seedRecipe.ifPresent(recipe -> {
-               if (!getLevel().isClientSide) {
-                   RegistryAccess registryAccess = getLevel().registryAccess();
-                    ItemStack output = recipe.getResultItem(registryAccess).copy();
+            if (!getLevel().isClientSide) {
+                IArtisiaRecipe artisiaRecipe = RecipeArtisia.findRecipe(stacks, getLevel());
+                if (artisiaRecipe != null) {
+                    ItemStack output = artisiaRecipe.getResultItem();
                     clearItems();
                     this.setItem(output);
-               }
-            });
+                };
+            }
         }
     }
+
+    /*
+    private static IHourglassRecipe findRecipe(Level world, BlockState state) {
+
+        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
+            if (recipe instanceof IHourglassRecipe && ((IHourglassRecipe)recipe).matches(state))
+                return ((IHourglassRecipe)recipe);
+        }
+        return null;
+    }
+    */
 
     private boolean canAccept(BlockPos pos) {
 

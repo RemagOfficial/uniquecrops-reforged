@@ -50,14 +50,14 @@ public class RecipeEnchanter implements IEnchanterRecipe {
 
         if (!inputs.isEmpty()) {
             Ingredient ingredient = inputs.get(0);
-            int inputs = 0;
+            int inputsCount = 0;
             for (int i = 0; i < inv.getContainerSize(); i++) {
                 ItemStack stack = inv.getItem(i);
                 if (stack.isEmpty()) break;
                 if (ingredient.test(stack))
-                    inputs++;
+                    inputsCount++;
             }
-            return inputs == ingredient.getItems().length;
+            return inputsCount == ingredient.getItems().length;
         }
         return false;
     }
