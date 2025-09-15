@@ -42,6 +42,8 @@ public final class UCConfig {
         public final ForgeConfigSpec.IntValue millenniumTime;
         public final ForgeConfigSpec.IntValue cubeCooldown;
         public final ForgeConfigSpec.IntValue energyPerTick;
+        public final ForgeConfigSpec.IntValue cobbloniaSpeed;
+        public final ForgeConfigSpec.IntValue cobbloniaNoGenChance;
         public final ForgeConfigSpec.BooleanValue convertObsidian;
 
         public final ForgeConfigSpec.BooleanValue moonPhase;
@@ -77,6 +79,12 @@ public final class UCConfig {
             energyPerTick = builder
                     .comment("Amount of energy gained per tick while the Industria crop grows.")
                     .defineInRange("energyPerTick", 20, 1, 200);
+            cobbloniaSpeed = builder
+                    .comment("How much delay should there be between cobblestone generations from the Cobblonia seed")
+                    .defineInRange("cobbloniaSpeed", 20, 1, 200);
+            cobbloniaNoGenChance = builder
+                    .comment("The chance that Cobblonia seeds skip a cobblestone generation")
+                    .defineInRange("cobbloniaNoGenChance", 50, 0, 100);
             convertObsidian = builder
                     .comment("Lets the Petramia crop convert obsidian instead of bedrock. Use if there are no bedrock nearby to convert.")
                     .define("convertObsidian", false);
