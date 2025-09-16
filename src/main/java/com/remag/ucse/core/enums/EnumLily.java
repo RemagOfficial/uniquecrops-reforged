@@ -1,6 +1,7 @@
 package com.remag.ucse.core.enums;
 
 import com.remag.ucse.init.UCBlocks;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,8 +45,10 @@ public enum EnumLily {
         @Override
         public boolean isValidGround(BlockState state, BlockGetter reader, BlockPos pos) {
 
+            FluidState fluid = reader.getFluidState(pos);
             FluidState fluidUp = reader.getFluidState(pos.above());
-            return (state.getMapColor(reader, pos) == MapColor.ICE || state.getMapColor(reader, pos) == MapColor.WATER) && fluidUp.getType() == Fluids.EMPTY;
+            return ((state.is(BlockTags.ICE) || state.is(BlockTags.SNOW) || fluid.getType() == Fluids.WATER) &&
+                    fluidUp.getType() == Fluids.EMPTY);
         }
     },
     JUNGLE(ParticleTypes.ITEM_SLIME) {
@@ -100,7 +103,7 @@ public enum EnumLily {
 
         FluidState fluid = reader.getFluidState(pos);
         FluidState fluidUp = reader.getFluidState(pos.above());
-        return (fluid.getType() == Fluids.WATER || state.getMapColor(reader, pos) == MapColor.WATER) && fluidUp.getType() == Fluids.EMPTY;
+        return fluid.getType() == Fluids.WATER && fluidUp.getType() == Fluids.EMPTY;
     }
 
     public static void searchNearbyPads(Level world, BlockPos pos, Entity entity, Direction dir) {
