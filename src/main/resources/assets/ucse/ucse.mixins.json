@@ -7,8 +7,7 @@
     "AccessorRecipeManager",
     "MixinItemFood",
     "MixinFoodStats",
-    "MixinItemCombinerMenu",
-    "MixinAnvilMenu"
+    "MixinItemCombinerMenu"
   ],
   "client": [
     "MixinAnimatedTextureStitch",

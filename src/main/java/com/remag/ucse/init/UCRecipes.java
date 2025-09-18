@@ -31,7 +31,6 @@ public class UCRecipes {
             registerSerializer("heater", RecipeHeater.Serializer::new);
     public static final RegistryObject<RecipeSerializer<?>> MULTIBLOCK_SERIALIZER =
             registerSerializer("multiblock", RecipeMultiblock.Serializer::new);
-    // public static final RegistryObject<RecipeSerializer<?>> DISCOUNTBOOK_SERIALIZER = registerSerializer("discount_book", () -> new SimpleCraftingRecipeSerializer<>(RecipeDiscountBook::new));
 
     // Recipe Types
     public static final RegistryObject<RecipeType<RecipeArtisia>> ARTISIA_TYPE =

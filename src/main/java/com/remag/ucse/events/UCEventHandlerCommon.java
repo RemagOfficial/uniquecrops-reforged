@@ -65,7 +65,8 @@ public class UCEventHandlerCommon {
 
         if (left.isEmpty() || right.isEmpty()) return;
 
-        if ((left.getItem() == UCItems.BOOK_UPGRADE.get() && right.getItem() instanceof IBookUpgradeable) || (left.getItem() instanceof IBookUpgradeable && right.getItem() == UCItems.BOOK_UPGRADE.get())) {
+        if ((left.getItem() == UCItems.BOOK_UPGRADE.get() && right.getItem() instanceof IBookUpgradeable) ||
+                (left.getItem() instanceof IBookUpgradeable && right.getItem() == UCItems.BOOK_UPGRADE.get())) {
             ItemStack output = (left.getItem() instanceof IBookUpgradeable) ? left.copy() : right.copy();
             IBookUpgradeable upgrade = ((IBookUpgradeable)output.getItem());
             if (upgrade.isMaxLevel(output)) return;
@@ -77,6 +78,17 @@ public class UCEventHandlerCommon {
 
             event.setOutput(output);
             event.setCost(5);
+            return;
+        }
+
+        if ((left.getItem() == UCItems.BOOK_DISCOUNT.get() || right.getItem() == UCItems.BOOK_DISCOUNT.get())) {
+            ItemStack output = (left.getItem() == UCItems.BOOK_DISCOUNT.get()) ? right.copy() : left.copy();
+            if (output.getBaseRepairCost() > 0) {
+                output.setRepairCost(Math.max(0, output.getBaseRepairCost() - 6));
+                event.setOutput(output);
+                event.setCost(1);
+            }
+            return;
         }
     }
 
