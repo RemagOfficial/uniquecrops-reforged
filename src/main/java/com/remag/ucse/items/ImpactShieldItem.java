@@ -5,23 +5,29 @@ import com.remag.ucse.init.UCItems;
 import com.remag.ucse.items.base.ItemBaseUC;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 public class ImpactShieldItem extends ItemBaseUC {
 
     private static final String DAMAGE_POOL = "UC:ImpactShieldDamage";
+    private static long lastBlockTime = 0;
 
     public ImpactShieldItem() {
 
@@ -31,9 +37,10 @@ public class ImpactShieldItem extends ItemBaseUC {
 
     private void onShieldBlock(LivingAttackEvent event) {
 
-        if (event.getEntity().level().isClientSide || !(event.getEntity() instanceof Player player)) return;
+        Level level = event.getEntity().level();
+        if (level.isClientSide || !(event.getEntity() instanceof Player player)) return;
 
-        Holder<DamageType> magicDamage = player.level().registryAccess()
+        Holder<DamageType> magicDamage = level.registryAccess()
                 .registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(DamageTypes.MAGIC);
 
@@ -41,6 +48,11 @@ public class ImpactShieldItem extends ItemBaseUC {
         if (event.getSource() != source && event.getSource().getEntity() instanceof LivingEntity) {
             ItemStack activeStack = player.getUseItem();
             if (activeStack.getItem() == UCItems.IMPACT_SHIELD.get()) {
+                long blockTime = level.getGameTime();
+                if (blockTime - lastBlockTime >= 8) {
+                    level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
+                    lastBlockTime = blockTime;
+                }
                 damageImpactShield(player, activeStack, event.getAmount());
                 event.setCanceled(true);
             }
