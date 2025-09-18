@@ -5,7 +5,6 @@ import com.remag.ucse.items.base.ItemBaseUC;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -40,6 +39,8 @@ public class CinderleafItem extends ItemBaseUC {
 
     private boolean isWaterSource(Level world, BlockPos pos) {
 
-        return world.getFluidState(pos).is(FluidTags.WATER) && world.getFluidState(pos).isSource();
+        //return world.getFluidState(pos).is(FluidTags.WATER) && world.getFluidState(pos).isSource();
+        // Be nice and DON'T convert waterlogged blocks.
+        return world.getBlockState(pos).is(Blocks.WATER);
     }
 }
