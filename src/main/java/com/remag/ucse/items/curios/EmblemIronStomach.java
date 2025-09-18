@@ -22,12 +22,12 @@ public class EmblemIronStomach extends ItemCurioUC {
 
         if (!STRANGE_FOODS.isEmpty()) return;
 
-        STRANGE_FOODS.put(Tags.Items.NUGGETS, UCFoods.EDIBLE_NUGGET);
-        STRANGE_FOODS.put(Tags.Items.INGOTS, UCFoods.EDIBLE_INGOT);
-        STRANGE_FOODS.put(Tags.Items.GEMS, UCFoods.EDIBLE_GEM);
         STRANGE_FOODS.put(Tags.Items.INGOTS_GOLD, UCFoods.EDIBLE_GOLD);
         STRANGE_FOODS.put(Tags.Items.GEMS_DIAMOND, UCFoods.EDIBLE_DIAMOND);
         STRANGE_FOODS.put(Tags.Items.GEMS_EMERALD, UCFoods.EDIBLE_EMERALD);
+        STRANGE_FOODS.put(Tags.Items.NUGGETS, UCFoods.EDIBLE_NUGGET);
+        STRANGE_FOODS.put(Tags.Items.INGOTS, UCFoods.EDIBLE_INGOT);
+        STRANGE_FOODS.put(Tags.Items.GEMS, UCFoods.EDIBLE_GEM);
     }
 
     public static boolean containsTag(Item item) {
