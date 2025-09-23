@@ -20,6 +20,8 @@ import com.remag.ucse.network.PacketSyncCap;
 import com.remag.ucse.network.UCPacketHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.entity.LivingEntity;
@@ -61,35 +63,41 @@ public class UCEventHandlerCommon {
     public static void updateAnvilCost(AnvilUpdateEvent event) {
 
         ItemStack left = event.getLeft();
+        Item leftItem = left.getItem();
         ItemStack right = event.getRight();
+        Item rightItem = right.getItem();
+        ItemStack output = event.getOutput();
 
         if (left.isEmpty() || right.isEmpty()) return;
 
-        if ((left.getItem() == UCItems.BOOK_UPGRADE.get() && right.getItem() instanceof IBookUpgradeable) ||
-                (left.getItem() instanceof IBookUpgradeable && right.getItem() == UCItems.BOOK_UPGRADE.get())) {
-            ItemStack output = (left.getItem() instanceof IBookUpgradeable) ? left.copy() : right.copy();
-            IBookUpgradeable upgrade = ((IBookUpgradeable)output.getItem());
-            if (upgrade.isMaxLevel(output)) return;
+        if ((leftItem == UCItems.BOOK_UPGRADE.get() && rightItem instanceof IBookUpgradeable) ||
+                (leftItem instanceof IBookUpgradeable && rightItem == UCItems.BOOK_UPGRADE.get())) {
+            ItemStack newOutput = (leftItem instanceof IBookUpgradeable) ? left.copy() : right.copy();
+            IBookUpgradeable upgrade = ((IBookUpgradeable)newOutput.getItem());
+            if (upgrade.isMaxLevel(newOutput)) return;
 
-            if (upgrade.getLevel(output) <= 0)
-                upgrade.setLevel(output, 1);
+            if (upgrade.getLevel(newOutput) <= 0)
+                upgrade.setLevel(newOutput, 1);
             else
-                upgrade.setLevel(output, upgrade.getLevel(output) + 1);
+                upgrade.setLevel(newOutput, upgrade.getLevel(newOutput) + 1);
 
-            event.setOutput(output);
+            event.setOutput(newOutput);
             event.setCost(5);
             return;
         }
 
-        if ((left.getItem() == UCItems.BOOK_DISCOUNT.get() || right.getItem() == UCItems.BOOK_DISCOUNT.get())) {
-            ItemStack output = (left.getItem() == UCItems.BOOK_DISCOUNT.get()) ? right.copy() : left.copy();
-            if (output.getBaseRepairCost() > 0) {
-                output.setRepairCost(Math.max(0, output.getBaseRepairCost() - 6));
-                event.setOutput(output);
+        if ((leftItem == UCItems.BOOK_DISCOUNT.get() || rightItem == UCItems.BOOK_DISCOUNT.get())) {
+            ItemStack newOutput = (leftItem == UCItems.BOOK_DISCOUNT.get()) ? right.copy() : left.copy();
+            if (newOutput.getItem() != Items.ENCHANTED_BOOK &&
+                    (newOutput.isEnchantable() || newOutput.isEnchanted()) &&
+                    !NBTUtils.getBoolean(newOutput, UCStrings.TAG_DISCOUNT, false)) {
+                NBTUtils.setBoolean(newOutput, UCStrings.TAG_DISCOUNT, true);
+                event.setOutput(newOutput);
                 event.setCost(1);
             }
             return;
         }
+
     }
 
     public static void onBonemealEvent(BonemealEvent event) {
