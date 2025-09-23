@@ -40,6 +40,7 @@ public class GuiColorfulCube extends Screen {
     private static class InvisibleButton extends Button {
         public InvisibleButton(int x, int y, int width, int height, Component title, OnPress onPress) {
             super(x, y, width, height, title, onPress, Button.DEFAULT_NARRATION);
+            this.setAlpha(0.0f);
         }
     }
 
