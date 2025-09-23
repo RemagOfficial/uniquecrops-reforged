@@ -23,6 +23,8 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.ShieldBlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ImpactShieldItem extends ItemBaseUC {
 
@@ -35,6 +37,13 @@ public class ImpactShieldItem extends ItemBaseUC {
         MinecraftForge.EVENT_BUS.addListener(this::onShieldBlock);
     }
 
+    /*
+    private void onRealBlock(ShieldBlockEvent event) {
+    }
+    */
+
+    // This SHOULD be based on actual ShieldBlockEvent.
+    // That would involve registering the Impact Shield as a proper shield instead of handling its use ourselves.
     private void onShieldBlock(LivingAttackEvent event) {
 
         Level level = event.getEntity().level();
@@ -49,7 +58,7 @@ public class ImpactShieldItem extends ItemBaseUC {
             ItemStack activeStack = player.getUseItem();
             if (activeStack.getItem() == UCItems.IMPACT_SHIELD.get()) {
                 long blockTime = level.getGameTime();
-                if (blockTime - lastBlockTime >= 8) {
+                if (blockTime - lastBlockTime >= 10) {
                     level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
                     lastBlockTime = blockTime;
                 }
@@ -87,7 +96,7 @@ public class ImpactShieldItem extends ItemBaseUC {
         stack.setDamageValue(stack.getDamageValue() + 1);
         float strength = NBTUtils.getFloat(stack, DAMAGE_POOL, 0);
         if (stack.getDamageValue() > stack.getMaxDamage()) {
-            player.level().explode(player, player.getX(), player.getY(), player.getZ(), Math.min(strength, 50F), Level.ExplosionInteraction.NONE);
+            player.level().explode(player, player.getX(), player.getY(), player.getZ(), Math.min(strength, 20F), Level.ExplosionInteraction.NONE);
 
             stack.setDamageValue(0);
             player.getCooldowns().addCooldown(this, 300);
