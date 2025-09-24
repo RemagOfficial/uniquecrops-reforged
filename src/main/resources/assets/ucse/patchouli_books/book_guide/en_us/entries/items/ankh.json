@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.ankh",
+  "icon": "ucse:ankh",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:ankh",
+      "text": "ucse.book.page.ankh"
+    }
+  ]
+}

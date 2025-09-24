@@ -1,0 +1,16 @@
+{
+  "name": "item.ucse.rubiks_cube",
+  "icon": "ucse:rubiks_cube",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:rubiks_cube",
+      "text": "ucse.book.page.rubiks_cube1"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "ucse.book.page.rubiks_cube2"
+    }
+  ]
+}

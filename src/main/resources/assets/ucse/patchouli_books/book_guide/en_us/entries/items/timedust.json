@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.timedust",
+  "icon": "ucse:timedust",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:timedust",
+      "text": "ucse.book.page.timedust"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.steel_donut",
+  "icon": "ucse:steel_donut",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:steel_donut",
+      "text": "ucse.book.page.steel_donut"
+    }
+  ]
+}

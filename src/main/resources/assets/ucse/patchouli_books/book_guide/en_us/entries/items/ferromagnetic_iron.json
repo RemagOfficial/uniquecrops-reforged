@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.ferromagnetic_iron",
+  "icon": "ucse:ferromagnetic_iron",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:ferromagnetic_iron",
+      "text": "ucse.book.page.ferromagnetic_iron"
+    }
+  ]
+}

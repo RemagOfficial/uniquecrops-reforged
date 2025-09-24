@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.emblem_transformation",
+  "icon": "ucse:emblem_transformation",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:emblem_transformation",
+      "text": "ucse.book.page.emblem_transformation"
+    }
+  ]
+}

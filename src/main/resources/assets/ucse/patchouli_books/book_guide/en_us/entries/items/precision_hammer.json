@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.precision_hammer",
+  "icon": "ucse:precision_hammer",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:precision_hammer",
+      "text": "ucse.book.page.precision_hammer"
+    }
+  ]
+}

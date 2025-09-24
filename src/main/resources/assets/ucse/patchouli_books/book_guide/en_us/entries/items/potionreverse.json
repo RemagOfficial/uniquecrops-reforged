@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.potionreverse",
+  "icon": "ucse:potionreverse",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:potionreverse",
+      "text": "ucse.book.page.potionreverse"
+    }
+  ]
+}

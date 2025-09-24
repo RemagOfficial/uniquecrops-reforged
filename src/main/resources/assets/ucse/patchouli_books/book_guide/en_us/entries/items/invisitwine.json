@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.invisitwine",
+  "icon": "ucse:invisitwine",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:invisitwine",
+      "text": "ucse.book.page.invisitwine"
+    }
+  ]
+}

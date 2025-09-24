@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.large_plum",
+  "icon": "ucse:large_plum",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:large_plum",
+      "text": "ucse.book.page.large_plum"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.emblem_defense",
+  "icon": "ucse:emblem_defense",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:emblem_defense",
+      "text": "ucse.book.page.emblem_defense"
+    }
+  ]
+}

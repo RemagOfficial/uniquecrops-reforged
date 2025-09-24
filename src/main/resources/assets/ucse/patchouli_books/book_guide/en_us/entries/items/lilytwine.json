@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.lilytwine",
+  "icon": "ucse:lilytwine",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:lilytwine",
+      "text": "ucse.book.page.lilytwine"
+    }
+  ]
+}

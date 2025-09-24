@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.timemeal",
+  "icon": "ucse:timemeal",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:timemeal",
+      "text": "ucse.book.page.timemeal"
+    }
+  ]
+}

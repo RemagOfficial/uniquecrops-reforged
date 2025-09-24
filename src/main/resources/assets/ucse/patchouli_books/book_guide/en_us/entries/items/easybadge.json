@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.easybadge",
+  "icon": "ucse:easybadge",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:easybadge",
+      "text": "ucse.book.page.easybadge"
+    }
+  ]
+}

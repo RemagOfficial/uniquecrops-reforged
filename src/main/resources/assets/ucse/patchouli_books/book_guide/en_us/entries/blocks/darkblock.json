@@ -1,0 +1,12 @@
+{
+  "name": "block.ucse.darkblock",
+  "icon": "ucse:darkblock",
+  "category": "ucse:blocks",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:darkblock",
+      "text": "ucse.book.page.darkblock"
+    }
+  ]
+}

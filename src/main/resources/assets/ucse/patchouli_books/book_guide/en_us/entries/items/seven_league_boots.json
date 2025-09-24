@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.seven_league_boots",
+  "icon": "ucse:seven_league_boots",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:seven_league_boots",
+      "text": "ucse.book.page.seven_league_boots"
+    }
+  ]
+}

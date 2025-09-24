@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.batstaff",
+  "icon": "ucse:batstaff",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:batstaff",
+      "text": "ucse.book.page.batstaff"
+    }
+  ]
+}

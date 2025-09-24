@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.potionignorance",
+  "icon": "ucse:potionignorance",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:potionignorance",
+      "text": "ucse.book.page.potionignorance"
+    }
+  ]
+}

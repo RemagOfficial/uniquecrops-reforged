@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.endersnooker",
+  "icon": "ucse:endersnooker",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:endersnooker",
+      "text": "ucse.book.page.endersnooker"
+    }
+  ]
+}

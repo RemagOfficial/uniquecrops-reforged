@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.escaperope",
+  "icon": "ucse:escaperope",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:escaperope",
+      "text": "ucse.book.page.escaperope"
+    }
+  ]
+}

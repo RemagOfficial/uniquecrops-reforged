@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.emblem_weight",
+  "icon": "ucse:emblem_weight",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:emblem_weight",
+      "text": "ucse.book.page.emblem_weight"
+    }
+  ]
+}

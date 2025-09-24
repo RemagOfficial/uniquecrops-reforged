@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.weepingeye",
+  "icon": "ucse:weepingeye",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:weepingeye",
+      "text": "ucse.book.page.weepingeye"
+    }
+  ]
+}

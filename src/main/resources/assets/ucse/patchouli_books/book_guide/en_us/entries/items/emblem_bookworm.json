@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.emblem_bookworm",
+  "icon": "ucse:emblem_bookworm",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:emblem_bookworm",
+      "text": "ucse.book.page.emblem_bookworm"
+    }
+  ]
+}

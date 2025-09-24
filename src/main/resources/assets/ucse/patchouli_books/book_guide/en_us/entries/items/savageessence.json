@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.savageessence",
+  "icon": "ucse:savageessence",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:savageessence",
+      "text": "ucse.book.page.savageessence"
+    }
+  ]
+}

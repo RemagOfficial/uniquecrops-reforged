@@ -1,0 +1,12 @@
+{
+  "name": "block.ucse.lavalily",
+  "icon": "ucse:lavalily",
+  "category": "ucse:blocks",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:lavalily",
+      "text": "ucse.book.page.lavalily"
+    }
+  ]
+}

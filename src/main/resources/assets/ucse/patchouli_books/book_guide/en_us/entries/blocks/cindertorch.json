@@ -1,0 +1,12 @@
+{
+  "name": "block.ucse.cindertorch",
+  "icon": "ucse:cindertorch",
+  "category": "ucse:blocks",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:cindertorch",
+      "text": "ucse.book.page.cindertorch"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.vampiric_ointment",
+  "icon": "ucse:vampiric_ointment",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:vampiric_ointment",
+      "text": "ucse.book.page.vampiric_ointment"
+    }
+  ]
+}
