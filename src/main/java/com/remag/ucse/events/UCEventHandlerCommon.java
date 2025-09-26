@@ -169,33 +169,45 @@ public class UCEventHandlerCommon {
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
 
         IMultiblockRecipe recipe = findRecipe(event.getLevel(), event.getPos());
+        if (event.getLevel().isClientSide)
+            return;
         if (recipe != null) {
             Player player = event.getEntity();
             ItemStack held = player.getItemInHand(event.getHand());
-            if (!ItemStack.isSameItem(held, recipe.getCatalyst())) return;
-            int cropPower = recipe.getPower();
-
-            LazyOptional<ICropPower> cap = held.getCapability(CPProvider.CROP_POWER, null);
-            if (cropPower > 0 && !cap.isPresent()) {
-                player.displayClientMessage(Component.literal("Crop power is not present in this item: " + held.getDisplayName()), true);
+            if (!ItemStack.isSameItem(held, recipe.getCatalyst()))
                 return;
-            }
-            cap.ifPresent(crop -> {
-                if (crop.getPower() < cropPower) {
-                    player.displayClientMessage(Component.literal("Insufficient crop power. Needed: " + cropPower), true);
+
+            int powerNeeded = recipe.getPower();
+            LazyOptional<ICropPower> cap = held.getCapability(CPProvider.CROP_POWER, null);
+            if (powerNeeded <= 0) { // recipe needs to consume non-Staff catalyst item
+                event.setCanceled(true);
+                if (!player.isCreative())
+                    held.shrink(1);
+            } else {    // recipe needs to deduct Staff power
+                if (!cap.isPresent()) {
+                    // Odd corner case of a Wildwood Staff that has no Crop Power capacity -- should never happen
                     event.setCanceled(true);
+                    player.displayClientMessage(Component.literal("Crop power is not present in this item: " + held.getDisplayName()), true);
+                    return;
                 }
-                else if (!player.isCreative()) {
-                    crop.remove(cropPower);
-                    if (player instanceof ServerPlayer)
-                        UCPacketHandler.sendTo((ServerPlayer)player, new PacketSyncCap(crop.serializeNBT()));
-                }
-            });
-            if (cropPower <= 0 && !event.getLevel().isClientSide && !player.isCreative()) {
-                held.shrink(1);
+                cap.ifPresent(crop -> {
+                    if (!player.isCreative() && (crop.getPower() < powerNeeded)) {
+                        player.displayClientMessage(Component.literal("Need " + powerNeeded + " Crop Power."), true);
+                    } else {
+                        event.setCanceled(true);
+                        if (!player.isCreative())
+                            crop.remove(powerNeeded);
+                        if (player instanceof ServerPlayer)
+                            UCPacketHandler.sendTo((ServerPlayer) player, new PacketSyncCap(crop.serializeNBT()));
+                    }
+                });
             }
-            recipe.setResult(event.getLevel(), event.getPos());
-            event.setCanceled(true);
+            // I canceled the normal interaction event above ONLY IF the multiblock formation cost was paid.
+            // Couldn't use a simple local boolean, it would be out of scope to the lambda. :/
+            if (event.isCanceled())
+                recipe.setResult(event.getLevel(), event.getPos());
+            else
+                event.setCanceled(true);
             player.swing(event.getHand());
         }
     }
