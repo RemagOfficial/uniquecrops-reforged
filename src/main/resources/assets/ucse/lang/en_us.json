@@ -604,8 +604,8 @@
   "key.ucse.pixelglasses": "Toggle Glasses Shader",
 
   "_comment14": "ENTITY",
-  "entity.ucse:battlecrop": "Battle Crop",
-  "death.attack.ucse:battlecrop": "%1$s got dusted",
+  "entity.ucse.battlecrop": "Battle Crop",
+  "death.attack.ucse.battlecrop": "%1$s got dusted",
   "death.attack.zombification": "And then %1$s became a zombie",
 
   "_comment15": "COMMANDS",

@@ -48,8 +48,11 @@ public abstract class ItemCurioUC extends ItemBaseUC implements ICurioItem {
 
     public boolean hasCurio(LivingEntity living, Item item) {
 
-        //noinspection UnstableApiUsage,removal,deprecation
-        return CuriosApi.getCuriosHelper().findFirstCurio(living, item).isPresent();
+        if (living == null)
+            return false;
+        else
+            //noinspection UnstableApiUsage,removal,deprecation
+            return CuriosApi.getCuriosHelper().findFirstCurio(living, item).isPresent();
     }
 
     public UUID getCurioUUID(ItemStack stack) {
