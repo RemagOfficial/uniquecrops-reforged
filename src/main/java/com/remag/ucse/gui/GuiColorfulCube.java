@@ -25,7 +25,7 @@ import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
-import java.lang.Math;
+import java.awt.*;
 
 public class GuiColorfulCube extends Screen {
 
@@ -62,17 +62,17 @@ public class GuiColorfulCube extends Screen {
         PoseStack ms = guiGraphics.pose();
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         Level level = Minecraft.getInstance().level;
-        ms.pushPose();
 
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         double time = (UCTickHandler.ticksInGame + UCTickHandler.partialTicks) * 12F;
 
-        // Since blitOffset no longer exists, use a small z-translation to replace it
-        ms.translate(0, 0, 0.001); // small positive offset to avoid z-fighting
+        ms.pushPose();
 
-        ms.scale(0.25F, 0.25F, 0.25F);
+        ms.translate(guiGraphics.guiWidth()/2, guiGraphics.guiHeight()/2, 0.001F); // small offset to avoid z-fighting
+
+        ms.scale(225f, 225f, 225f);
 
         Vec3i vec3 = this.getRotationVec();
         Vector3f vecf = new Vector3f(vec3.getX(), vec3.getY(), vec3.getZ());
@@ -84,46 +84,42 @@ public class GuiColorfulCube extends Screen {
 
             double rotationElapsed = time - lastRotationTime;
 
-            if (!north) {
-                float angleRad = (float) Math.toRadians(rotationElapsed);
-                Quaternionf quat = new Quaternionf();
-                quat.fromAxisAngleRad(vecf, angleRad);
-                ms.mulPose(quat);
-
-                if (rotationElapsed >= 90F) {
-                    this.lastRotationTime = -1;
-                    this.hasRotated = false;
-                }
-            } else {
-                float angleRad = (float) Math.toRadians(rotationElapsed + 90F);
+            if (north) {
                 Vector3f yAxis = new Vector3f(0f, 1f, 0f);
                 Quaternionf quat = new Quaternionf();
-                quat.fromAxisAngleRad(yAxis, angleRad);
+                quat.fromAxisAngleDeg(yAxis, (float)rotationElapsed + 90f);
                 ms.mulPose(quat);
 
                 if (rotationElapsed + 90F >= 180F) {
                     this.lastRotationTime = -1;
                     this.hasRotated = false;
                 }
+            } else {
+                Quaternionf quat = new Quaternionf();
+                quat.fromAxisAngleDeg(vecf, (float)rotationElapsed);
+                ms.mulPose(quat);
+
+                if (rotationElapsed >= 90F) {
+                    this.lastRotationTime = -1;
+                    this.hasRotated = false;
+                }
             }
         } else {
-            if (!north) {
-                float angleRad = (float) Math.toRadians(90);
-                Quaternionf quat = new Quaternionf();
-                quat.fromAxisAngleRad(vecf, angleRad);
-                ms.mulPose(quat);
-            } else {
-                float angleRad = (float) Math.toRadians(180);
+            if (north) {
                 Vector3f yAxis = new Vector3f(0f, 1f, 0f);
                 Quaternionf quat = new Quaternionf();
-                quat.fromAxisAngleRad(yAxis, angleRad);
+                quat.fromAxisAngleDeg(yAxis, 180f);
+                ms.mulPose(quat);
+            } else {
+                Quaternionf quat = new Quaternionf();
+                quat.fromAxisAngleDeg(vecf, 90f);
                 ms.mulPose(quat);
             }
         }
 
         ItemStack cubeStack = new ItemStack(UCItems.RUBIKS_CUBE.get());
 
-        MultiBufferSource.BufferSource renderBuffer = minecraft.renderBuffers().crumblingBufferSource();
+        MultiBufferSource.BufferSource renderBuffer = guiGraphics.bufferSource();
 
         // The packed light is 0xF000F0 for full brightness in MC — keep as is
         int packedLight = 0xF000F0;
