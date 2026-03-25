@@ -1,6 +1,5 @@
 package com.remag.ucse.gui;
 
-import com.mojang.logging.LogUtils;
 import com.remag.ucse.UniqueCrops;
 import com.remag.ucse.capabilities.CPProvider;
 import com.remag.ucse.core.UCConfig;
