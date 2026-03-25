@@ -34,6 +34,9 @@ public class UCTiles {
     public static final RegistryObject<BlockEntityType<TileSucco>> SUCCO = register("succo", TileSucco::new, set(UCBlocks.SUCCO_CROP));
     public static final RegistryObject<BlockEntityType<TileMusica>> MUSICA = register("musica", TileMusica::new, set(UCBlocks.MUSICA_CROP));
     public static final RegistryObject<BlockEntityType<TileHarvestTrap>> HARVESTTRAP = register("harvesttrap", TileHarvestTrap::new, set(UCBlocks.HARVEST_TRAP));
+    public static final RegistryObject<BlockEntityType<TileDyeius>> DYEIUS = register("dyeius", TileDyeius::new, set(UCBlocks.DYEIUS_CROP));
+    public static final RegistryObject<BlockEntityType<TileInvisibilia>> INVISIBILIA = register("invisibilia", TileInvisibilia::new, set(UCBlocks.INVISIBILIA_CROP));
+    public static final RegistryObject<BlockEntityType<TileInvisibiliaGlass>> INVISIBILIA_GLASS = register("invisibilia_glass", TileInvisibiliaGlass::new, set(UCBlocks.INVISIBILIA_GLASS));
 
     private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register(String id, BlockEntityType.BlockEntitySupplier<T> factory, Supplier<Block[]> blocks) {
 
