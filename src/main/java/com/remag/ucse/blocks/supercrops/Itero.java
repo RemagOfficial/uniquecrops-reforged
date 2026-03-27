@@ -90,9 +90,10 @@ public class Itero extends BaseSuperCropsBlock implements EntityBlock {
         BlockEntity tile = world.getBlockEntity(pos);
         if (tile instanceof TileItero itero && !world.isClientSide) {
             itero.tryShowDemo();
-            itero.createCombos(state.getValue(AGE));
+            if (itero.createCombos(state.getValue(AGE)))
+                itero.tryShowDemo();
         }
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override

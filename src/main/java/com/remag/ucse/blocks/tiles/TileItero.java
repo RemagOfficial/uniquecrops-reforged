@@ -74,21 +74,22 @@ public class TileItero extends BaseTileUC {
 
         if (showDemo || gameCombos == null) return;
 
-        BlockPos subPos = this.worldPosition.subtract(pos);
+        BlockPos worldPos = this.worldPosition;
+        BlockPos subPos = worldPos.subtract(pos);
         if (gameIndex >= gameCombos.length) {
             reset();
             return;
         }
         if (PLATES[gameCombos[gameIndex]].equals(subPos)) {
             if (++this.gameIndex >= this.gameCombos.length) {
-                UCPacketHandler.sendToNearbyPlayers(level, this.worldPosition, new PacketUCEffect(EnumParticle.END_ROD, this.worldPosition.getX(), this.worldPosition.getY() + 0.3, this.worldPosition.getZ(), 4));
+                UCPacketHandler.sendToNearbyPlayers(level, worldPos, new PacketUCEffect(EnumParticle.END_ROD, worldPos.getX() - 0.5, worldPos.getY() + 0.6, worldPos.getZ() - 0.5, 4));
                 advanceStage();
                 reset();
                 return;
             }
-            UCPacketHandler.sendToNearbyPlayers(level, this.worldPosition, new PacketUCEffect(EnumParticle.HEART, this.worldPosition.getX(), this.worldPosition.getY() + 0.3, this.worldPosition.getZ(), 0));
+            UCPacketHandler.sendToNearbyPlayers(level, worldPos, new PacketUCEffect(EnumParticle.HEART, worldPos.getX(), worldPos.getY() + 0.3, worldPos.getZ(), 0));
         } else {
-            UCPacketHandler.sendToNearbyPlayers(level, this.worldPosition, new PacketUCEffect(EnumParticle.EXPLOSION, this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.3, this.worldPosition.getZ() + 0.5, 0));
+            UCPacketHandler.sendToNearbyPlayers(level, worldPos, new PacketUCEffect(EnumParticle.EXPLOSION, worldPos.getX(), worldPos.getY() + 0.3, worldPos.getZ(), 0));
             regressStage();
             reset();
         }
