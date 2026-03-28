@@ -80,6 +80,10 @@ minecraft {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
 
+            // Curios
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -120,10 +124,11 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     mavenCentral()
     maven {
-        url "https://maven.blamejared.com"
+        url = "https://maven.blamejared.com"
     }
     maven {
-        url "https://maven.theillusivec4.top/"
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
     }
     maven {
         url = 'https://api.modrinth.com/maven'
@@ -140,8 +145,8 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
-    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.14.1+${minecraft_version}:api")
-    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.14.1+${minecraft_version}")
+    compileOnly(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api"))
+    runtimeOnly(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}"))
     //runtimeOnly fg.deobf("curse.maven:curios-309927:6418456")
 
     runtimeOnly fg.deobf("maven.modrinth:jade:11.13.2+forge")
