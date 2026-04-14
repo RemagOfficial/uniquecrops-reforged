@@ -2,8 +2,11 @@ package com.remag.ucse.items;
 
 import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.core.UCUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import com.remag.ucse.init.UCItems;
 import com.remag.ucse.items.base.ItemBaseUC;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.entity.player.Player;
@@ -11,8 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.List;
 
 public class PixelBrushItem extends ItemBaseUC {
@@ -51,7 +53,11 @@ public class PixelBrushItem extends ItemBaseUC {
         if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_BIOME)) {
             ResourceLocation biomeId = ResourceLocation.tryParse(stack.getTag().getString(UCStrings.TAG_BIOME));
             Biome biome = world.registryAccess().registryOrThrow(Registries.BIOME).get(biomeId);
-            list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + ForgeRegistries.BIOMES.getKey(biome).getPath()));
+            ResourceLocation rl = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+            if (rl == null || rl.getPath().isEmpty())
+                list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + biomeId.toString()));
+            else
+                list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + rl.getPath()));
         } else {
             list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + "<NONE>"));
         }

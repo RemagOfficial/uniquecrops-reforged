@@ -1,6 +1,7 @@
 package com.remag.ucse.crafting;
 
 import com.remag.ucse.api.IArtisiaRecipe;
+import com.remag.ucse.core.UCUtils;
 import com.remag.ucse.init.UCRecipes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -8,6 +9,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -16,6 +18,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -132,4 +135,14 @@ public class RecipeArtisia implements IArtisiaRecipe {
             buf.writeItemStack(recipe.getResultItem(), false);
         }
     }
+
+    public static IArtisiaRecipe findRecipe(List<ItemStack> inputs, Level level) {
+
+        for (Recipe<?> recipe : level.getRecipeManager().getRecipes()) {
+            if (recipe instanceof IArtisiaRecipe && ((IArtisiaRecipe)recipe).matches(UCUtils.wrap(inputs), level))
+                return ((IArtisiaRecipe)recipe);
+        }
+        return null;
+    }
+
 }

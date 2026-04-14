@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.uncookedwaffle",
+  "icon": "ucse:uncookedwaffle",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:uncookedwaffle",
+      "text": "ucse.book.page.uncookedwaffle"
+    }
+  ]
+}

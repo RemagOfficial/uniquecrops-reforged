@@ -87,6 +87,7 @@ public class Knowledge extends BaseCropsBlock {
                                         Component newComponent = Component.literal(newString);
                                         tagList.set(j, StringTag.valueOf(Component.Serializer.toJson(newComponent)));
                                         result.set(j + 1);
+                                        i = cap.getSlots(); // skip remaining chest slots
                                     }
 
                                     tag.put("pages", tagList);

@@ -3,8 +3,10 @@
 /setx.bat
 /src/test/
 /src/main/generated/
+/src/generated/
 /.gradle/
 /.idea/
 /build/
 /gradle/
 /run/
+/run-data/

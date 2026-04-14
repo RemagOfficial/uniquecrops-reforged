@@ -1,5 +1,6 @@
 {
   "variants": {
-    "": { "model": "ucse:block/invisibilia_glass" }
+    "visible=false": { "model": "ucse:block/invisibilia_glass_b" },
+    "visible=true": { "model": "ucse:block/invisibilia_glass" }
   }
 }

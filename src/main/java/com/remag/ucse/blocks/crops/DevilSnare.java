@@ -44,11 +44,17 @@ public class DevilSnare extends BaseCropsBlock {
     }
 
     @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return true;
+    }
+
+    @Override
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
         if (world.getBrightness(LightLayer.SKY, pos) > 7) {
-            if (isMaxAge(state))
-                world.setBlock(pos, this.setValueAge(0), 2);
+            if (state.getValue(this.getAgeProperty()) > 0) {
+                world.setBlock(pos, this.setValueAge(0), UPDATE_CLIENTS);
+            }
             return;
         }
         if (isMaxAge(state))

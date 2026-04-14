@@ -1,0 +1,13 @@
+{
+  "name": "item.ucse.slipperglass",
+  "icon": "ucse:slipperglass",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+	  "title": "Glass Slippers",
+      "item": "ucse:slipperglass,ucse:slippers",
+      "text": "ucse.book.page.slippers"
+    }
+  ]
+}

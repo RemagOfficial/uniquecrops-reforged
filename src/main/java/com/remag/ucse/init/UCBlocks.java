@@ -7,6 +7,7 @@ import com.remag.ucse.blocks.supercrops.*;
 import com.remag.ucse.core.enums.EnumLily;
 import com.remag.ucse.items.base.ItemBlockUC;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.RegistryObject;
@@ -46,10 +47,10 @@ public class UCBlocks {
     public static final RegistryObject<Block> EGG_BASKET = register("egg_basket", EggBasketBlock::new);
     public static final RegistryObject<Block> GOBLET = register("goblet", GobletBlock::new);
     public static final RegistryObject<Block> HOURGLASS = register("hourglass", HourglassBlock::new, true, true);
-    public static final RegistryObject<Block> LILY_ENDER = registerLily("enderlily", () -> new BaseLilyBlock(EnumLily.ENDER));
-    public static final RegistryObject<Block> LILY_ICE = registerLily("icelily", () -> new BaseLilyBlock(EnumLily.ICE));
-    public static final RegistryObject<Block> LILY_JUNGLE = registerLily("junglelily", () -> new BaseLilyBlock(EnumLily.JUNGLE));
-    public static final RegistryObject<Block> LILY_LAVA = registerLily("lavalily", () -> new BaseLilyBlock(EnumLily.LAVA));
+    public static final RegistryObject<Block> LILY_ENDER = registerLily("enderlily", () -> new BaseLilyBlock(EnumLily.ENDER), false);
+    public static final RegistryObject<Block> LILY_ICE = registerLily("icelily", () -> new BaseLilyBlock(EnumLily.ICE), false);
+    public static final RegistryObject<Block> LILY_JUNGLE = registerLily("junglelily", () -> new BaseLilyBlock(EnumLily.JUNGLE), false);
+    public static final RegistryObject<Block> LILY_LAVA = registerLily("lavalily", () -> new BaseLilyBlock(EnumLily.LAVA), true);
     public static final RegistryObject<Block> NORMIECRATE = register("normiecrate", () -> new Block(Properties.of().sound(SoundType.WOOD).strength(0.25F, 5.0F).mapColor(MapColor.WOOD)));
     public static final RegistryObject<Block> OBTUSE_PLATFORM = register("obtuse_platform", ObtusePlatformBlock::new);
     public static final RegistryObject<Block> OLDCOBBLE = register("oldcobble", () -> new Block(Properties.copy(Blocks.COBBLESTONE)));
@@ -66,7 +67,7 @@ public class UCBlocks {
     public static final RegistryObject<Block> RUINEDBRICKSRED = register("ruinedbricksred", () -> new RotatedPillarBlock(Properties.copy(Blocks.STONE_BRICKS)));
     public static final RegistryObject<Block> DREAMCATCHER = register("dreamcatcher", DreamcatcherBlock::new);
     public static final RegistryObject<Block> HARVEST_TRAP = register("harvest_trap", HarvestTrapBlock::new);
-    public static final RegistryObject<Block> CROP_PORTAL = register("crop_portal", CropPortalBlock::new, false, false);
+    //public static final RegistryObject<Block> CROP_PORTAL = register("crop_portal", CropPortalBlock::new, false, false);
     public static final RegistryObject<Block> DEMO_CORD = register("demo_cord", DemoCordBlock::new);
     public static final RegistryObject<Block> TOTEMHEAD = register("totemhead", TotemheadBlock::new);
     public static final RegistryObject<Block> SUN_DIAL = register("sun_dial", SundialBlock::new);
@@ -146,14 +147,6 @@ public class UCBlocks {
         return BLOCKS.register("crop_" + name, supplier);
     }
 
-    public static <B extends Block> RegistryObject<B> registerLily(String name, Supplier<? extends B> supplier) {
-
-        RegistryObject<B> block = BLOCKS.register(name, supplier);
-        UCItems.ITEMS.register(name, () -> new BlockItem(block.get(), UCItems.defaultBuilder()));
-
-        return block;
-    }
-
     private static <B extends Block> RegistryObject<B> register(String name, Supplier<? extends B> supplier) {
 
         return register(name, supplier, true, false);
@@ -164,10 +157,21 @@ public class UCBlocks {
         RegistryObject<B> block = BLOCKS.register(name, supplier);
         if (itemBlock) {
             if (!custom)
-                UCItems.ITEMS.register(name, () -> new BlockItem(block.get(), UCItems.defaultBuilder()));
+                UCItems.registerItem(name, () -> new BlockItem(block.get(), UCItems.defaultBuilder()));
             else
-                UCItems.ITEMS.register(name, () -> new ItemBlockUC(block.get()));
+                UCItems.registerItem(name, () -> new ItemBlockUC(block.get()));
         }
         return block;
     }
+
+    private static <B extends Block> RegistryObject<B> registerLily(String name, Supplier<? extends B> supplier, boolean lavaproof) {
+
+        RegistryObject<B> block = BLOCKS.register(name, supplier);
+        if (lavaproof)
+            UCItems.registerItem(name, () -> new PlaceOnWaterBlockItem(block.get(), UCItems.defaultBuilder().fireResistant()));
+        else
+            UCItems.registerItem(name, () -> new PlaceOnWaterBlockItem(block.get(), UCItems.defaultBuilder()));
+        return block;
+    }
+
 }

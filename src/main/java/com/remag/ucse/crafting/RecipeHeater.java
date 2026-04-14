@@ -32,7 +32,12 @@ public class RecipeHeater implements IHeaterRecipe {
     @Override
     public boolean matches(Container inv, Level world) {
 
-        return ItemStack.isSameItem(inv.getItem(0), input);
+        return ItemStack.isSameItem(inv.getItem(0), this.input);
+    }
+
+    public boolean matches(ItemStack stack) {
+
+        return ItemStack.isSameItem(stack, this.input);
     }
 
     @Override
@@ -46,7 +51,7 @@ public class RecipeHeater implements IHeaterRecipe {
     }
 
     public ItemStack getResultItem() {
-        return output.copy();
+        return this.output.copy();
     }
 
     @Override

@@ -4,6 +4,9 @@ import com.remag.ucse.core.NBTUtils;
 import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.items.base.ItemBaseUC;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionResult;
@@ -16,14 +19,13 @@ public class VampiricOintmentItem extends ItemBaseUC {
 
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
 
-        if (!(target instanceof Player)) {
-            if (!hasTaglock(stack) && !player.level().isClientSide) {
-                ItemStack newStack = new ItemStack(this);
-                setTaglock(newStack, target);
-                ItemHandlerHelper.giveItemToPlayer(player, newStack);
-                stack.shrink(1);
-                return InteractionResult.SUCCESS;
-            }
+        if (!player.level().isClientSide && !hasTaglock(stack) && !(target instanceof Player) &&
+            !(target instanceof WitherBoss) && !(target instanceof EnderDragon) && !(target instanceof Warden)) {
+            ItemStack newStack = new ItemStack(this);
+            setTaglock(newStack, target);
+            ItemHandlerHelper.giveItemToPlayer(player, newStack);
+            stack.shrink(1);
+            return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }

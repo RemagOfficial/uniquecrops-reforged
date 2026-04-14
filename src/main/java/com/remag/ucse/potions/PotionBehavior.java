@@ -1,12 +1,12 @@
 package com.remag.ucse.potions;
 
+import com.remag.ucse.init.UCPotions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PotionBehavior {
 
@@ -29,8 +29,10 @@ public class PotionBehavior {
 
     public static void reverseEffects(Player player) {
 
-        if (!player.getActiveEffects().isEmpty()) {
-            for (MobEffectInstance eff : player.getActiveEffects()) {
+        player.removeEffect(UCPotions.REVERSE.get());
+        List<MobEffectInstance> activeEffects = new ArrayList<>(player.getActiveEffects());
+        if (!activeEffects.isEmpty()) {
+            for (MobEffectInstance eff : activeEffects) {
                 setReverseEffects(eff, player);
             }
         }
@@ -42,9 +44,7 @@ public class PotionBehavior {
             if (key == eff.getEffect()) {
                 player.addEffect(new MobEffectInstance(value, eff.getDuration(), eff.getAmplifier()));
                 player.removeEffect(eff.getEffect());
-                return;
-            }
-            if (value == eff.getEffect()) {
+            } else if (value == eff.getEffect()) {
                 player.addEffect(new MobEffectInstance(key, eff.getDuration(), eff.getAmplifier()));
                 player.removeEffect(eff.getEffect());
             }

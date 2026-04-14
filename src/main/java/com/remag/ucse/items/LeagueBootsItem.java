@@ -89,7 +89,8 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
             NBTUtils.setInt(stack, UCStrings.SPRINTING_TICKS, sprintTicks - 1);
             return;
         }
-        if (player.isSprinting() && !player.getAbilities().flying) {
+        if (player.isSprinting() && !player.getAbilities().flying &&
+                !player.isSwimming() && !player.isInLava()) {
             if (NBTUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED) == DEFAULT_SPEED) {
                 NBTUtils.setFloat(stack, UCStrings.SPEED_MODIFIER, speedMod * Math.max(getLevel(stack), 1));
                 return;

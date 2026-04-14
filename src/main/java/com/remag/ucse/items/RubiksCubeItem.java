@@ -32,7 +32,7 @@ public class RubiksCubeItem extends ItemBaseUC {
     public InteractionResult useOn(UseOnContext ctx) {
 
         if (ctx.getLevel().dimension() == Level.OVERWORLD && ctx.getPlayer().isCrouching() && ctx.getClickedFace() == Direction.UP) {
-            ItemStack stack = ctx.getItemInHand();
+            ItemStack stack = ctx.getPlayer().getMainHandItem();
             if (stack.getItem() == this) {
                 int rot = getRotation(stack);
                 BlockPos savedPos = ctx.getClickedPos().above();
@@ -49,8 +49,8 @@ public class RubiksCubeItem extends ItemBaseUC {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
 
-        ItemStack cube = player.getMainHandItem();
-        if (cube.getItem() == this) {
+        ItemStack cube = player.getItemInHand(hand);
+        if (hand == InteractionHand.MAIN_HAND && cube.getItem() == this) {
             if (!world.isClientSide)
                 UCPacketHandler.sendTo((ServerPlayer)player, new PacketOpenCube(player.getId()));
 

@@ -5,6 +5,7 @@ import com.remag.ucse.UniqueCrops;
 import com.remag.ucse.blocks.tiles.TileItero;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.remag.ucse.render.CustomRenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,7 +21,7 @@ import org.lwjgl.opengl.GL11;
 public class RenderItero implements BlockEntityRenderer<TileItero> {
 
     private final BlockRenderDispatcher renderDispatcher;
-    private static final ResourceLocation RES = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "textures/models/sunglow.png");
+    static final ResourceLocation RES = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "textures/models/sunglow.png");
 
     public RenderItero(BlockEntityRendererProvider.Context ctx) {
 
@@ -34,13 +35,11 @@ public class RenderItero implements BlockEntityRenderer<TileItero> {
         if (!te.showingDemo()) return;
 
         ms.pushPose();
-        ms.translate(0.5, 0.1, 0.5);
+        ms.translate(0.5f, 0.1f, 0.5f);
 
-        RenderSystem.setShaderTexture(0, RES);
-        Tesselator tess = Tesselator.getInstance();
-//        RenderSystem.disableAlphaTest();
-//        RenderSystem.disableLighting();
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         RenderSystem.enableBlend();
+        VertexConsumer builder = buffer.getBuffer(CustomRenderType.CUSTOM_BEAM.apply(RES, true));
 
         for  (int i = 0; i < TileItero.PLATES.length; i++) {
             BlockPos platePos = te.getBlockPos().offset(TileItero.PLATES[i]);
@@ -48,18 +47,18 @@ public class RenderItero implements BlockEntityRenderer<TileItero> {
             if (state.getBlock() == Blocks.STONE_PRESSURE_PLATE && state.getValue(PressurePlateBlock.POWERED)) {
                 ms.pushPose();
                 ms.translate(TileItero.PLATES[i].getX(), 0, TileItero.PLATES[i].getZ());
-                this.renderLight(ms, tess, i);
+                this.renderLight(ms, i, buffer, builder);
                 ms.popPose();
                 break;
             }
         }
         RenderSystem.disableBlend();
-//        RenderSystem.enableAlphaTest();
-//        RenderSystem.enableLighting();
         ms.popPose();
     }
 
-    private void renderLight(PoseStack ms, Tesselator tess, int color) {
+    private void renderLight(PoseStack ms, int plateIdx, MultiBufferSource mbs , VertexConsumer vc) {
+
+        final int[] tintcolors = { 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00 };
 
         for (int j = 0; j < 4; j++) {
             ms.pushPose();
@@ -70,29 +69,18 @@ public class RenderItero implements BlockEntityRenderer<TileItero> {
                 case 3: ms.translate(-0.375F, 0, 0); break;
             }
             ms.mulPose(Axis.YP.rotationDegrees(j * 90.0F));
-            RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             float power = 2.5F;
             float phase = 0.1F;
 
-            BufferBuilder buff = tess.getBuilder();
-            buff.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            RenderSystem.setShaderColor(Math.max(phase * 2.0F, 1.0F), Math.max(phase * 2.0F, 1.0F), Math.max(phase * 2.0F, 1.0F), 0.5F * (1.0F - phase));
-            switch(color) {
-                case 0: RenderSystem.setShaderColor(255.0F, 0F, 0F, 1.0F); break;
-                case 1: RenderSystem.setShaderColor(0F, 255.0F, 0F, 1.0F); break;
-                case 2: RenderSystem.setShaderColor(0F, 0F, 255.0F, 1.0F); break;
-                case 3: RenderSystem.setShaderColor(255.0F, 255.0F, 0F, 1.0F); break;
-            }
             float w = 1.0F;
             float h = 40.0F * phase * power;
 
             Matrix4f mat = ms.last().pose();
-            buff.vertex(mat, -0.5F * w, -0.25F, 0.0F).uv(0.0F, 1.0F).endVertex();
-            buff.vertex(mat,0.5F * w, -0.25F, 0.0F).uv(1.0F, 1.0F).endVertex();
-            buff.vertex(mat,0.5F, 0.75F * h, 0.0F).uv(1.0F, 0.0F).endVertex();
-            buff.vertex(mat, -0.5F, 0.75F * h, 0.0F).uv(0.0F, 0.0F).endVertex();
-
-            tess.end();
+            int tint = tintcolors[plateIdx];
+            vc.vertex(mat, -0.5F * w, -0.25F, 0.0F).color(tint).uv(0f, 1f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
+            vc.vertex(mat,0.5F * w, -0.25F, 0.0F).color(tint).uv(1f, 1f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
+            vc.vertex(mat,0.5F, 0.75F * h, 0.0F).color(tint).uv(1f, 0f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
+            vc.vertex(mat, -0.5F, 0.75F * h, 0.0F).color(tint).uv(0f, 0f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
             ms.popPose();
         }
     }

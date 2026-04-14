@@ -4,6 +4,7 @@ import com.remag.ucse.UniqueCrops;
 import com.remag.ucse.api.*;
 import com.remag.ucse.blocks.BaseCropsBlock;
 import com.remag.ucse.core.enums.EnumArmorMaterial;
+import com.remag.ucse.crafting.RecipeEnchanter;
 import com.remag.ucse.items.*;
 import com.remag.ucse.items.base.*;
 import com.remag.ucse.items.curios.*;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -93,7 +95,7 @@ public class UCItems {
     public static final RegistryObject<Item> STEVE_HEART = registerFood("steveheart", UCFoods.STEVE_HEART);
     public static final RegistryObject<Item> GOLDEN_BREAD = registerFood("golden_bread", UCFoods.GOLDEN_BREAD);
     public static final RegistryObject<Item> DIET_PILLS = registerFood("diet_pills", UCFoods.DIET_PILLS);
-    public static final RegistryObject<Item> UNCOOKEDWAFFLE = register("uncookedwaffle", ItemBaseUC::new);
+    public static final RegistryObject<Item> UNCOOKEDWAFFLE = registerItem("uncookedwaffle", ItemBaseUC::new);
     public static final RegistryObject<Item> WAFFLE = registerFood("waffle", UCFoods.WAFFLE);
     public static final RegistryObject<Item> YOGURT = registerFood("yogurt", UCFoods.YOGURT);
     public static final RegistryObject<Item> EGGNOG = registerFood("eggnog", UCFoods.EGGNOG);
@@ -215,15 +217,16 @@ public class UCItems {
     public static final RegistryObject<Item> DUMMY_HEATER = addToTab(ITEMS.register("dummy_heater", ItemDummyUC::new));
     public static final RegistryObject<Item> DUMMY_FASCINO = addToTab(ITEMS.register("dummy_fascino", ItemRenderUC::new));
 
-    public static <I extends Item> RegistryObject<I> register(String name, Supplier<I> supplier) {
+    public static <I extends Item> RegistryObject<I> registerItem(String name, Supplier<I> supplier) {
 
         return addToTab(ITEMS.register(name, supplier));
     }
 
-    public static RegistryObject<BlockItem> register(String name, RegistryObject<Block> block) {
-
+/*  unused
+    public static RegistryObject<BlockItem> registerBlock(String name, RegistryObject<Block> block) {
         return addToTab(ITEMS.register(name, () -> new BlockItem(block.get(), defaultBuilder())));
     }
+ */
 
     public static RegistryObject<Item> registerFood(String name, FoodProperties food) {
 
@@ -275,6 +278,46 @@ public class UCItems {
 
         id = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "multiblock");
         ForgeRegistries.RECIPE_TYPES.register(id, MULTIBLOCK_TYPE);
+    }
+
+    public static void registerCompostables( ) {
+        // 30% chance, seeds (leave out Easter Eggs, abstract and merlinia
+        ComposterBlock.COMPOSTABLES.put(UCItems.ARTISIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.CINDERBELLA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.COLLIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.COBBLONIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DEVILSNARE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DIRIGIBLE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DONUTSTEEL_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.DYEIUS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.ENDERLILY_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.EULA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.FEROXIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.HEXIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.IMPERIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.INDUSTRIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.INSTABILIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.INVISIBILIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.KNOWLEDGE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.LACUSIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MAGNES_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MALLEATORIS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MARYJANE_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MILLENNIUM_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.MUSICA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.NORMAL_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.PETRAMIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.PIXELSIUS_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.PRECISION_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.QUARRY_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.SUCCO_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.WAFFLONIA_SEED.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.WEEPINGBELLS_SEED.get(), 0.3F);
+
+        // 50% chance, organic outputs
+        ComposterBlock.COMPOSTABLES.put(UCItems.DIRIGIBLEPLUM.get(), 0.5F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.GOLDENRODS.get(), 0.5F);
+        ComposterBlock.COMPOSTABLES.put(UCItems.UNCOOKEDWAFFLE.get(), 0.5F);
     }
 
     private static class ModRecipeType<T extends Recipe<?>> implements RecipeType<T> {

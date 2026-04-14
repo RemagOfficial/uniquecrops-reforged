@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.goldenrods",
+  "icon": "ucse:goldenrods",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:goldenrods",
+      "text": "ucse.book.page.goldenrods"
+    }
+  ]
+}

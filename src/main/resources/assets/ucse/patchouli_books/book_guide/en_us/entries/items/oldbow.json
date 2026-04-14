@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.oldbow",
+  "icon": "ucse:oldbow",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:oldbow",
+      "text": "ucse.book.page.oldbow"
+    }
+  ]
+}

@@ -19,10 +19,11 @@ public class ObtusePlatformBlock extends Block {
     @Override
     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
 
+        if (world.isClientSide) return;
         if (!(entity instanceof LivingEntity)) return;
 
         float prevFallDistance = entity.fallDistance;
-        if (!world.isClientSide && !entity.onGround() && (prevFallDistance > 1.0F || prevFallDistance > 20.0F))
+        if (!entity.onGround() && prevFallDistance > 1.0F)
             entity.fallDistance = 20.0F;
     }
 }

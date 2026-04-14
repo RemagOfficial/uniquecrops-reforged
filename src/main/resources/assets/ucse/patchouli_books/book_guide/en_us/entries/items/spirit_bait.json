@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.spirit_bait",
+  "icon": "ucse:spirit_bait",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:spirit_bait",
+      "text": "ucse.book.page.spirit_bait"
+    }
+  ]
+}

@@ -26,13 +26,13 @@ public class MixinAnvilMenu extends MixinItemCombinerMenu {
 
         if (left.isEmpty() || right.isEmpty()) return;
 
-        if ((left.getItem() == Items.ENCHANTED_BOOK && right.getItem() != Items.ENCHANTED_BOOK) || (left.getItem() != Items.ENCHANTED_BOOK && right.getItem() == Items.ENCHANTED_BOOK)) {
+        if ((left.getItem() == Items.ENCHANTED_BOOK && right.getItem() != Items.ENCHANTED_BOOK) ||
+                (left.getItem() != Items.ENCHANTED_BOOK && right.getItem() == Items.ENCHANTED_BOOK)) {
             ItemStack output = resultSlots.getItem(0);
             ItemStack toCheck = (left.getItem() != Items.ENCHANTED_BOOK) ? left.copy() : right.copy();
             if (!output.isEmpty() && NBTUtils.getBoolean(toCheck, UCStrings.TAG_DISCOUNT, false)) {
-                int newCost = cost.get();
-                if (newCost > 5) {
-                    cost.set(newCost - 5);
+                if (cost.get() >= 1) {
+                    cost.set(Math.max(1, cost.get() - 5));
                     resultSlots.setItem(0, output.copy());
                 }
             }

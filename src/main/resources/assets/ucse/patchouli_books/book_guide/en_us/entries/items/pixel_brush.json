@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.pixel_brush",
+  "icon": "ucse:pixel_brush",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:pixel_brush",
+      "text": "ucse.book.page.pixel_brush"
+    }
+  ]
+}

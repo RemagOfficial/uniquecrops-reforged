@@ -42,6 +42,7 @@ public class Feroxia extends BaseCropsBlock implements EntityBlock {
     @Override
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
+        if (world.isClientSide) return;
         if (isMaxAge(state)) return;
         if (this.canIgnoreGrowthRestrictions(world, pos)) {
             super.randomTick(state, world, pos, rand);
@@ -53,7 +54,7 @@ public class Feroxia extends BaseCropsBlock implements EntityBlock {
         if (!EnumGrowthSteps.values()[stage].canAdvance(world, pos, state)) return;
 
         if (rand.nextInt(3) == 0)
-            world.setBlock(pos, this.setValueAge(getAge(state) + 1), 0);
+            world.setBlock(pos, this.setValueAge(getAge(state) + 1), 3);
     }
 
     @Override
@@ -61,8 +62,10 @@ public class Feroxia extends BaseCropsBlock implements EntityBlock {
 
         int stage = getStage(world, pos, state);
 
-        if (stage != -1 && EnumGrowthSteps.values()[stage].canAdvance(world, pos, state))
+        if ((stage != -1) && (stage != EnumGrowthSteps.NOBONEMEAL.ordinal()) &&
+                EnumGrowthSteps.values()[stage].canAdvance(world, pos, state)) {
             world.setBlock(pos, this.setValueAge(getAge(state) + 1), 3);
+        }
     }
 
     private int getStage(Level world, BlockPos pos, BlockState state) {

@@ -49,12 +49,9 @@ public class AnkhItem extends ItemBaseUC {
 
     private void onPlayerClone(PlayerEvent.Clone event) {
 
-        if (event.isWasDeath() && !event.getEntity().level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+        if (event.isWasDeath()) {
             Player oldPlayer = event.getOriginal();
             Player newPlayer = event.getEntity();
-
-            this.putAnkhItems(oldPlayer, newPlayer);
-
             CompoundTag oldTag = oldPlayer.getPersistentData();
             CompoundTag tag = newPlayer.getPersistentData();
             if (oldTag.contains(UCStrings.TAG_GROWTHSTAGES))
@@ -63,6 +60,10 @@ public class AnkhItem extends ItemBaseUC {
                 tag.putBoolean("hasSacrificed", oldTag.getBoolean("hasSacrificed"));
             if (oldTag.contains(UCStrings.TAG_ABSTRACT))
                 tag.putInt(UCStrings.TAG_ABSTRACT, oldTag.getInt(UCStrings.TAG_ABSTRACT));
+
+            if (!event.getEntity().level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+                this.putAnkhItems(oldPlayer, newPlayer);
+            }
         }
     }
 

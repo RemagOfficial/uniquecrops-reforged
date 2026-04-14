@@ -22,13 +22,23 @@ public class CustomRenderType extends RenderType {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setup, clear);
     }
 
-    public static final BiFunction<ResourceLocation, Boolean, RenderType> CUSTOM_BEAM = Util.memoize((res, bool) -> {
-        RenderType.CompositeState composite = RenderType.CompositeState.builder()
+    public static final BiFunction<ResourceLocation, Boolean, RenderType> CUSTOM_BEAM = Util.memoize((res, alphablend) -> {
+        RenderType.CompositeState composite;
+        if (alphablend)
+            composite = RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.RENDERTYPE_BEACON_BEAM_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(res, false, false))
-                .setTransparencyState(bool ? TRANSLUCENT_TRANSPARENCY : NO_TRANSPARENCY)
-                .setWriteMaskState(bool ? COLOR_WRITE : COLOR_DEPTH_WRITE)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false);
+        else
+            composite = RenderType.CompositeState.builder()
+                    .setShaderState(RenderStateShard.RENDERTYPE_CUTOUT_SHADER)
+                    .setTextureState(new RenderStateShard.TextureStateShard(res, false, false))
+                    .setTransparencyState(NO_TRANSPARENCY)
+                    .setLightmapState(LIGHTMAP)
+                    .setWriteMaskState(COLOR_DEPTH_WRITE)
+                    .createCompositeState(false);
         return RenderType.create("custom_beam", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, true, composite);
     });
 

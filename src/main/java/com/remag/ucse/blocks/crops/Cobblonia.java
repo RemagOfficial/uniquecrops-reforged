@@ -21,17 +21,22 @@ public class Cobblonia extends BaseCropsBlock {
 
         super(() -> Item.byBlock(Blocks.COBBLESTONE), UCItems.COBBLONIA_SEED);
         setIgnoreGrowthRestrictions(true);
+        setIncludeSeed(false);
+    }
+
+    @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return true;
     }
 
     @Override
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
-        super.randomTick(state, world, pos, rand);
-        if (!this.isMaxAge(state)) {
-            return;
+        if (this.isMaxAge(state)) {
+            cobbleGen(world, pos, this.canIgnoreGrowthRestrictions(world, pos));
+        } else {
+            super.randomTick(state, world, pos, rand);
         }
-        boolean flag = this.canIgnoreGrowthRestrictions(world, pos);
-        cobbleGen(world, pos, flag);
     }
 
     private void cobbleGen(ServerLevel world, BlockPos pos, boolean boost) {

@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.prenugget",
+  "icon": "ucse:prenugget",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:prenugget",
+      "text": "ucse.book.page.prenugget"
+    }
+  ]
+}

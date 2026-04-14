@@ -29,12 +29,14 @@ public class PonchoItem extends ItemArmorUC implements IBookUpgradeable {
         if (player.getEffect(UCPotions.IGNORANCE.get()) != null) {
             ent.setTarget(null);
             ent.setLastHurtByMob(null);
+            event.setCanceled(true);
             return;
         }
         boolean flag = player.getInventory().armor.get(2).getItem() == this && this.isMaxLevel(player.getInventory().armor.get(2));
         if (flag && ent.isPickable() && !(ent instanceof Guardian || ent instanceof Shulker)) {
             ent.setTarget(null);
             ent.setLastHurtByMob(null);
+            event.setCanceled(true);
         }
     }
 }

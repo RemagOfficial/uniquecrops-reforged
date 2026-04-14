@@ -84,7 +84,7 @@ public class UCClient {
         ItemBlockRenderTypes.setRenderLayer(UCBlocks.ROSEWOOD_TRAPDOOR.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(UCBlocks.DREAMCATCHER.get(), RenderType.cutout());
 
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.CROP_PORTAL.get(), RenderType.translucent());
+        //ItemBlockRenderTypes.setRenderLayer(UCBlocks.CROP_PORTAL.get(), RenderType.translucent());
     }
 
     private static void registerScreens() {
@@ -139,6 +139,9 @@ public class UCClient {
         event.registerBlockEntityRenderer(UCTiles.ITERO.get(), RenderItero::new);
         event.registerBlockEntityRenderer(UCTiles.EXEDO.get(), RenderExedo::new);
         event.registerBlockEntityRenderer(UCTiles.SUCCO.get(), RenderSucco::new);
+        event.registerBlockEntityRenderer(UCTiles.DYEIUS.get(), RenderDyeius::new);
+        event.registerBlockEntityRenderer(UCTiles.INVISIBILIA.get(), RenderInvisibilia::new);
+        event.registerBlockEntityRenderer(UCTiles.INVISIBILIA_GLASS.get(), RenderInvisibiliaGlass::new);
 
         event.registerEntityRenderer(UCEntities.BATTLE_CROP.get(), RenderBattleCropEntity::new);
         event.registerEntityRenderer(UCEntities.MOVING_CROP.get(), RenderNone::new);

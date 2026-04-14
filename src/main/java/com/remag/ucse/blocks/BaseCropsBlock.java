@@ -2,11 +2,13 @@ package com.remag.ucse.blocks;
 
 import com.remag.ucse.blocks.tiles.TileSunBlock;
 import com.remag.ucse.init.UCBlocks;
+import com.remag.ucse.core.UCConfig;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.player.Player;
@@ -31,12 +33,11 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.PlantType;
 
 import java.util.function.Supplier;
 
-public class BaseCropsBlock extends Block implements BonemealableBlock, IPlantable {
+public class BaseCropsBlock extends CropBlock  {
 
     public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
     public static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D)};
@@ -71,7 +72,7 @@ public class BaseCropsBlock extends Block implements BonemealableBlock, IPlantab
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 
         super.createBlockStateDefinition(builder);
-        builder.add(AGE);
+        //builder.add(AGE);
     }
 
     @Override
@@ -146,7 +147,7 @@ public class BaseCropsBlock extends Block implements BonemealableBlock, IPlantab
         return AGE;
     }
 
-    protected int getAge(BlockState state) {
+    public int getAge(BlockState state) {
 
         return state.getValue(this.getAgeProperty());
     }
@@ -161,10 +162,13 @@ public class BaseCropsBlock extends Block implements BonemealableBlock, IPlantab
         return getMaxAge();
     }
 
+/*
+**  Can't Override this in 1.20
     public boolean isMaxAge(BlockState state) {
 
         return state.getValue(this.getAgeProperty()) >= this.getMaxAge();
     }
+ */
 
     public BlockState setValueAge(int age) {
 
@@ -189,6 +193,13 @@ public class BaseCropsBlock extends Block implements BonemealableBlock, IPlantab
 
     protected float getGrowthChance(Block blockIn, BlockGetter worldIn, BlockPos pos) {
 
+        /*
+            This recreates vanilla's 'F' calculation, where the growth chance is
+            1 / (1 + floor(25/F)), except F is slightly lower here.
+            vanilla: own block is 4 (2 if dry), neighbors are 0.75 (0.25 if dry)
+            unique: own block is 3 (1 if dry), neighbors are 0.75 (0.25 if dry)
+            F is halved in both cases if diagonal planting exists.
+         */
         float f = 1.0F;
         BlockPos blockpos = pos.below();
 
@@ -248,8 +259,10 @@ public class BaseCropsBlock extends Block implements BonemealableBlock, IPlantab
 
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             BlockPos loopPos = pos.relative(dir);
-            if (world.getBlockEntity(pos) instanceof TileSunBlock tile)
-                return tile.powered;
+            BlockEntity tile = world.getBlockEntity(loopPos);
+            if (tile instanceof TileSunBlock && ((TileSunBlock)tile).powered) {
+                return true;
+            }
         }
         return false;
     }

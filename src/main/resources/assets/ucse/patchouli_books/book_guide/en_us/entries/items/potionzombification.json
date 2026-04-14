@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.potionzombification",
+  "icon": "ucse:potionzombification",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:potionzombification",
+      "text": "ucse.book.page.potionzombification"
+    }
+  ]
+}

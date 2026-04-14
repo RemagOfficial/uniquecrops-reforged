@@ -39,15 +39,19 @@ public class Musica extends BaseCropsBlock implements EntityBlock {
             Items.MUSIC_DISC_STAL,
             Items.MUSIC_DISC_STRAD,
             Items.MUSIC_DISC_WAIT,
-            Items.MUSIC_DISC_WARD
+            Items.MUSIC_DISC_WARD,
+            Items.MUSIC_DISC_OTHERSIDE,
+            Items.MUSIC_DISC_5,
+            Items.MUSIC_DISC_RELIC
     };
-    static final int RANGE = 10;
+    static final int RANGE = 6;
 
     public Musica() {
 
         super(UCItems.RECORD_FARAWAY, UCItems.MUSICA_SEED);
         setBonemealable(false);
         setIgnoreGrowthRestrictions(true);
+        setIncludeSeed(false);
         MinecraftForge.EVENT_BUS.addListener(this::notePlayEvent);
     }
 
@@ -55,21 +59,23 @@ public class Musica extends BaseCropsBlock implements EntityBlock {
 
         if (event.getLevel().isClientSide()) return;
 
-        BlockPos ePos = event.getPos();
-        for (BlockPos pos : BlockPos.betweenClosed(ePos.offset(-RANGE, -2, -RANGE), ePos.offset(RANGE, 2, RANGE))) {
+        BlockPos eventPos = event.getPos();
+        long beatTime = ((ServerLevel)event.getLevel()).getGameTime();
+        TileMusica.Beat eventBeat = new TileMusica.Beat(event.getNote(), event.getInstrument(), event.getOctave(), beatTime);
+        for (BlockPos pos : BlockPos.betweenClosed(eventPos.offset(-RANGE, -2, -RANGE), eventPos.offset(RANGE, 2, RANGE))) {
             BlockEntity te = event.getLevel().getBlockEntity(pos);
             if (te instanceof TileMusica plant) {
                 if (plant.getBeats().size() > 0) {
                     for (int i = 0; i < plant.getBeats().size(); i++) {
                         TileMusica.Beat beat = plant.getBeats().get(i);
-                        if (beat.beatMatches(new TileMusica.Beat(event.getNote(), event.getInstrument(), event.getOctave(), ((ServerLevel)event.getLevel()).getGameTime()))) {
-                            plant.setNewBeatTime(i, ((ServerLevel)event.getLevel()).getGameTime());
-                            return;
+                        if (beat.beatMatches(eventBeat)) {
+                            plant.setNewBeatTime(i, beatTime);
+                            break;
                         }
                     }
                 }
                 if (plant.canAddNote())
-                    plant.setNote(event.getNote(), event.getInstrument(), event.getOctave(), ((ServerLevel)event.getLevel()).getGameTime());
+                    plant.addNote(eventBeat);
             }
         }
     }

@@ -1,8 +1,12 @@
 package com.remag.ucse.blocks.crops;
 
 import com.remag.ucse.blocks.BaseCropsBlock;
-import com.remag.ucse.core.DyeUtils;
+import com.remag.ucse.blocks.tiles.TileDyeius;
 import com.remag.ucse.init.UCItems;
+import net.minecraft.world.level.block.EntityBlock;
+import com.remag.ucse.core.DyeUtils;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.DyeColor;
@@ -12,7 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-public class Dyeius extends BaseCropsBlock {
+public class Dyeius extends BaseCropsBlock implements EntityBlock {
 
     public Dyeius() {
 
@@ -20,13 +24,25 @@ public class Dyeius extends BaseCropsBlock {
     }
 
     @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+
+        return new TileDyeius(pos, state);
+    }
+
+    @Override
     public void harvestItems(Level world, BlockPos pos, BlockState state, int fortune) {
 
-        Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.1, pos.getZ() + 0.5, getDyeTime(world));
+        Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.1, pos.getZ() + 0.5, getDyeForTime(world));
         Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.1, pos.getZ() + 0.5, new ItemStack(this.getSeed()));
     }
 
-    private ItemStack getDyeTime(Level world) {
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+
+        return RenderShape.INVISIBLE;
+    }
+
+    private ItemStack getDyeForTime(Level world) {
 
         long time = world.getDayTime() % 24000L;
         int meta = (int)(time / 1500);

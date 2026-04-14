@@ -4,6 +4,8 @@ import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.init.UCItems;
 import com.remag.ucse.items.base.ItemBaseUC;
 import net.minecraft.ChatFormatting;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
@@ -21,6 +23,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -44,19 +47,29 @@ public class EasyBadgeItem extends ItemBaseUC {
     @Override
     public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean isSelected) {
 
-        if (!(entity instanceof Player) || (entity instanceof FakePlayer)) return;
-        if (slot < Inventory.getSelectionSize() && !world.isClientSide) {
-            BlockPos pos = entity.blockPosition();
-            List<Monster> monsters = world.getEntitiesOfClass(Monster.class, new AABB(pos.offset(-RANGE, -RANGE, -RANGE), pos.offset(RANGE, RANGE, RANGE)));
-            for (Monster ent: monsters) {
-                if (ent instanceof Skeleton skele)
-                    skele.goalSelector.getRunningGoals().filter(goal -> goal.getGoal() instanceof RangedBowAttackGoal)
-                            .findFirst().ifPresent(g -> {
-                        ((RangedBowAttackGoal)g.getGoal()).setMinAttackInterval(100);
-                    });
+        if (!(entity instanceof Player) || (entity instanceof FakePlayer) ||
+                slot >= Inventory.getSelectionSize() || world.isClientSide ||
+                (world.getGameTime() % 10) != 0)
+            return;
 
-                if (ent instanceof Creeper creep)
-                    ObfuscationReflectionHelper.setPrivateValue(Creeper.class, creep, 60, "field_82225_f");
+        BlockPos pos = entity.blockPosition();
+        List<Monster> monsters = world.getEntitiesOfClass(Monster.class, new AABB(pos.offset(-RANGE, -RANGE, -RANGE), pos.offset(RANGE, RANGE, RANGE)));
+        for (Monster ent: monsters) {
+
+            if (ent instanceof Zombie zombo)
+                zombo.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(0.0D);
+
+            if (ent instanceof Skeleton skele)
+                skele.goalSelector.getRunningGoals().filter(goal -> goal.getGoal() instanceof RangedBowAttackGoal)
+                        .findFirst().ifPresent(g -> {
+                    ((RangedBowAttackGoal)g.getGoal()).setMinAttackInterval(80);
+                });
+
+            if (ent instanceof Creeper creep) {
+                CompoundTag creepTags = creep.getPersistentData();
+                creepTags.putFloat("Fuse", 60);
+                creep.readAdditionalSaveData(creepTags);
+                //ObfuscationReflectionHelper.setPrivateValue(Creeper.class, creep, 60, "field_82225_f");
             }
         }
     }

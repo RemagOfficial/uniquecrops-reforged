@@ -1,0 +1,12 @@
+{
+  "name": "block.ucse.icelily",
+  "icon": "ucse:icelily",
+  "category": "ucse:blocks",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:icelily",
+      "text": "ucse.book.page.icelily"
+    }
+  ]
+}

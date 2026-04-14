@@ -69,8 +69,8 @@ public final class UCConfig {
         public Common(ForgeConfigSpec.Builder builder) {
 
             millenniumTime = builder
-                    .comment("Time (in minutes) it takes for Millennium crop to advance a stage.")
-                    .defineInRange("millenniumTime", 10, 10, Integer.MAX_VALUE);
+                    .comment("Minimum time (in minutes) for Millennium crop to advance a stage.")
+                    .defineInRange("millenniumTime", 1, 1, Integer.MAX_VALUE);
             cubeCooldown = builder
                     .comment("Cooldown time (in ticks) for rubik's cube between successful teleports.")
                     .defineInRange("cubeCooldown", 3000, 30, Integer.MAX_VALUE);
@@ -81,6 +81,8 @@ public final class UCConfig {
                     .comment("Lets the Petramia crop convert obsidian instead of bedrock. Use if there are no bedrock nearby to convert.")
                     .define("convertObsidian", false);
 
+            builder.comment("At least 7 of these must be true, not counting selfSacrifice.");
+            builder.comment("NOTE: likesBrewing ignores this config and is always false");
             moonPhase = builder.define("moonPhase", true);
             hasTorch = builder.define("hasTorch", true);
             likesDarkness = builder.define("likesDarkness", true);
@@ -98,7 +100,7 @@ public final class UCConfig {
             fullBrightness = builder.define("fullBrightness", true);
             likesWarts = builder.define("likesWarts", true);
             likesCooking = builder.define("likesCooking", true);
-            likesBrewing = builder.define("likesBrewing", true);
+            likesBrewing = builder.define("likesBrewing", false);
             likesCheckers = builder.define("likesCheckers", true);
             dontBonemeal = builder.define("dontBonemeal", true);
             selfSacrifice = builder.define("selfSacrifice", true);

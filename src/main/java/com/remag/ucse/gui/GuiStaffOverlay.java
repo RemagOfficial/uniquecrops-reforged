@@ -34,7 +34,7 @@ public class GuiStaffOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen != null) return; // skip if a screen is open
 
-        if (!event.getOverlay().id().toString().equals("minecraft:all")) return;
+        if (!event.getOverlay().id().toString().equals("minecraft:crosshair")) return;
 
         ProfilerFiller profiler = mc.getProfiler();
         profiler.push("UC-hud");
@@ -78,7 +78,7 @@ public class GuiStaffOverlay {
 
     private void renderLeafBar(Window res, int currentPower, int capacity, GuiGraphics guiGraphics) {
 
-        ResourceLocation ICONS = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/icons.png");
+        ResourceLocation ICONS = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "textures/gui/leaf_bar.png");
 
         if (capacity <= 0) return;
 

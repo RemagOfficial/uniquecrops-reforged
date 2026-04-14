@@ -31,7 +31,6 @@ public class UCRecipes {
             registerSerializer("heater", RecipeHeater.Serializer::new);
     public static final RegistryObject<RecipeSerializer<?>> MULTIBLOCK_SERIALIZER =
             registerSerializer("multiblock", RecipeMultiblock.Serializer::new);
-    // public static final RegistryObject<RecipeSerializer<?>> DISCOUNTBOOK_SERIALIZER = registerSerializer("discount_book", () -> new SimpleCraftingRecipeSerializer<>(RecipeDiscountBook::new));
 
     // Recipe Types
     public static final RegistryObject<RecipeType<RecipeArtisia>> ARTISIA_TYPE =
@@ -52,6 +51,7 @@ public class UCRecipes {
             BrewingRecipeRegistry.addRecipe(Ingredient.of(awkwardPotion), Ingredient.of(UCItems.TIMEDUST.get()), new ItemStack(UCItems.POTION_REVERSE.get()));
             BrewingRecipeRegistry.addRecipe(Ingredient.of(invisibilityPotion), Ingredient.of(UCBlocks.INVISIBILIA_GLASS.get()), new ItemStack(UCItems.POTION_IGNORANCE.get()));
             BrewingRecipeRegistry.addRecipe(Ingredient.of(awkwardPotion), Ingredient.of(UCItems.ZOMBIE_SLURRY.get()), new ItemStack(UCItems.POTION_ZOMBIFICATION.get()));
+            BrewingRecipeRegistry.addRecipe(Ingredient.of(awkwardPotion), Ingredient.of(UCBlocks.DARK_BLOCK.get()), new ItemStack(UCItems.POTION_ENNUI.get()));
         }
     }
 

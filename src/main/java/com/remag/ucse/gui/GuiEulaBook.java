@@ -70,6 +70,8 @@ public class GuiEulaBook extends Screen {
         Component text = Component.translatable(UniqueCrops.MOD_ID + ".eula.text" + pageIndex);
         UCUtils.drawSplitString(guiGraphics, font, text, k + 25, b0 + 15, WORDWRAP, ChatFormatting.GRAY.getColor());
 
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+
         // --- Manual button rendering ---
         for (Renderable renderable : this.renderables) {
             if (!(renderable instanceof Button btn)) continue;
@@ -88,10 +90,8 @@ public class GuiEulaBook extends Screen {
                 if (eulaBtn.agree) u += 17;
             }
 
-            guiGraphics.blit(RES, btn.getX(), btn.getY(), u, v, 16, 16);
+            guiGraphics.blit(RES, btn.getX(), btn.getY()-2, u, v, 16, 16);
         }
-
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -131,6 +131,7 @@ public class GuiEulaBook extends Screen {
 
             super(x, y, 16, 16, Component.empty(), pressedAction, Button.DEFAULT_NARRATION);
             this.agree = agree;
+            this.setAlpha(0.0f);
         }
     }
 
@@ -142,6 +143,7 @@ public class GuiEulaBook extends Screen {
 
             super(x, y, 16, 16, Component.empty(), pressedAction, Button.DEFAULT_NARRATION);
             this.previous = previous;
+            this.setAlpha(0.0f);
         }
     }
 }

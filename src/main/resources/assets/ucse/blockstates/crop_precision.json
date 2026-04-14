@@ -4,19 +4,19 @@
       "model": "ucse:block/precision1"
     },
     "age=1": {
-      "model": "ucse:block/precision2"
+      "model": "ucse:block/precision1"
     },
     "age=2": {
       "model": "ucse:block/precision2"
     },
     "age=3": {
-      "model": "ucse:block/precision3"
+      "model": "ucse:block/precision2"
     },
     "age=4": {
       "model": "ucse:block/precision3"
     },
     "age=5": {
-      "model": "ucse:block/precision4"
+      "model": "ucse:block/precision3"
     },
     "age=6": {
       "model": "ucse:block/precision4"

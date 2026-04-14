@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.thunderpantz",
+  "icon": "ucse:thunderpantz",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:thunderpantz",
+      "text": "ucse.book.page.thunderpantz"
+    }
+  ]
+}

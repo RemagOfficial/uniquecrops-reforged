@@ -6,6 +6,9 @@ import com.remag.ucse.core.NBTUtils;
 import com.remag.ucse.core.UCStrings;
 import com.remag.ucse.core.enums.EnumDirectional;
 import com.remag.ucse.init.UCItems;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -56,20 +59,26 @@ public class Weatherflesia extends BaseSuperCropsBlock implements EntityBlock {
         if (tile instanceof TileWeatherflesia weather) {
             ItemStack stack = player.getItemInHand(hand);
             if (stack.getItem() == UCItems.PIXEL_BRUSH.get() && !player.isCrouching()) {
-                Biome biome = world.getBiome(pos).value();
-                String biomeId = ForgeRegistries.BIOMES.getKey(biome).toString();
-                NBTUtils.setString(stack, UCStrings.TAG_BIOME, biomeId);
-                weather.setBrush(stack);
-                player.setItemInHand(hand, ItemStack.EMPTY);
-                weather.markBlockForUpdate();
+                if (!world.isClientSide()) {
+                    Biome biome = world.getBiome(pos).value();
+                    ResourceLocation rl = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+
+                    //String biomeId = biome.getRegistryName().toString();
+                    NBTUtils.setString(stack, UCStrings.TAG_BIOME, rl.getPath());
+                    weather.setBrush(stack);
+                    player.setItemInHand(hand, ItemStack.EMPTY);
+                    weather.markBlockForUpdate();
+                }
                 return InteractionResult.SUCCESS;
             }
             if (stack.isEmpty() && player.isCrouching()) {
-                ItemStack tileItem = weather.getBrush();
-                if (!tileItem.isEmpty()) {
-                    weather.setBrush(ItemStack.EMPTY);
-                    player.setItemInHand(hand, tileItem);
-                    weather.markBlockForUpdate();
+                if (!world.isClientSide()) {
+                    ItemStack tileItem = weather.getBrush();
+                    if (!tileItem.isEmpty()) {
+                        weather.setBrush(ItemStack.EMPTY);
+                        player.setItemInHand(hand, tileItem);
+                        weather.markBlockForUpdate();
+                    }
                 }
                 return InteractionResult.SUCCESS;
             }

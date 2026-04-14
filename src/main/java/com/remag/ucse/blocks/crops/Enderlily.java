@@ -51,7 +51,7 @@ public class Enderlily extends BaseCropsBlock {
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
         this.enderlilyTele(world, pos, state);
-        super.randomTick(state, world, pos, rand);
+        //super.randomTick(state, world, pos, rand);
     }
 
     @Override
@@ -73,6 +73,7 @@ public class Enderlily extends BaseCropsBlock {
 
     private void enderlilyTele(ServerLevel world, BlockPos pos, BlockState state) {
 
+        if (world.isClientSide) return;
         if (isMaxAge(state)) return;
 
         List<BlockPos> targetList = new ArrayList<>();

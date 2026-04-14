@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.impact_shield",
+  "icon": "ucse:impact_shield",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:impact_shield",
+      "text": "ucse.book.page.impact_shield"
+    }
+  ]
+}

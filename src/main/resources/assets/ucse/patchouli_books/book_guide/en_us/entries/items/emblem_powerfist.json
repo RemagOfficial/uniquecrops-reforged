@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.emblem_powerfist",
+  "icon": "ucse:emblem_powerfist",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:emblem_powerfist",
+      "text": "ucse.book.page.emblem_powerfist"
+    }
+  ]
+}

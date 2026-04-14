@@ -30,7 +30,13 @@ public class Magnes extends BaseCropsBlock {
     public Magnes() {
 
         super(UCItems.FERROMAGNETICIRON, UCItems.MAGNES_SEED);
+        setClickHarvest(false);
         registerDefaultState(defaultBlockState().setValue(AGE, 0).setValue(POLARITY, false));
+    }
+
+    @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return true;
     }
 
     @Override
@@ -74,9 +80,10 @@ public class Magnes extends BaseCropsBlock {
     @Override
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 
-        super.randomTick(state, world, pos, rand);
         if (this.isMaxAge(state))
             magnetize(world, pos, state);
+        else
+            super.randomTick(state, world, pos, rand);
     }
 
     private void magnetize(ServerLevel world, BlockPos pos, BlockState state) {

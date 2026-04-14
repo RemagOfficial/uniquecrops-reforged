@@ -7,11 +7,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 public interface IHeaterRecipe extends Recipe<Container> {
 
     ResourceLocation RES = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "heater");
+
+    boolean matches(ItemStack stack);
+    ItemStack getResultItem();
 
     @Override
     default @NotNull RecipeType<?> getType() {
@@ -22,7 +26,7 @@ public interface IHeaterRecipe extends Recipe<Container> {
     @Override
     default boolean canCraftInDimensions(int width, int height) {
 
-        return false;
+        return true;
     }
 
     @Override

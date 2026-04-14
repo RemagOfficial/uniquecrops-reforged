@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.eggupgrade",
+  "icon": "ucse:eggupgrade",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:eggupgrade",
+      "text": "ucse.book.page.eggupgrade"
+    }
+  ]
+}

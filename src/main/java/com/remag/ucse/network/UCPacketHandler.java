@@ -20,7 +20,7 @@ public final class UCPacketHandler {
     public static void init() {
         int id = 0;
         INSTANCE.registerMessage(id++, PacketSyncCap.class, PacketSyncCap::encode, PacketSyncCap::decode, PacketSyncCap::handle);
-        // INSTANCE.registerMessage(id++, PacketChangeBiome.class, PacketChangeBiome::encode, PacketChangeBiome::decode, PacketChangeBiome::handle);
+        INSTANCE.registerMessage(id++, PacketChangeBiome.class, PacketChangeBiome::encode, PacketChangeBiome::decode, PacketChangeBiome::handle);
         INSTANCE.registerMessage(id++, PacketSendKey.class, PacketSendKey::encode, PacketSendKey::decode, PacketSendKey::handle);
         INSTANCE.registerMessage(id++, PacketColorfulCube.class, PacketColorfulCube::encode, PacketColorfulCube::decode, PacketColorfulCube::handle);
         INSTANCE.registerMessage(id++, PacketUCEffect.class, PacketUCEffect::encode, PacketUCEffect::decode, PacketUCEffect::handle);

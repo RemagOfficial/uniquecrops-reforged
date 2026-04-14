@@ -1,5 +1,6 @@
 {
 	"name": "Unique Seeds",
 	"description": "The many unique crops.",
-	"icon": "ucse:seednormal"
+	"icon": "ucse:seednormal",
+	"sortnum": 0
 }

@@ -1,0 +1,12 @@
+{
+  "name": "item.ucse.glasses_3d",
+  "icon": "ucse:glasses_3d",
+  "category": "ucse:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ucse:glasses_3d",
+      "text": "ucse.book.page.glasses_3d"
+    }
+  ]
+}

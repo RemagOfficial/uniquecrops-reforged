@@ -17,7 +17,6 @@ public class Collis extends BaseCropsBlock {
 
         super(UCItems.GOLDENRODS, UCItems.COLLIS_SEED);
         setIgnoreGrowthRestrictions(true);
-        setIncludeSeed(false);
     }
 
     @Override
@@ -38,7 +37,7 @@ public class Collis extends BaseCropsBlock {
 
     private void checkHighplant(Level world, BlockPos pos, BlockState state) {
 
-        int chanceByHeight = Math.round(pos.getY() / 16);
+        int chanceByHeight = Math.min(15, Math.round(pos.getY() / 16));
 
         if (world.getBrightness(LightLayer.SKY, pos.above()) >= 9) {
             int growthChance = world.random.nextInt(16 - chanceByHeight);
