@@ -1,6 +1,0 @@
-{
-  "parent": "ucse:block/padcustom",
-  "textures": {
-    "pad": "ucse:block/junglelily"
-  }
-}

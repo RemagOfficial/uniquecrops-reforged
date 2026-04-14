@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/slab_top",
-  "textures": {
-    "side": "ucse:block/ruinedbricksmooth",
-    "bottom": "ucse:block/ruinedbricksmooth",
-    "top": "ucse:block/ruinedbricksmooth"
-  }
-}

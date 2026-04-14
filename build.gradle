@@ -7,8 +7,8 @@ plugins {
 }
 
 mixin {
-    add sourceSets.main, "ucse.refmap.json"
-    config 'assets/ucse/ucse.mixins.json'
+    add sourceSets.main, "uniquecrops.refmap.json"
+    config 'assets/uniquecrops/uniquecrops.mixins.json'
 }
 
 version = mod_version

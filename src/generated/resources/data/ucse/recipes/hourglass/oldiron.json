@@ -1,9 +1,0 @@
-{
-  "type": "ucse:hourglass",
-  "input": {
-    "name": "minecraft:iron_block"
-  },
-  "output": {
-    "name": "ucse:oldiron"
-  }
-}

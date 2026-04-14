@@ -1,32 +1,32 @@
 {
-  "type": "ucse:artisia",
+  "type": "uniquecrops:artisia",
   "ingredients": [
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
       "item": "minecraft:pink_dye"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     },
     {
-      "item": "ucse:savageessence"
+      "item": "uniquecrops:savageessence"
     }
   ],
   "output": {

@@ -1,9 +1,9 @@
 {
   "replace": false,
   "values": [
-    "ucse:record_taxi",
-    "ucse:record_simply",
-    "ucse:record_neonsigns",
-    "ucse:record_faraway"
+    "uniquecrops:record_taxi",
+    "uniquecrops:record_simply",
+    "uniquecrops:record_neonsigns",
+    "uniquecrops:record_faraway"
   ]
 }

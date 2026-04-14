@@ -1,0 +1,378 @@
+package com.remag.uniquecrops.blocks.tiles;
+
+import com.remag.uniquecrops.api.IEnchanterRecipe;
+import com.remag.uniquecrops.blocks.BaseCropsBlock;
+import com.remag.uniquecrops.core.UCStrings;
+import com.remag.uniquecrops.core.enums.EnumParticle;
+import com.remag.uniquecrops.init.UCBlocks;
+import com.remag.uniquecrops.init.UCItems;
+import com.remag.uniquecrops.init.UCTiles;
+import com.remag.uniquecrops.items.StaffWildwoodItem;
+import com.remag.uniquecrops.network.PacketUCEffect;
+import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+
+import java.util.*;
+
+public class TileFascino extends BaseTileUC {
+
+    private final BlockPos[] ENCHPOS = new BlockPos[] {
+            new BlockPos(0, 0, 3), new BlockPos(0, 0, -3), new BlockPos(3, 0, 0), new BlockPos(-3, 0, 0),
+            new BlockPos(2, 0, 2), new BlockPos(-2, 0, -2), new BlockPos(2, 0, -2), new BlockPos(-2, 0, 2)
+    };
+
+    public TileFascino(BlockPos pos, BlockState state) {
+
+        super(UCTiles.FASCINO.get(), pos, state);
+    }
+
+    private final ItemStackHandler inv = new ItemStackHandler(5) {
+        @Override
+        public int getSlotLimit(int slot) {
+
+            return 1;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+
+            setChanged();
+        }
+    };
+
+    private ItemStack enchantItem = ItemStack.EMPTY;
+
+    private final int RANGE = 7;
+    private Stage stage = Stage.IDLE;
+    private UUID enchanterId;
+    private int enchantingTicks = 0;
+    private int enchantmentCost = 7;
+    private boolean showMissingCrops;
+
+    public void tickServer() {
+
+        if (showMissingCrops && (enchantingTicks % 3 == 0))
+            loopMissingCrops();
+
+        if (stage == Stage.IDLE) return;
+
+        enchantingTicks++;
+        stage.advance(this);
+    }
+
+    public void loopMissingCrops() {
+
+        for (int i = 0; i < ENCHPOS.length; i++) {
+            BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
+            BlockState loopState = level.getBlockState(loopPos);
+            if (loopState.getBlock() != UCBlocks.HEXIS_CROP.get()) {
+                UCPacketHandler.sendToNearbyPlayers(level, loopPos, new PacketUCEffect(EnumParticle.ENCHANT, loopPos.getX() - 0.5D, loopPos.getY() + 0.25D, loopPos.getZ() - 0.5D, 2));
+            }
+        }
+    }
+
+    public void checkEnchants(Player player, ItemStack staff) {
+
+            IEnchanterRecipe fascinoRecipe = findRecipe(level, wrap());
+            if (fascinoRecipe == null) {
+                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unknownrecipe"), true);
+                return;
+            }
+
+            ItemStack heldItem = ItemStack.EMPTY;
+            this.showMissingCrops = false;
+            for (ItemStack stack : player.getHandSlots()) {
+                if (!stack.isEmpty() && stack.getItem().isEnchantable(stack) && stack.getItem() != UCItems.WILDWOOD_STAFF.get()) {
+                    heldItem = stack;
+                    break;
+                }
+            }
+            if (heldItem.isEmpty()) {
+                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.nothing"), true);
+                return;
+            }
+            if (!fascinoRecipe.getEnchantment().category.canEnchant(heldItem.getItem())) {
+                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unenchantable",heldItem.getDisplayName()), true);
+                return;
+            }
+            if (EnchantmentHelper.getEnchantments(heldItem).containsKey(fascinoRecipe.getEnchantment())) {
+                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.enchantmentexists"), true);
+                return;
+            }
+            Map<Enchantment, Integer> enchantSet = EnchantmentHelper.getEnchantments(heldItem);
+            Set<Enchantment> enchantments = enchantSet.keySet();
+            for (Enchantment ench : enchantments) {
+                if (!ench.isCompatibleWith(fascinoRecipe.getEnchantment())) {
+                    player.displayClientMessage(Component.translatable("uniquecrops.enchanting.incompatible", ench.getDescriptionId()), true);
+                    return;
+                }
+            }
+            prepareEnchanting(player, heldItem.getEnchantmentTags().size() + 1, staff, fascinoRecipe.getCost());
+            enchantItem = heldItem;
+    }
+
+    private SimpleContainer wrap() {
+
+        SimpleContainer inv = new SimpleContainer(getInventory().getSlots()) {
+            @Override
+            public int getMaxStackSize() {
+
+                return 1;
+            }
+        };
+        for (int i = 0; i < getInventory().getSlots(); i++)
+            inv.setItem(i, getInventory().getStackInSlot(i));
+
+        return inv;
+    }
+
+    private static IEnchanterRecipe findRecipe(Level world, SimpleContainer con) {
+
+        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
+            if (recipe instanceof IEnchanterRecipe && ((IEnchanterRecipe)recipe).matches(con, world))
+                return ((IEnchanterRecipe)recipe);
+        }
+
+        return null;
+    }
+
+    private void prepareEnchanting(Player player, int enchantmentSize, ItemStack staff, int powerCost) {
+
+        int youngestAge = 7;
+        for (int i = 0; i < ENCHPOS.length; i++) {
+            BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
+            BlockState loopState = level.getBlockState(loopPos);
+            if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
+                int age = loopState.getValue(BaseCropsBlock.AGE);
+                if (age < youngestAge)
+                    youngestAge = age;
+            }
+            else {
+                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.missingcrops"), true);
+                this.showMissingCrops = true;
+                enchantItem = ItemStack.EMPTY;
+                return;
+            }
+        }
+        if (youngestAge < enchantmentSize) {
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.cropgrowth", enchantmentSize), true);
+            enchantItem = ItemStack.EMPTY;
+            return;
+        }
+        if (!StaffWildwoodItem.adjustPower(staff, (player.isCreative() ? 0 : powerCost))) {
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.notenoughpower", powerCost), true);
+            enchantItem = ItemStack.EMPTY;
+            return;
+        }
+        stage = Stage.PREPARE;
+        enchantmentCost = enchantmentSize;
+        enchanterId = player.getUUID();
+        this.markBlockForUpdate();
+        this.setChanged();
+    }
+
+    private Player getEnchanter() {
+
+        List<Player> playerList = level.getEntitiesOfClass(Player.class, new AABB(worldPosition.offset(-RANGE, -1, -RANGE), worldPosition.offset(RANGE, 2, RANGE)));
+        for (Player player : playerList) {
+            if (player.getUUID().equals(enchanterId)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    public void advanceEnchanting() {
+
+        Player player = getEnchanter();
+        if (player == null) {
+            advanceStage();
+        }
+        for (int i = 0; i < ENCHPOS.length; i++) {
+            BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
+            BlockState loopState = level.getBlockState(loopPos);
+            if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
+                int age = loopState.getValue(BaseCropsBlock.AGE);
+                if (age < (7 - enchantmentCost)) {
+                    finishEnchanting();
+                    break;
+                }
+                level.levelEvent(2001, loopPos, Block.getId(loopState));
+                level.setBlockAndUpdate(loopPos, loopState.setValue(BaseCropsBlock.AGE, Math.max(age - 1, 0)));
+            }
+            else {
+                advanceStage();
+                break;
+            }
+        }
+    }
+
+    private void finishEnchanting() {
+
+        if (enchantingTicks < 80) return;
+
+        Player player = getEnchanter();
+        if (player == null) {
+            advanceStage();
+            enchantItem = ItemStack.EMPTY;
+            return;
+        }
+        ItemStack heldItem = ItemStack.EMPTY;
+        for (ItemStack stack : player.getHandSlots()) {
+            if (!stack.isEmpty() && stack.getItem().isEnchantable(stack) && stack.getItem() != UCItems.WILDWOOD_STAFF.get()) {
+                heldItem = stack;
+                break;
+            }
+        }
+        if (heldItem.isEmpty()) {
+            advanceStage();
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.nothing"), true);
+            enchantItem = ItemStack.EMPTY;
+            return;
+        }
+        if (!ItemStack.isSameItem(heldItem, enchantItem)) {
+            advanceStage();
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.nomatch"), true);
+            enchantItem = ItemStack.EMPTY;
+            return;
+        }
+        IEnchanterRecipe enchanterRecipe = findRecipe(level, wrap());
+        if (enchanterRecipe == null) {
+            advanceStage();
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unknownrecipe"), true);
+        } else {
+            enchanterRecipe.applyEnchantment(heldItem);
+            this.clearInv();
+            advanceStage();
+            level.levelEvent(2004, getBlockPos().offset(0, 1, 0), 0);
+            for (int i = 0; i < ENCHPOS.length; i++) {
+                BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
+                BlockState loopState = level.getBlockState(loopPos);
+                if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
+                    int age = loopState.getValue(BaseCropsBlock.AGE);
+                    level.setBlockAndUpdate(loopPos, loopState.setValue(BaseCropsBlock.AGE, Math.max(age - 1, 0)));
+                }
+            }
+        }
+        enchantItem = ItemStack.EMPTY;
+    }
+
+    public void loopEffects() {
+
+        for (int i = 0; i < ENCHPOS.length; i++) {
+            BlockPos loopPos = worldPosition.offset(ENCHPOS[i]);
+            BlockState loopState = level.getBlockState(loopPos);
+            if (loopState.getBlock() == UCBlocks.HEXIS_CROP.get()) {
+                int size = 4;
+                ((ServerLevel)level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, loopState), loopPos.getX(), (double)loopPos.getY() + 0.25D + loopState.getShape(level, loopPos).max(Direction.Axis.Y), loopPos.getZ(), size, ((double)this.getBlockPos().getX() - loopPos.getX()) / 8, 0, ((double)this.getBlockPos().getZ() - loopPos.getZ()) / 8, 0.25F);
+            }
+        }
+    }
+
+    public IItemHandler getInventory() {
+
+        return this.inv;
+    }
+
+    private void clearInv() {
+
+        for (int i = 0; i < inv.getSlots(); i++) {
+            inv.setStackInSlot(i, ItemStack.EMPTY);
+        }
+    }
+
+    public Stage getStage() {
+
+        return this.stage;
+    }
+
+    public void advanceStage() {
+
+        int mod = Math.floorMod(stage.ordinal() + 1, Stage.values().length);
+        stage = Stage.values()[mod];
+        this.enchantingTicks = 0;
+        this.markBlockForUpdate();
+        this.setChanged();
+    }
+
+    @Override
+    public void writeCustomNBT(CompoundTag tag) {
+
+        tag.put("inventory", inv.serializeNBT());
+        tag.putInt(UCStrings.TAG_ENCHANTSTAGE, stage.ordinal());
+        if (enchanterId != null)
+            tag.putString("UC:targetEnchanter", enchanterId.toString());
+        else
+            tag.remove("UC:targetEnchanter");
+        tag.putInt(UCStrings.TAG_ENCHANT_TIMER, this.enchantingTicks);
+        tag.putInt(UCStrings.TAG_ENCHANT_COST, this.enchantmentCost);
+
+        if (!enchantItem.isEmpty())
+            tag.put("enchItem", enchantItem.serializeNBT());
+    }
+
+    @Override
+    public void readCustomNBT(CompoundTag tag) {
+
+        inv.deserializeNBT(tag.getCompound("inventory"));
+        stage = Stage.values()[tag.getInt(UCStrings.TAG_ENCHANTSTAGE)];
+        if (tag.contains("UC:targetEnchanter"))
+            enchanterId = UUID.fromString(tag.getString("UC:targetEnchanter"));
+        enchantingTicks = tag.getInt(UCStrings.TAG_ENCHANT_TIMER);
+        enchantmentCost = tag.getInt(UCStrings.TAG_ENCHANT_COST);
+
+        if (tag.contains("enchItem"))
+            ItemStack.of(tag.getCompound("enchItem"));
+    }
+
+    public enum Stage {
+
+        IDLE,
+        PREPARE {
+            @Override
+            public void advance(TileFascino tile) {
+
+                if (tile.enchantingTicks >= 20)
+                    tile.advanceStage();
+            }
+        },
+        ENCHANT {
+            @Override
+            public void advance(TileFascino tile) {
+
+                if (tile.enchantingTicks % 4 == 0)
+                    tile.loopEffects();
+                if (tile.enchantingTicks % 20 == 0)
+                    tile.advanceEnchanting();
+            }
+        },
+        STOP {
+            @Override
+            public void advance(TileFascino tile) {
+
+                tile.enchanterId = null;
+                tile.advanceStage();
+            }
+        };
+
+        public void advance(TileFascino tile) {}
+    }
+}

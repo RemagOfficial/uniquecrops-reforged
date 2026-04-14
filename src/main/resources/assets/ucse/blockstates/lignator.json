@@ -1,8 +1,0 @@
-{
-	"variants": {
-		"": [
-			{ "model": "ucse:block/lignator", "y": 90 },
-			{ "model": "ucse:block/lignator" }
-		]
-	}
-}

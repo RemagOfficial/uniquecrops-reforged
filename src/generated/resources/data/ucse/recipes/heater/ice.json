@@ -1,9 +1,0 @@
-{
-  "type": "ucse:heater",
-  "input": {
-    "item": "minecraft:packed_ice"
-  },
-  "output": {
-    "item": "minecraft:ice"
-  }
-}

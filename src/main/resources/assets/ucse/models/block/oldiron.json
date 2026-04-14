@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "side": "ucse:block/old_iron_side",
-    "bottom": "ucse:block/old_iron_bottom",
-    "top": "ucse:block/old_iron_top"
-  }
-}

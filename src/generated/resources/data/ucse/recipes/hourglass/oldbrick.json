@@ -1,9 +1,0 @@
-{
-  "type": "ucse:hourglass",
-  "input": {
-    "name": "minecraft:bricks"
-  },
-  "output": {
-    "name": "ucse:oldbrick"
-  }
-}

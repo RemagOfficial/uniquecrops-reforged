@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "facing=west": { "model": "ucse:block/harvest_trap", "y": 90 },
-        "facing=south": { "model": "ucse:block/harvest_trap" },
-        "facing=east": { "model": "ucse:block/harvest_trap", "y": 90 },
-        "facing=north": { "model": "ucse:block/harvest_trap" }
-    }
-}

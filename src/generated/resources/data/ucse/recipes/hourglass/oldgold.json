@@ -1,9 +1,0 @@
-{
-  "type": "ucse:hourglass",
-  "input": {
-    "name": "minecraft:gold_block"
-  },
-  "output": {
-    "name": "ucse:oldgold"
-  }
-}

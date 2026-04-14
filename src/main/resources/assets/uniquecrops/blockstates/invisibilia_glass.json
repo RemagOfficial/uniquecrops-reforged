@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "visible=false": { "model": "uniquecrops:block/invisibilia_glass_b" },
+    "visible=true": { "model": "uniquecrops:block/invisibilia_glass" }
+  }
+}

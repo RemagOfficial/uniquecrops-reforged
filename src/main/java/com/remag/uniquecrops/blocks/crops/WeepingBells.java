@@ -1,0 +1,52 @@
+package com.remag.uniquecrops.blocks.crops;
+
+import com.remag.uniquecrops.blocks.BaseCropsBlock;
+import com.remag.uniquecrops.blocks.tiles.TileWeepingBells;
+import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+
+public class WeepingBells extends BaseCropsBlock implements EntityBlock {
+
+    public WeepingBells() {
+
+        super(UCItems.WEEPINGTEAR, UCItems.WEEPINGBELLS_SEED);
+        setBonemealable(false);
+        setIgnoreGrowthRestrictions(true);
+    }
+
+    @Override
+    public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+
+        boolean flag = this.canIgnoreGrowthRestrictions(world, pos);
+
+        BlockEntity tile = world.getBlockEntity(pos);
+        if (tile instanceof TileWeepingBells && ((TileWeepingBells)tile).isLooking()) flag = true;
+
+        if (flag) super.randomTick(state, world, pos, rand);
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+
+        if (!level.isClientSide()) {
+            return (lvl, pos, st, te) -> {
+                if (te instanceof TileWeepingBells bells) bells.tickServer();
+            };
+        }
+        return null;
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+
+        return new TileWeepingBells(pos, state);
+    }
+}

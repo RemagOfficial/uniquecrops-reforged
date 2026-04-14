@@ -1,0 +1,12 @@
+{
+  "processor": "com.remag.uniquecrops.integration.patchouli.processor.CropProcessor",
+  "components": [
+    {
+      "type": "patchouli:custom",
+      "class": "com.remag.uniquecrops.integration.patchouli.component.CropComponent",
+      "x": 0,
+      "y": 90,
+      "blockstate": "#blockstate"
+    }
+  ]
+}
