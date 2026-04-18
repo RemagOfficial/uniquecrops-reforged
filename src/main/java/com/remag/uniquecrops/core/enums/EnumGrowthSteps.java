@@ -9,30 +9,28 @@ import com.remag.uniquecrops.init.UCBlocks;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraft.ChatFormatting;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.Level;
-
-import java.lang.reflect.Field;
-import java.util.List;
-
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import java.util.List;
 
 import static net.minecraft.world.level.block.Block.UPDATE_ALL;
 
@@ -55,7 +53,8 @@ public enum EnumGrowthSteps {
 
             if (getTile(world, pos) == null) return false;
 
-            List<Player> players = world.getEntitiesOfClass(Player.class, new AABB(pos.offset(-range, -range, -range), pos.offset(range, range, range)));
+            List<Player> players = world.getEntitiesOfClass(Player.class,
+                    new AABB(Vec3.atLowerCornerOf(pos.offset(-range, -range, -range)), Vec3.atLowerCornerOf(pos.offset(range + 1, range + 1, range + 1))));
             for (Player player : players) {
                 if (player.getUUID().equals(getTile(world, pos).getOwner())) {
                     for (InteractionHand hand : InteractionHand.values()) {
@@ -102,7 +101,8 @@ public enum EnumGrowthSteps {
             if (getTile(world, pos) == null)
                 return false;
 
-            List<Player> players = world.getEntitiesOfClass(Player.class, new AABB(pos.offset(-range, -range, -range), pos.offset(range, range, range)));
+            List<Player> players = world.getEntitiesOfClass(Player.class,
+                    new AABB(Vec3.atLowerCornerOf(pos.offset(-range, -range, -range)), Vec3.atLowerCornerOf(pos.offset(range + 1, range + 1, range + 1))));
             for (Player player : players) {
                 if (player.getUUID().equals(getTile(world, pos).getOwner())) {
                     if (player.isOnFire())
@@ -147,7 +147,8 @@ public enum EnumGrowthSteps {
         @Override
         public boolean canAdvance(Level world, BlockPos pos, BlockState state) {
 
-            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(pos, pos.offset(1, 1, 1)));
+            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class,
+                    new AABB(Vec3.atLowerCornerOf(pos), Vec3.atLowerCornerOf(pos.offset(1, 1, 1))));
             for (ItemEntity item : items) {
                 if (item.isAlive() && !item.getItem().isEmpty()) {
                     if (item.getItem().getItem() == Items.WATER_BUCKET)
@@ -166,10 +167,11 @@ public enum EnumGrowthSteps {
         @Override
         public boolean canAdvance(Level world, BlockPos pos, BlockState state) {
 
-            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(pos, pos.offset(1, 1, 1)));
+            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class,
+                    new AABB(Vec3.atLowerCornerOf(pos), Vec3.atLowerCornerOf(pos.offset(1, 1, 1))));
             for (ItemEntity item : items) {
                 if (item.isAlive() && !item.getItem().isEmpty()) {
-                    if (item.getItem().getItem().isEdible()) {
+                    if (item.getItem().has(DataComponents.FOOD)) {
                         UCPacketHandler.sendToNearbyPlayers(world, pos, new PacketUCEffect(EnumParticle.CLOUD, pos.getX(), pos.getY(), pos.getZ(), 6));
                         item.getItem().shrink(1);
                         if (item.getItem().getCount() <= 0)
@@ -187,7 +189,8 @@ public enum EnumGrowthSteps {
         public boolean canAdvance(Level world, BlockPos pos, BlockState state) {
 
             Entity item = null, chicken = null;
-            List<Entity> entities = world.getEntitiesOfClass(Entity.class, new AABB(pos.offset(-3, 0, -3), pos.offset(3, 1, 3)));
+            List<Entity> entities = world.getEntitiesOfClass(Entity.class,
+                    new AABB(Vec3.atLowerCornerOf(pos.offset(-3, 0, -3)), Vec3.atLowerCornerOf(pos.offset(4, 2, 4))));
             for (Entity ent : entities) {
                 if (ent.isAlive()) {
                     if (ent instanceof Chicken)
@@ -199,7 +202,7 @@ public enum EnumGrowthSteps {
                 }
             }
             if (chicken != null && item != null) {
-                AABB aabb = new AABB(chicken.blockPosition().offset(0, 0, 0), chicken.blockPosition().offset(1, 1, 1));
+                AABB aabb = new AABB(Vec3.atLowerCornerOf(chicken.blockPosition()), Vec3.atLowerCornerOf(chicken.blockPosition().offset(1, 1, 1)));
                 List<Entity> list = world.getEntities(chicken, aabb);
                 for (Entity entity : list) {
                     if (entity != null && entity == item) {
@@ -299,13 +302,8 @@ public enum EnumGrowthSteps {
             for (BlockPos posit : poslist) {
                 BlockEntity tile = world.getBlockEntity(posit);
                 if (tile instanceof BrewingStandBlockEntity) {
-                    boolean flag = false;
-                    try {
-                        Field f = ObfuscationReflectionHelper.findField(BrewingStandBlockEntity.class, "field_145946_k");
-                        flag = f.getInt(tile) > 0;
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
+                    int brewTime = tile.saveWithoutMetadata(world.registryAccess()).getShort("BrewTime");
+                    boolean flag = brewTime > 0;
                     if (flag)
                         return true;
                 }

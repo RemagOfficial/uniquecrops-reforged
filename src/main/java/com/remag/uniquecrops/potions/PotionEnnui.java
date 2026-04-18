@@ -2,42 +2,48 @@ package com.remag.uniquecrops.potions;
 
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 public class PotionEnnui extends MobEffect {
 
     public PotionEnnui() {
 
         super(MobEffectCategory.NEUTRAL, 0xeef442);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerHitBlock);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerClickBlock);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerClickItem);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerJump);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerHitBlock);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerClickBlock);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerClickItem);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerJump);
     }
 
     private void onPlayerJump(LivingEvent.LivingJumpEvent event) {
 
-        if (event.getEntity().getEffect(this) != null)
+        if (hasEnnui(event.getEntity()))
             event.getEntity().setDeltaMovement(event.getEntity().getDeltaMovement().x, 0, event.getEntity().getDeltaMovement().z);
     }
 
     private void onPlayerClickBlock(PlayerInteractEvent.RightClickBlock event) {
 
-        if (event.getEntity().getEffect(this) != null)
+        if (hasEnnui(event.getEntity()))
             event.setCanceled(true);
     }
 
     private void onPlayerClickItem(PlayerInteractEvent.RightClickItem event) {
 
-        if (event.getEntity().getEffect(this) != null)
+        if (hasEnnui(event.getEntity()))
             event.setCanceled(true);
     }
 
     private void onPlayerHitBlock(PlayerInteractEvent.LeftClickBlock event) {
 
-        if (event.getEntity().getEffect(this) != null)
+        if (hasEnnui(event.getEntity()))
             event.setCanceled(true);
+    }
+
+    private boolean hasEnnui(LivingEntity entity) {
+
+        return entity.getActiveEffects().stream().anyMatch(effect -> effect.getEffect().value() == this);
     }
 }

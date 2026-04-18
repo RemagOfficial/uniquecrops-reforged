@@ -3,22 +3,21 @@ package com.remag.uniquecrops.entities;
 import com.remag.uniquecrops.blocks.crops.Magnes;
 import com.remag.uniquecrops.init.UCBlocks;
 import com.remag.uniquecrops.init.UCItems;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class MovingCropEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {}
+    protected void defineSynchedData(@NotNull SynchedEntityData.Builder builder) {}
 
     @Override
     public void tick() {
@@ -57,7 +56,7 @@ public class MovingCropEntity extends Entity {
         if (this.getPersistentData().contains("UC:markedForDrop")) {
             if (!level().isClientSide) {
                 BlockState heldState = ((FallingBlockEntity)this.getPassengers().get(0)).getBlockState();
-                this.getPassengers().forEach(p -> p.discard());
+                this.getPassengers().forEach(Entity::discard);
                 int chance = Math.max(8 - this.distance, 1);
                 if (level().random.nextInt(chance) == 0 && heldState.getBlock() == UCBlocks.MAGNES_CROP.get() && heldState.getValue(Magnes.POLARITY))
                     Containers.dropItemStack(this.level(), this.getX(), this.getY(), this.getZ(), new ItemStack(UCItems.FERROMAGNETICIRON.get()));
@@ -94,17 +93,11 @@ public class MovingCropEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
 
         if (dir != null)
             tag.putByte("UC_facing", (byte)this.dir.ordinal());
         tag.putByte("UC_distance", (byte)this.distance);
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override

@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
@@ -29,12 +28,11 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class StalkBlock extends BaseStalkBlock implements EntityBlock {
 
-    public static final EnumProperty STALKS = EnumProperty.create("stalk", EnumDirectional.class);
+    public static final EnumProperty<EnumDirectional> STALKS = EnumProperty.create("stalk", EnumDirectional.class);
 
     public StalkBlock() {
 
@@ -55,12 +53,12 @@ public class StalkBlock extends BaseStalkBlock implements EntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
 
         BlockEntity tile = world.getBlockEntity(pos);
         if (tile instanceof TileCraftyPlant) {
-            if (!world.isClientSide)
-                NetworkHooks.openScreen((ServerPlayer)player, (MenuProvider)tile, pos);
+            if (!world.isClientSide && player instanceof ServerPlayer serverPlayer)
+                serverPlayer.openMenu((MenuProvider) tile);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
@@ -91,8 +89,7 @@ public class StalkBlock extends BaseStalkBlock implements EntityBlock {
 
         BlockEntity tile = world.getBlockEntity(pos);
         if (tile instanceof TileCraftyPlant craft) {
-            for (int i = 0; i < craft.getCraftingInventory().getSlots(); i++) {
-                ItemStack stack  = craft.getCraftingInventory().getStackInSlot(i);
+            for (ItemStack stack : craft.getStoredItems()) {
                 if (!stack.isEmpty() && !world.isClientSide)
                     Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
             }

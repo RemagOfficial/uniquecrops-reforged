@@ -4,6 +4,7 @@ import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.init.UCTiles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -41,7 +42,7 @@ public class TileWeepingBells extends BaseTileUC {
 
         DamageSource source = new DamageSource(voidDamage);
 
-        List<Player> players = level.getEntitiesOfClass(Player.class, new AABB(worldPosition.offset(-RANGE, -RANGE, -RANGE), worldPosition.offset(RANGE, RANGE, RANGE)));
+        List<Player> players = level.getEntitiesOfClass(Player.class, new AABB(worldPosition).expandTowards(RANGE, RANGE, RANGE));
         for (Player player : players) {
             ItemStack helm = player.getItemBySlot(EquipmentSlot.HEAD);
             if (helm.getItem().isEnderMask(helm, player, null)) continue;
@@ -69,13 +70,13 @@ public class TileWeepingBells extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putBoolean("UC:tagLooking", this.looking);
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.looking = tag.getBoolean("UC:tagLooking");
     }

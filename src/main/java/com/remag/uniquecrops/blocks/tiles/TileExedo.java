@@ -5,20 +5,23 @@ import com.remag.uniquecrops.init.UCTiles;
 import com.remag.uniquecrops.network.UCPacketDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.EvokerFangs;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.util.Mth;
 
 import java.util.List;
 import java.util.UUID;
+
+// removed registry/holder-based DamageType lookup (changed in 1.21 mappings)
 
 public class TileExedo extends BaseTileUC {
 
@@ -99,7 +102,12 @@ public class TileExedo extends BaseTileUC {
     private LivingEntity getTargetedEntity() {
 
         if (!level.isClientSide) {
-            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition.offset(-5, -1, -5), worldPosition.offset(5, 2, 5)));
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class,
+                new AABB(
+                    worldPosition.getX() - 5, worldPosition.getY() - 1, worldPosition.getZ() - 5,
+                    worldPosition.getX() + 5, worldPosition.getY() + 2, worldPosition.getZ() + 5
+                )
+            );
             for (LivingEntity elb : entities) {
                 if (!(elb instanceof Player) && !elb.isInvulnerable()) {
                     entityId = elb.getUUID();
@@ -111,7 +119,7 @@ public class TileExedo extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putBoolean("UC:wiggle", this.isWiggling);
         if (entityId != null)
@@ -121,7 +129,7 @@ public class TileExedo extends BaseTileUC {
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.isWiggling = tag.getBoolean("UC:wiggle");
         if (tag.contains("UC:targetEntity"))

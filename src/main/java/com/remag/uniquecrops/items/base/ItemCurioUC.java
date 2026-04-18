@@ -3,19 +3,17 @@ package com.remag.uniquecrops.items.base;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.init.UCItems;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,9 +34,9 @@ public abstract class ItemCurioUC extends ItemBaseUC implements ICurioItem {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 
-        tooltip.add(Component.translatable(UniqueCrops.MOD_ID + ".tooltip." + ForgeRegistries.ITEMS.getKey(this).getPath()));
+        tooltip.add(Component.translatable(UniqueCrops.MOD_ID + ".tooltip." + BuiltInRegistries.ITEM.getKey(this).getPath()));
     }
 
     public boolean hasCurio(LivingEntity living) {

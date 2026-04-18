@@ -1,17 +1,17 @@
 package com.remag.uniquecrops.render;
 
-import com.remag.uniquecrops.mixin.AccessorBS;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import com.remag.uniquecrops.mixin.AccessorBS;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.SequencedMap;
 
 public class CustomBufferSource extends MultiBufferSource.BufferSource {
 
-    protected CustomBufferSource(BufferBuilder fallback, Map<RenderType, BufferBuilder> layerbuffers) {
+    protected CustomBufferSource(ByteBufferBuilder fallback, SequencedMap<RenderType, ByteBufferBuilder> layerbuffers) {
 
         super(fallback, layerbuffers);
     }
@@ -23,10 +23,10 @@ public class CustomBufferSource extends MultiBufferSource.BufferSource {
 
     public static MultiBufferSource.BufferSource initBuffers(MultiBufferSource.BufferSource original) {
 
-        BufferBuilder fallback = ((AccessorBS)original).getFallbackBuffer();
-        Map<RenderType, BufferBuilder> layerBuffers = ((AccessorBS)original).getFixedBuffers();
-        Map<RenderType, BufferBuilder> remapped = new Object2ObjectLinkedOpenHashMap<>();
-        for (Map.Entry<RenderType, BufferBuilder> e : layerBuffers.entrySet())
+        ByteBufferBuilder fallback = ((AccessorBS)original).getFallbackBuffer();
+        SequencedMap<RenderType, ByteBufferBuilder> layerBuffers = ((AccessorBS)original).getFixedBuffers();
+        SequencedMap<RenderType, ByteBufferBuilder> remapped = new LinkedHashMap<>();
+        for (var e : layerBuffers.entrySet())
             remapped.put(CustomRenderType.remap(e.getKey()), e.getValue());
 
         return new CustomBufferSource(fallback, remapped);

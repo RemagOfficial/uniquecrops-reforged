@@ -3,18 +3,21 @@ package com.remag.uniquecrops.blocks.tiles;
 import com.remag.uniquecrops.gui.ContainerCraftyPlant;
 import com.remag.uniquecrops.init.UCTiles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TileCraftyPlant extends BaseTileUC implements MenuProvider {
 
@@ -56,16 +59,30 @@ public class TileCraftyPlant extends BaseTileUC implements MenuProvider {
         this.inv.setStackInSlot(9, toSet);
     }
 
-    @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public List<ItemStack> getStoredItems() {
 
-        tag.put("inventory", inv.serializeNBT());
+        List<ItemStack> stacks = new ArrayList<>();
+        for (int i = 0; i < this.inv.getSlots(); i++) {
+            ItemStack stack = this.inv.getStackInSlot(i);
+            if (!stack.isEmpty())
+                stacks.add(stack.copy());
+        }
+        return stacks;
+    }
+
+    // NeoForge 1.21+: NBT methods require HolderLookup.Provider
+    @Override
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
+        tag.put("inventory", inv.serializeNBT(provider));
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
-
-        inv.deserializeNBT(tag.getCompound("inventory"));
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
+        if (tag.contains("inventory", 10)) {
+            inv.deserializeNBT(provider, tag.getCompound("inventory"));
+        } else {
+            inv.deserializeNBT(provider, new CompoundTag());
+        }
     }
 
     @Override

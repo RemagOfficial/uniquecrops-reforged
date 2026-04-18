@@ -4,31 +4,30 @@ import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCBlocks;
 import com.remag.uniquecrops.init.UCTiles;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.FarmBlock;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class TileDigger extends BaseTileUC {
 
     BlockPos digPos = BlockPos.ZERO;
     boolean jobDone = false;
-    private static TagKey<Block> farmlandTagKey = BlockTags.create(new ResourceLocation("forge", "farmland"));
+    private static TagKey<Block> farmlandTagKey = BlockTags.create(ResourceLocation.fromNamespaceAndPath("c", "farmland"));
 
     public TileDigger(BlockPos pos, BlockState state) {
 
@@ -93,10 +92,11 @@ public class TileDigger extends BaseTileUC {
 
         BlockEntity tile = digWorld.getBlockEntity(getBlockPos().above());
         if (tile == null) return false;
-        LazyOptional<IItemHandler> inventory = tile.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.DOWN);
-        if (!inventory.isPresent()) return false;
-
-        IItemHandler handler = inventory.resolve().get();
+        IItemHandler handler = Capabilities.ItemHandler.BLOCK.getCapability(
+            digWorld, digPos, digState, tile,
+            null
+        );
+        if (handler == null) return false;
         if (insertQuarryItem(handler, digStack, true)) {
             insertQuarryItem(handler, digStack, false);
             digWorld.destroyBlock(digPos, false);
@@ -138,14 +138,14 @@ public class TileDigger extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putLong("UC:digPos", digPos.asLong());
         tag.putBoolean("UC:digJobFinished", jobDone);
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         digPos = BlockPos.of(tag.getLong("UC:digPos"));
         jobDone = tag.getBoolean("UC:digJobFinished");

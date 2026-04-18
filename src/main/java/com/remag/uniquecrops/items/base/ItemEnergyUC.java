@@ -1,19 +1,12 @@
 package com.remag.uniquecrops.items.base;
 
 import com.remag.uniquecrops.api.IItemEnergy;
-import com.remag.uniquecrops.capabilities.UCEnergyImpl;
 import com.remag.uniquecrops.core.NBTUtils;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class ItemEnergyUC extends ItemBaseUC implements IItemEnergy {
 
@@ -31,11 +24,9 @@ public class ItemEnergyUC extends ItemBaseUC implements IItemEnergy {
     @Override
     public int getBarWidth(ItemStack stack) {
 
-        LazyOptional<IEnergyStorage> optional = stack.getCapability(ForgeCapabilities.ENERGY);
-        if (optional.isPresent()) {
-            IEnergyStorage storage = optional.orElseThrow(IllegalStateException::new);
-            return Math.round((float)storage.getEnergyStored() * 13.0F / (float)storage.getMaxEnergyStored());
-        }
+        IEnergyStorage storage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        if (storage != null)
+            return Math.round((float) storage.getEnergyStored() * 13.0F / (float) storage.getMaxEnergyStored());
         return 0;
     }
 
@@ -46,7 +37,7 @@ public class ItemEnergyUC extends ItemBaseUC implements IItemEnergy {
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+    public boolean shouldCauseReequipAnimation(@NotNull ItemStack oldStack, @NotNull ItemStack newStack, boolean slotChanged) {
 
         return !ItemStack.isSameItem(oldStack, newStack);
     }
@@ -79,28 +70,12 @@ public class ItemEnergyUC extends ItemBaseUC implements IItemEnergy {
     @Override
     public int getEnergy(ItemStack stack) {
 
-        return stack.getOrCreateTag().getInt("UC_energy");
+        return NBTUtils.getInt(stack, "UC_energy", 0);
     }
 
     @Override
     public int getCapacity(ItemStack stack) {
 
         return 500;
-    }
-
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag tag) {
-
-        IItemEnergy container = this;
-        return new ICapabilityProvider() {
-            @NotNull
-            @Override
-            public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-
-                if (cap == ForgeCapabilities.ENERGY)
-                    return LazyOptional.of(() -> new UCEnergyImpl(stack, container)).cast();
-                return LazyOptional.empty();
-            }
-        };
     }
 }

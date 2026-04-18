@@ -1,26 +1,26 @@
 package com.remag.uniquecrops.blocks;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BucketRopeBlock extends Block {
 
@@ -41,7 +41,7 @@ public class BucketRopeBlock extends Block {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 
         ItemStack bucket = player.getItemInHand(hand);
         if (bucket.getItem() == Items.BUCKET) {
@@ -53,16 +53,16 @@ public class BucketRopeBlock extends Block {
                 }
                 BlockState loopState = world.getBlockState(searchPos);
                 System.out.println(loopState);
-                if (player.mayUseItemAt(searchPos, hit.getDirection(), bucket) && loopState.getBlock() instanceof BucketPickup) {
-                    ItemStack filled = ((BucketPickup)loopState.getBlock()).pickupBlock(world, searchPos, loopState);
+                if (player.mayUseItemAt(searchPos, hitResult.getDirection(), bucket) && loopState.getBlock() instanceof BucketPickup) {
+                    ItemStack filled = ((BucketPickup)loopState.getBlock()).pickupBlock(player, world, searchPos, loopState);
                     System.out.println(filled);
                     if (!filled.isEmpty() && !player.isCreative())
                         player.setItemInHand(hand, filled);
                 }
             }
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

@@ -1,10 +1,9 @@
 package com.remag.uniquecrops.network;
 
-import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.RubiksCubeItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -32,11 +31,18 @@ public class PacketColorfulCube {
         return new PacketColorfulCube(rotation, teleport);
     }
 
-    public static void handle(PacketColorfulCube msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PacketColorfulCube msg, Supplier<UCPacketHandler.PacketContext> ctx) {
 
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            ((RubiksCubeItem)UCItems.RUBIKS_CUBE.get()).teleportToPosition(player, msg.rotation, msg.teleport);
+            if (player == null) {
+                return;
+            }
+            ItemStack mainHand = player.getMainHandItem();
+            if (mainHand.getItem() instanceof RubiksCubeItem cube) {
+                cube.teleportToPosition(player, msg.rotation, msg.teleport);
+            }
         });
+        ctx.get().setPacketHandled(true);
     }
 }

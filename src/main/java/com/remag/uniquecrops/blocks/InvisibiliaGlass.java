@@ -2,9 +2,9 @@ package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.blocks.tiles.TileInvisibiliaGlass;
 import com.remag.uniquecrops.init.UCItems;
-import net.minecraft.world.level.block.AbstractGlassBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
 import org.jetbrains.annotations.Nullable;
 
-public  class InvisibiliaGlass extends AbstractGlassBlock implements EntityBlock {
+public  class InvisibiliaGlass extends TransparentBlock implements EntityBlock {
 
     public static final BooleanProperty VISIBLE = BooleanProperty.create("visible");
 
@@ -32,7 +32,7 @@ public  class InvisibiliaGlass extends AbstractGlassBlock implements EntityBlock
 
     public InvisibiliaGlass() {
 
-        super(Properties.copy(Blocks.GLASS).isViewBlocking((state, reader, pos) -> false).isSuffocating((state, reader, pos) -> false));
+        super(Properties.ofFullCopy(Blocks.GLASS).isViewBlocking((state, reader, pos) -> false).isSuffocating((state, reader, pos) -> false));
         registerDefaultState(this.stateDefinition.any().setValue(VISIBLE, false));
     }
 

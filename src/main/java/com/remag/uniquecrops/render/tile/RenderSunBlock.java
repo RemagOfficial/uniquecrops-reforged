@@ -56,10 +56,10 @@ public class RenderSunBlock implements BlockEntityRenderer<TileSunBlock> {
 
                 VertexConsumer buff = buffer.getBuffer(CustomRenderType.CUSTOM_BEAM.apply(RES, true));
                 Matrix4f mat = ms.last().pose();
-                buff.vertex(mat, -0.5F * w, -0.25F, 0.0F).color(r, g, b, a).uv(0, 1).uv2(15728880).normal(1, 0, 0).endVertex();
-                buff.vertex(mat,0.5F * w, -0.25F, 0.0F).color(r, g, b, a).uv(1, 1).uv2(15728880).normal(1, 0, 0).endVertex();
-                buff.vertex(mat,0.5F, 0.75F * h, 0.0F).color(r, g, 1f, a).uv(1, 0).uv2(15728880).normal(1, 0, 0).endVertex();
-                buff.vertex(mat, -0.5F, 0.75F * h, 0.0F).color(r, g, 1f, a).uv(0, 0).uv2(15728880).normal(1, 0, 0).endVertex();
+                buff.addVertex(mat, -0.5F * w, -0.25F, 0.0F).setColor(r, g, b, a).setUv(0, 1).setLight(15728880).setNormal(1, 0, 0);
+                buff.addVertex(mat,0.5F * w, -0.25F, 0.0F).setColor(r, g, b, a).setUv(1, 1).setLight(15728880).setNormal(1, 0, 0);
+                buff.addVertex(mat,0.5F, 0.75F * h, 0.0F).setColor(r, g, 1f, a).setUv(1, 0).setLight(15728880).setNormal(1, 0, 0);
+                buff.addVertex(mat, -0.5F, 0.75F * h, 0.0F).setColor(r, g, 1f, a).setUv(0, 0).setLight(15728880).setNormal(1, 0, 0);
 
                 phase = (float)(phase + 0.125D);
                 if (phase > 1.0F)

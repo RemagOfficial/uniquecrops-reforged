@@ -12,9 +12,9 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class UCEnchanterCategory implements IRecipeCategory<RecipeEnchanter> {
@@ -56,8 +56,8 @@ public class UCEnchanterCategory implements IRecipeCategory<RecipeEnchanter> {
     }
 
     @Override
-    public void draw(RecipeEnchanter recipe, IRecipeSlotsView view, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        final String text = I18n.get(recipe.getEnchantment().getDescriptionId()) + " " + recipe.getEnchantment().getMaxLevel();
+    public void draw(@NotNull RecipeEnchanter recipe, @NotNull IRecipeSlotsView view, @NotNull GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        final String text = recipe.getResultItem().getHoverName().getString() + " " + recipe.getEnchantment().getMaxLevel();
         Minecraft minecraft = Minecraft.getInstance();
         int stringWidth = minecraft.font.width(text);
 
@@ -68,8 +68,7 @@ public class UCEnchanterCategory implements IRecipeCategory<RecipeEnchanter> {
         final String cost = "Cost: " + recipe.getCost();
         int costWidth = minecraft.font.width(cost);
 
-        guiGraphics.drawString(minecraft.font, cost, 50 - costWidth / 2, 95, 0x555555, false
-        );
+        guiGraphics.drawString(minecraft.font, cost, 50 - costWidth / 2, 95, 0x555555, false);
     }
 
     @Override

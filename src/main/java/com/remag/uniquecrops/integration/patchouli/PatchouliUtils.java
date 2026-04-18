@@ -2,13 +2,14 @@ package com.remag.uniquecrops.integration.patchouli;
 
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCRecipes;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
 import vazkii.patchouli.api.IMultiblock;
 import vazkii.patchouli.api.PatchouliAPI;
 
@@ -40,7 +41,7 @@ public final class PatchouliUtils {
     public static String serialize(BlockState state) {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(ForgeRegistries.BLOCKS.getKey(state.getBlock()));
+        sb.append(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
         if (!state.getValues().isEmpty()) {
             sb.append("[");
             sb.append(state.getValues().entrySet().stream().map(PROPERTIES_COMPARABLE).collect(Collectors.joining(",")));
@@ -50,12 +51,16 @@ public final class PatchouliUtils {
     }
 
     public static BlockState deserialize(String string) {
+        return deserialize(null, string);
+    }
+
+    public static BlockState deserialize(RegistryAccess registryAccess, String string) {
 
         if (string.contains("[")) {
             String[] split = string.split("\\[");
             split[1] = split[1].substring(0, split[1].lastIndexOf("]"));
 
-            Block block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(split[0]));
+            Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.tryParse(split[0]));
             if (block == Blocks.AIR) return Blocks.AIR.defaultBlockState();
 
             StateDefinition blockState = block.getStateDefinition();

@@ -1,29 +1,27 @@
 package com.remag.uniquecrops.blocks.supercrops;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class Lignator extends Block {
 
@@ -31,7 +29,7 @@ public class Lignator extends Block {
 
     public Lignator() {
 
-        super(Properties.copy(Blocks.CACTUS));
+        super(Properties.ofFullCopy(Blocks.CACTUS));
     }
 
     @Override
@@ -75,7 +73,7 @@ public class Lignator extends Block {
 
         if (world.getBlockState(pos.below()).getBlock() != this) {
             for (BlockPos loopPos : BlockPos.betweenClosed(pos.offset(-5, 0, -5), pos.offset(5, 0, 5))) {
-                if (ForgeRegistries.BLOCKS.tags().getTag(BlockTags.LOGS).contains(world.getBlockState(loopPos).getBlock()))
+                if (world.getBlockState(loopPos).is(BlockTags.LOGS))
                     world.destroyBlock(loopPos.immutable(), true);
 
                 if (!pos.equals(loopPos) && world.getBlockState(loopPos).getBlock() == this)
@@ -93,7 +91,7 @@ public class Lignator extends Block {
         boolean grow = false;
         for (BlockPos loopPos : BlockPos.betweenClosed(pos.offset(-5, 0, -5), pos.offset(5, 0, 5))) {
 
-            if (ForgeRegistries.BLOCKS.tags().getTag(BlockTags.LOGS).contains(world.getBlockState(loopPos).getBlock())) {
+            if (world.getBlockState(loopPos).is(BlockTags.LOGS)) {
                 if (!grow) grow = true;
                 world.destroyBlock(loopPos.immutable(), true);
             }

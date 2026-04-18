@@ -2,65 +2,89 @@ package com.remag.uniquecrops.init;
 
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.crafting.*;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
-import net.minecraftforge.registries.*;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.brewing.IBrewingRecipe;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
+@EventBusSubscriber(modid = UniqueCrops.MOD_ID)
 public class UCRecipes {
 
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
-            DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, UniqueCrops.MOD_ID);
+            DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, UniqueCrops.MOD_ID);
 
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES =
-            DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, UniqueCrops.MOD_ID);
+            DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, UniqueCrops.MOD_ID);
 
     // Recipe Serializers
-    public static final RegistryObject<RecipeSerializer<?>> ARTISIA_SERIALIZER =
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> ARTISIA_SERIALIZER =
             registerSerializer("artisia", RecipeArtisia.Serializer::new);
-    public static final RegistryObject<RecipeSerializer<?>> HOURGLASS_SERIALIZER =
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> HOURGLASS_SERIALIZER =
             registerSerializer("hourglass", RecipeHourglass.Serializer::new);
-    public static final RegistryObject<RecipeSerializer<?>> ENCHANTER_SERIALIZER =
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> ENCHANTER_SERIALIZER =
             registerSerializer("enchanter", RecipeEnchanter.Serializer::new);
-    public static final RegistryObject<RecipeSerializer<?>> HEATER_SERIALIZER =
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> HEATER_SERIALIZER =
             registerSerializer("heater", RecipeHeater.Serializer::new);
-    public static final RegistryObject<RecipeSerializer<?>> MULTIBLOCK_SERIALIZER =
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> MULTIBLOCK_SERIALIZER =
             registerSerializer("multiblock", RecipeMultiblock.Serializer::new);
 
     // Recipe Types
-    public static final RegistryObject<RecipeType<RecipeArtisia>> ARTISIA_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<RecipeArtisia>> ARTISIA_TYPE =
             registerType("artisia");
-    public static final RegistryObject<RecipeType<RecipeHourglass>> HOURGLASS_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<RecipeHourglass>> HOURGLASS_TYPE =
             registerType("hourglass");
-    public static final RegistryObject<RecipeType<RecipeEnchanter>> ENCHANTER_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<RecipeEnchanter>> ENCHANTER_TYPE =
             registerType("enchanter");
-    public static final RegistryObject<RecipeType<RecipeHeater>> HEATER_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<RecipeHeater>> HEATER_TYPE =
             registerType("heater");
-    public static final RegistryObject<RecipeType<RecipeMultiblock>> MULTIBLOCK_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<RecipeMultiblock>> MULTIBLOCK_TYPE =
             registerType("multiblock");
 
-    public static void registerBrews() {
-        ItemStack awkwardPotion = PotionUtils.setPotion(new ItemStack(Items.POTION), Potion.byName("awkward"));
-        ItemStack invisibilityPotion = PotionUtils.setPotion(new ItemStack(Items.POTION), Potion.byName("invisibility"));
-        if (!awkwardPotion.isEmpty()) {
-            BrewingRecipeRegistry.addRecipe(Ingredient.of(awkwardPotion), Ingredient.of(UCItems.TIMEDUST.get()), new ItemStack(UCItems.POTION_REVERSE.get()));
-            BrewingRecipeRegistry.addRecipe(Ingredient.of(invisibilityPotion), Ingredient.of(UCBlocks.INVISIBILIA_GLASS.get()), new ItemStack(UCItems.POTION_IGNORANCE.get()));
-            BrewingRecipeRegistry.addRecipe(Ingredient.of(awkwardPotion), Ingredient.of(UCItems.ZOMBIE_SLURRY.get()), new ItemStack(UCItems.POTION_ZOMBIFICATION.get()));
-            BrewingRecipeRegistry.addRecipe(Ingredient.of(awkwardPotion), Ingredient.of(UCBlocks.DARK_BLOCK.get()), new ItemStack(UCItems.POTION_ENNUI.get()));
-        }
+    @SubscribeEvent
+    public static void registerBrews(RegisterBrewingRecipesEvent event) {
+        event.getBuilder().addRecipe(potionBrewRecipe(Potions.AWKWARD, UCItems.TIMEDUST.get(), UCItems.POTION_REVERSE.get()));
+        event.getBuilder().addRecipe(potionBrewRecipe(Potions.INVISIBILITY, UCBlocks.INVISIBILIA_GLASS.get(), UCItems.POTION_IGNORANCE.get()));
+        event.getBuilder().addRecipe(potionBrewRecipe(Potions.AWKWARD, UCItems.ZOMBIE_SLURRY.get(), UCItems.POTION_ZOMBIFICATION.get()));
+        event.getBuilder().addRecipe(potionBrewRecipe(Potions.AWKWARD, UCBlocks.DARK_BLOCK.get(), UCItems.POTION_ENNUI.get()));
     }
 
-    private static <R extends RecipeSerializer<?>> RegistryObject<R> registerSerializer(String name, Supplier<? extends R> supplier) {
+    private static IBrewingRecipe potionBrewRecipe(net.minecraft.core.Holder<net.minecraft.world.item.alchemy.Potion> inputPotion,
+                                                    net.minecraft.world.level.ItemLike reagent,
+                                                    net.minecraft.world.level.ItemLike output) {
+        return new IBrewingRecipe() {
+            @Override
+            public boolean isInput(@NotNull ItemStack input) {
+                PotionContents contents = input.get(DataComponents.POTION_CONTENTS);
+                return contents != null && contents.is(inputPotion);
+            }
+            @Override
+            public boolean isIngredient(@NotNull ItemStack ingredient) {
+                return ingredient.is(reagent.asItem());
+            }
+            @Override
+            public @NotNull ItemStack getOutput(@NotNull ItemStack input, @NotNull ItemStack ingredient) {
+                return new ItemStack(output.asItem());
+            }
+        };
+    }
+
+    private static <R extends RecipeSerializer<?>> DeferredHolder<RecipeSerializer<?>, R> registerSerializer(String name, Supplier<? extends R> supplier) {
         return RECIPE_SERIALIZERS.register(name, supplier);
     }
 
-    public static <T extends Recipe<?>> RegistryObject<RecipeType<T>> registerType(String name) {
-        return RECIPE_TYPES.register(name, () -> new RecipeType<T>() {
+    public static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
+        return RECIPE_TYPES.register(name, () -> new RecipeType<>() {
             @Override
             public String toString() {
                 return UniqueCrops.MOD_ID + ":" + name;

@@ -153,19 +153,19 @@ public class RenderItemTile {
     private static final float field_229057_l_ = (float)(Math.sqrt(3.0D) / 2.0D);
 
     private static void func_229061_a_(VertexConsumer p_229061_0_, Matrix4f p_229061_1_, int p_229061_2_) {
-        p_229061_0_.vertex(p_229061_1_, 0.0F, 0.0F, 0.0F).color(255, 255, 255, p_229061_2_).endVertex();
-        p_229061_0_.vertex(p_229061_1_, 0.0F, 0.0F, 0.0F).color(255, 255, 255, p_229061_2_).endVertex();
+        p_229061_0_.addVertex(p_229061_1_, 0.0F, 0.0F, 0.0F).setColor(255, 255, 255, p_229061_2_);
+        p_229061_0_.addVertex(p_229061_1_, 0.0F, 0.0F, 0.0F).setColor(255, 255, 255, p_229061_2_);
     }
 
     private static void func_229060_a_(VertexConsumer p_229060_0_, Matrix4f p_229060_1_, float p_229060_2_, float p_229060_3_) {
-        p_229060_0_.vertex(p_229060_1_, -field_229057_l_ * p_229060_3_, p_229060_2_, -0.5F * p_229060_3_).color(255, 0, 255, 0).endVertex();
+        p_229060_0_.addVertex(p_229060_1_, -field_229057_l_ * p_229060_3_, p_229060_2_, -0.5F * p_229060_3_).setColor(255, 0, 255, 0);
     }
 
     private static void func_229062_b_(VertexConsumer p_229062_0_, Matrix4f p_229062_1_, float p_229062_2_, float p_229062_3_) {
-        p_229062_0_.vertex(p_229062_1_, field_229057_l_ * p_229062_3_, p_229062_2_, -0.5F * p_229062_3_).color(255, 0, 255, 0).endVertex();
+        p_229062_0_.addVertex(p_229062_1_, field_229057_l_ * p_229062_3_, p_229062_2_, -0.5F * p_229062_3_).setColor(255, 0, 255, 0);
     }
 
     private static void func_229063_c_(VertexConsumer p_229063_0_, Matrix4f p_229063_1_, float p_229063_2_, float p_229063_3_) {
-        p_229063_0_.vertex(p_229063_1_, 0.0F, p_229063_2_, p_229063_3_).color(255, 0, 255, 0).endVertex();
+        p_229063_0_.addVertex(p_229063_1_, 0.0F, p_229063_2_, p_229063_3_).setColor(255, 0, 255, 0);
     }
 }

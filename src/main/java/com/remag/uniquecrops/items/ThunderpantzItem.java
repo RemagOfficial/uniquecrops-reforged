@@ -4,24 +4,26 @@ import com.remag.uniquecrops.api.IBookUpgradeable;
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class ThunderpantzItem extends ItemArmorUC implements IBookUpgradeable {
 
@@ -31,14 +33,13 @@ public class ThunderpantzItem extends ItemArmorUC implements IBookUpgradeable {
     public ThunderpantzItem() {
 
         super(EnumArmorMaterial.THUNDERPANTZ, Type.LEGGINGS);
-        MinecraftForge.EVENT_BUS.addListener(this::onLivingAttack);
+        NeoForge.EVENT_BUS.addListener(this::onLivingAttack);
     }
 
-    private void onLivingAttack(LivingAttackEvent event) {
+    private void onLivingAttack(AttackEntityEvent event) {
+        Player player = event.getEntity();
 
-        if (!(event.getEntity() instanceof Player player)) return;
-
-        if (event.getSource().getDirectEntity() instanceof LivingEntity el) {
+        if (event.getTarget() instanceof LivingEntity el) {
             ItemStack pants = player.getItemBySlot(EquipmentSlot.LEGS);
             if (pants.getItem() == this) {
                 if (getCharge(pants) < 1F) return;
@@ -46,8 +47,11 @@ public class ThunderpantzItem extends ItemArmorUC implements IBookUpgradeable {
                 event.setCanceled(true);
                 float toDamage = getCharge(pants);
                 LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(el.level());
-                bolt.setVisualOnly(true);
-                player.level().addFreshEntity(bolt);
+                if (bolt != null) {
+                    bolt.setVisualOnly(true);
+                    bolt.moveTo(el.getX(), el.getY(), el.getZ());
+                    player.level().addFreshEntity(bolt);
+                }
 
                 Holder<DamageType> lightningDamage = player.level().registryAccess()
                         .registryOrThrow(Registries.DAMAGE_TYPE)
@@ -60,9 +64,12 @@ public class ThunderpantzItem extends ItemArmorUC implements IBookUpgradeable {
         }
     }
 
-    @SuppressWarnings("removal")
     @Override
-    public void onArmorTick(ItemStack stack, Level world, Player player) {
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level world, @NotNull Entity entity, int slot, boolean selected) {
+
+        super.inventoryTick(stack, world, entity, slot, selected);
+        if (!(entity instanceof Player player)) return;
+        if (player.getItemBySlot(EquipmentSlot.LEGS) != stack) return;
 
         if (world.isClientSide) return;
         if (getCharge(stack) >= MAX_CHARGE) return;
@@ -78,7 +85,7 @@ public class ThunderpantzItem extends ItemArmorUC implements IBookUpgradeable {
     }
 
     @Override
-    public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
+    public boolean isValidRepairItem(@NotNull ItemStack toRepair, @NotNull ItemStack repair) {
 
         return false;
     }

@@ -11,8 +11,8 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class FunnyLightBlock extends Block {
 
@@ -20,7 +20,7 @@ public class FunnyLightBlock extends Block {
 
     public FunnyLightBlock() {
 
-        super(Properties.copy(Blocks.TORCH).lightLevel((func) -> 15));
+        super(Properties.ofFullCopy(Blocks.TORCH).lightLevel((func) -> 15));
     }
 
     @Override

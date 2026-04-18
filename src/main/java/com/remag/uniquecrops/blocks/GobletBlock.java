@@ -1,3 +1,4 @@
+
 package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.blocks.tiles.TileGoblet;
@@ -5,41 +6,43 @@ import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class GobletBlock extends Block implements EntityBlock {
 
     public static final BooleanProperty FILLED = BooleanProperty.create("filled");
@@ -49,14 +52,13 @@ public class GobletBlock extends Block implements EntityBlock {
 
         super(Properties.of().sound(SoundType.METAL).strength(0.3F, 1.0F).noCollission().mapColor(MapColor.CLAY));
         registerDefaultState(defaultBlockState().setValue(FILLED, false));
-        MinecraftForge.EVENT_BUS.addListener(this::onLivingAttack);
+        NeoForge.EVENT_BUS.addListener(this::onLivingAttack);
     }
 
-    private void onLivingAttack(LivingAttackEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
+    private void onLivingAttack(AttackEntityEvent event) {
 
-        DamageSource source = event.getSource();
-        if (!source.is(DamageTypes.MAGIC) && source.getEntity() instanceof LivingEntity) {
+        DamageSource source = event.getEntity().getLastDamageSource();
+        if (source != null && !source.is(DamageTypes.MAGIC) && source.getEntity() instanceof LivingEntity) {
             if (event.getEntity().level() instanceof ServerLevel serverLevel) {
                 BlockPos center = event.getEntity().blockPosition();
                 int radius = 8;
@@ -72,7 +74,7 @@ public class GobletBlock extends Block implements EntityBlock {
                         LivingEntity tagged = UCUtils.getTaggedEntity(goblet.entityId);
                         if (tagged != null) {
                             event.setCanceled(true);
-                            tagged.hurt(source, event.getAmount());
+                            tagged.hurt(source, 1.0F);
                             if (!tagged.isAlive()) {
                                 goblet.eraseTaglock();
                             }
@@ -103,22 +105,21 @@ public class GobletBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 
         if (!isFilled(state)) {
-            ItemStack stack = player.getMainHandItem();
             BlockEntity tile = world.getBlockEntity(pos);
             if (tile instanceof TileGoblet && stack.getItem() == UCItems.VAMPIRIC_OINTMENT.get()) {
-                boolean flag = stack.hasTag() && stack.getTag().contains(UCStrings.TAG_LOCK);
+                boolean flag = NBTUtils.verifyExistance(stack, UCStrings.TAG_LOCK);
                 if (!world.isClientSide && flag) {
                     ((TileGoblet)tile).setTaglock(UUID.fromString(NBTUtils.getString(stack, UCStrings.TAG_LOCK, "")));
                     player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                     world.setBlock(pos, state.setValue(FILLED, true), 3);
                 }
-                return InteractionResult.SUCCESS;
+                return ItemInteractionResult.SUCCESS;
             }
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
@@ -129,7 +130,7 @@ public class GobletBlock extends Block implements EntityBlock {
         if (!(entity instanceof ItemEntity) || ((ItemEntity) entity).getItem().getItem() != UCItems.VAMPIRIC_OINTMENT.get()) return;
 
         ItemStack ointment = ((ItemEntity)entity).getItem();
-        if (!ointment.hasTag() || !ointment.getTag().contains(UCStrings.TAG_LOCK)) return;
+        if (!NBTUtils.verifyExistance(ointment, UCStrings.TAG_LOCK)) return;
 
         if (!world.isClientSide) {
             world.setBlock(pos, state.setValue(FILLED, true), 3);

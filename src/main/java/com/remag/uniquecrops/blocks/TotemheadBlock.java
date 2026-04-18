@@ -21,6 +21,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -60,7 +61,11 @@ public class TotemheadBlock extends Block {
     private boolean findMobs(ServerLevel world, BlockPos pos) {
 
         boolean foundEntity = false;
-        List<LivingEntity> elb = world.getEntitiesOfClass(LivingEntity.class, new AABB(pos.offset(-RANGE, -1, -RANGE), pos.offset(RANGE, 1, RANGE)));
+        List<LivingEntity> elb = world.getEntitiesOfClass(LivingEntity.class,
+                new AABB(
+                        Vec3.atLowerCornerOf(pos.offset(-RANGE, -1, -RANGE)),
+                        Vec3.atLowerCornerOf(pos.offset(RANGE + 1, 2, RANGE + 1))
+                ));
         for (LivingEntity entity : elb) {
             if (entity.isAlive() && (entity instanceof Monster || entity instanceof Slime)) {
                 entity.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 500, 1));

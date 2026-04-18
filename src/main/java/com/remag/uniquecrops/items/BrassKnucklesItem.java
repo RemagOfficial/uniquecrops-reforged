@@ -5,25 +5,27 @@ import com.remag.uniquecrops.core.enums.EnumParticle;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class BrassKnucklesItem extends SwordItem {
 
@@ -34,44 +36,35 @@ public class BrassKnucklesItem extends SwordItem {
 
     public BrassKnucklesItem() {
 
-        super(Tiers.IRON, 1, 1.31F, UCItems.unstackable());
-        MinecraftForge.EVENT_BUS.addListener(this::knuckleDuster);
+        super(Tiers.IRON, UCItems.unstackable().rarity(Rarity.RARE));
+        NeoForge.EVENT_BUS.addListener(this::knuckleDuster);
     }
 
-    private void knuckleDuster(LivingAttackEvent event) {
+    private void knuckleDuster(AttackEntityEvent event) {
 
         if (event.getEntity().level().isClientSide) return;
-        if (event.getEntity() != null && event.getSource().getDirectEntity() instanceof Player player) {
+        if (event.getTarget() instanceof LivingEntity target) {
+            Player player = event.getEntity();
             ItemStack brassKnuckles = player.getMainHandItem();
             if (brassKnuckles.getItem() == this) {
-                boolean flag = event.getSource().getDirectEntity() != event.getSource().getEntity();
-                if (flag) return;
-//                boolean flag = NBTUtils.getList(brassKnuckles, HIT_LIST, 10, true) != null && NBTUtils.getList(brassKnuckles, HIT_LIST, 10, true).isEmpty();
-//                if (!flag) return;
-                float damage = event.getAmount();
-                addHitEntity(event.getEntity(), brassKnuckles, damage);
+                float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+                addHitEntity(target, brassKnuckles, damage);
                 event.setCanceled(true);
-                BlockPos pos = event.getEntity().blockPosition();
+                BlockPos pos = target.blockPosition();
                 UCPacketHandler.sendToNearbyPlayers(player.level(), player.blockPosition(), new PacketUCEffect(EnumParticle.CRIT, pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5, 6));
             }
         }
     }
 
     @Override
-    public Rarity getRarity(ItemStack stack) {
-
-        return Rarity.RARE;
-    }
-
-    @Override
-    public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level world, @NotNull Entity entity, int slot, boolean selected) {
 
         if (!world.isClientSide && entity instanceof Player)
             removeHitEntity(stack, world, (Player)entity, selected);
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+    public boolean shouldCauseReequipAnimation(@NotNull ItemStack oldStack, @NotNull ItemStack newStack, boolean slotChanged) {
 
         return !ItemStack.isSameItem(oldStack, newStack);
     }
@@ -79,6 +72,7 @@ public class BrassKnucklesItem extends SwordItem {
     private void addHitEntity(LivingEntity target, ItemStack stack, float damage) {
 
         ListTag tagList = NBTUtils.getList(stack, HIT_LIST, 10, false);
+        if (tagList == null) return;
         if (tagList.size() > 4) return;
 
         CompoundTag nbt = new CompoundTag();
@@ -99,13 +93,14 @@ public class BrassKnucklesItem extends SwordItem {
             tagList.clear();
             return;
         }
-        for (int i = 0; i < tagList.size(); i++) {
+        for (int i = tagList.size() - 1; i >= 0; i--) {
             CompoundTag nbt = tagList.getCompound(i);
             int timer = nbt.getInt(HIT_TIME);
             if (timer > 0)
                 nbt.putInt(HIT_TIME, --timer);
             else {
-                LivingEntity elb = (LivingEntity)world.getEntity(nbt.getInt(HIT_ENTITY));
+                Entity hitEntity = world.getEntity(nbt.getInt(HIT_ENTITY));
+                LivingEntity elb = hitEntity instanceof LivingEntity living ? living : null;
                 if (elb != null) {
                     float damage = nbt.getFloat(HIT_AMOUNT);
                     Holder<DamageType> playerDamage = player.level().registryAccess()

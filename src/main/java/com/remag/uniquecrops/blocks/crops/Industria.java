@@ -17,9 +17,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 public class Industria extends BaseCropsBlock implements EntityBlock {
 
@@ -50,7 +50,10 @@ public class Industria extends BaseCropsBlock implements EntityBlock {
         int loopSize = 1 + world.random.nextInt(1);
         for (int i = 0; i < loopSize; i++) {
             ItemStack bean = new ItemStack(UCItems.BEAN_BATTERY.get());
-            if (bean.getCapability(ForgeCapabilities.ENERGY).isPresent()) {
+            // Fix: Use NeoForge pattern for energy capability
+            var energy = bean.getCapability(Capabilities.EnergyStorage.ITEM, null);
+            if (energy != null) {
+                // If BeanBatteryItem.setEnergyStored is a custom setter, keep it; otherwise, use the capability
                 ((BeanBatteryItem)bean.getItem()).setEnergyStored(bean, 500 / loopSize);
             }
             Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), bean);
@@ -87,7 +90,7 @@ public class Industria extends BaseCropsBlock implements EntityBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader p_256559_, BlockPos p_50898_, BlockState p_50899_, boolean p_50900_) {
+    public boolean isValidBonemealTarget(LevelReader p_256559_, BlockPos p_50898_, BlockState p_50899_) {
         return false;
     }
 

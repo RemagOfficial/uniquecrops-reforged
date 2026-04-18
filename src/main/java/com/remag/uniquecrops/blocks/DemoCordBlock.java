@@ -23,7 +23,7 @@ public class DemoCordBlock extends Block {
 
     public DemoCordBlock() {
 
-        super(Properties.copy(Blocks.REDSTONE_WIRE));
+        super(Properties.ofFullCopy(Blocks.REDSTONE_WIRE));
     }
 
     @Override

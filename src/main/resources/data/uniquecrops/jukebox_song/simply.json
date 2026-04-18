@@ -1,0 +1,9 @@
+{
+  "comparator_output": 7,
+  "description": {
+    "translate": "item.uniquecrops.record_simply.desc"
+  },
+  "length_in_seconds": 123.0,
+  "sound_event": "uniquecrops:simply"
+}
+

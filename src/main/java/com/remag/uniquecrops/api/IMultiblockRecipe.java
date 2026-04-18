@@ -3,19 +3,19 @@ package com.remag.uniquecrops.api;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.crafting.RecipeMultiblock;
 import com.remag.uniquecrops.init.UCRecipes;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.Container;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public interface IMultiblockRecipe extends Recipe<Container> {
+public interface IMultiblockRecipe extends Recipe<RecipeInput> {
 
     ResourceLocation RES = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "multiblock");
 
@@ -36,7 +36,7 @@ public interface IMultiblockRecipe extends Recipe<Container> {
     }
 
     @Override
-    default boolean matches(Container inv, Level worldIn) {
+    default boolean matches(RecipeInput inv, Level worldIn) {
 
         return false;
     }

@@ -10,9 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +29,8 @@ public class AnkhItem extends ItemBaseUC {
     public AnkhItem() {
 
         super(UCItems.defaultBuilder().durability(6));
-        MinecraftForge.EVENT_BUS.addListener(this::checkPlayerDeath);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerClone);
+        NeoForge.EVENT_BUS.addListener(this::checkPlayerDeath);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerClone);
     }
 
     private void checkPlayerDeath(LivingDeathEvent event) {
@@ -69,7 +69,7 @@ public class AnkhItem extends ItemBaseUC {
 
     private List<Integer> getSurroundingSlots(int slotIndex) {
 
-        List<Integer> slotList = new ArrayList();
+        List<Integer> slotList = new ArrayList<>();
         if (slotIndex > 35 || slotIndex < 0) return slotList;
 
         for (int i = 0; i < INV.length; i++) {
@@ -106,7 +106,7 @@ public class AnkhItem extends ItemBaseUC {
                         if (!stack.isEmpty()) {
                             CompoundTag tag = new CompoundTag();
                             tag.putInt("Slot", slot);
-                            stack.save(tag);
+                            tag.put("Stack", stack.save(player.registryAccess()));
                             tagList.add(tag);
                             if (!player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
                                 player.getInventory().items.set(slot, ItemStack.EMPTY);
@@ -126,9 +126,9 @@ public class AnkhItem extends ItemBaseUC {
         for (int i = 0; i < tagList.size(); i++) {
             CompoundTag tag = tagList.getCompound(i);
             int slot = tag.getInt("Slot");
-            ItemStack newStack = ItemStack.of(tag);
+            ItemStack newStack = ItemStack.parseOptional(newPlayer.registryAccess(), tag.getCompound("Stack"));
             if (newStack.getItem() == UCItems.ANKH.get())
-                newStack.hurtAndBreak(1, newPlayer, (entity) -> {});
+                newStack.setDamageValue(newStack.getDamageValue() + 1);
             newPlayer.getInventory().items.set(slot, newStack);
         }
     }

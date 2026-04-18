@@ -2,8 +2,8 @@ package com.remag.uniquecrops.integration.patchouli.processor;
 
 import com.remag.uniquecrops.integration.patchouli.PatchouliUtils;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import vazkii.patchouli.api.IComponentProcessor;
 import vazkii.patchouli.api.IVariable;
 import vazkii.patchouli.api.IVariableProvider;
@@ -19,7 +19,7 @@ public class CropProcessor implements IComponentProcessor {
             state = Blocks.AIR.defaultBlockState();
             return;
         }
-        state = PatchouliUtils.deserialize(var.get("blockstate").asString());
+        state = PatchouliUtils.deserialize(level.registryAccess(), var.get("blockstate", level.registryAccess()).asString());
     }
 
     @Override
@@ -28,6 +28,6 @@ public class CropProcessor implements IComponentProcessor {
         if (key.equals("blockstate"))
             return IVariable.wrap(PatchouliUtils.serialize(state));
 
-        return null;
+        return IVariable.wrap("");
     }
 }

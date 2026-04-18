@@ -2,14 +2,14 @@ package com.remag.uniquecrops.api;
 
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.init.UCRecipes;
-import net.minecraft.world.Container;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public interface IHeaterRecipe extends Recipe<Container> {
+public interface IHeaterRecipe extends Recipe<RecipeInput> {
 
     ResourceLocation RES = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "heater");
 

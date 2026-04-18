@@ -1,14 +1,14 @@
 package com.remag.uniquecrops.blocks.tiles;
 
 import com.remag.uniquecrops.init.UCTiles;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.awt.*;
-import java.util.Iterator;
 
 public class TileHarvestTrap extends BaseTileUC {
 
@@ -52,26 +52,24 @@ public class TileHarvestTrap extends BaseTileUC {
         if (level.isClientSide) return;
 
         Iterable<BlockPos> posList = BlockPos.betweenClosed(worldPosition.offset(-RANGE, 0, -RANGE), worldPosition.offset(RANGE, 1, RANGE));
-        Iterator<BlockPos> iterator = posList.iterator();
-        while (iterator.hasNext()) {
-            BlockPos loopPos = iterator.next();
+        for (BlockPos loopPos : posList) {
             BlockState loopState = level.getBlockState(loopPos);
-            if (loopState.getBlock() instanceof BonemealableBlock && ((BonemealableBlock)loopState.getBlock()).isValidBonemealTarget(level, loopPos, loopState, level.isClientSide)) {
+            if (loopState.getBlock() instanceof BonemealableBlock && ((BonemealableBlock) loopState.getBlock()).isValidBonemealTarget(level, loopPos, loopState)) {
                 level.levelEvent(2005, loopPos, 0);
-                loopState.getBlock().randomTick(loopState, (ServerLevel)level, loopPos, level.random);
+                ((BonemealableBlock) loopState.getBlock()).performBonemeal((ServerLevel) level, level.random, loopPos, loopState);
             }
         }
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putBoolean("UC:collectedSpirit", this.collectedSpirit);
         tag.putInt("UC:spiritTime", this.spiritTime);
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.collectedSpirit = tag.getBoolean("UC:collectedSpirit");
         this.spiritTime = tag.getInt("UC:spiritTime");

@@ -2,26 +2,30 @@ package com.remag.uniquecrops.items.base;
 
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.api.IBookUpgradeable;
+import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
 import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemArmorUC extends ArmorItem {
-    public ItemArmorUC(ArmorMaterial armorMaterial, Type type) {
-        super(armorMaterial, type, UCItems.defaultBuilder().stacksTo(1));
+    private final String textureName;
+
+    public ItemArmorUC(EnumArmorMaterial armorMaterial, Type type) {
+        super(armorMaterial.getMaterial(), type, UCItems.defaultBuilder().stacksTo(1));
+        this.textureName = armorMaterial.getName();
     }
 
     /* public ItemArmorUC(ArmorMaterial material, EquipmentSlot slot) {
@@ -29,7 +33,7 @@ public class ItemArmorUC extends ArmorItem {
     } */
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull Item.TooltipContext tooltipContext, @NotNull List<Component> list, @NotNull TooltipFlag flag) {
 
         if (stack.getItem() instanceof IBookUpgradeable) {
             if (((IBookUpgradeable)stack.getItem()).getLevel(stack) > -1)
@@ -39,10 +43,8 @@ public class ItemArmorUC extends ArmorItem {
         }
     }
 
-    @Override
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-
-        return String.format("%s:textures/models/armor/%s_layer_%s.png", UniqueCrops.MOD_ID, this.material.getName(), isUpper(slot) ? "1" : "2");
+    public String getArmorTexture(ItemStack stack, EquipmentSlot slot) {
+        return String.format("%s:textures/models/armor/%s_layer_%s.png", UniqueCrops.MOD_ID, textureName, isUpper(slot) ? "1" : "2");
     }
 
     private boolean isUpper(EquipmentSlot slot) {
@@ -51,14 +53,14 @@ public class ItemArmorUC extends ArmorItem {
     }
 
     @Override
-    public void onCraftedBy(ItemStack stack, Level world, Player player) {
+    public void onCraftedBy(@NotNull ItemStack stack, @NotNull Level world, @NotNull Player player) {
 
         if (stack.getItem() == UCItems.CACTUS_BOOTS.get() || stack.getItem() == UCItems.CACTUS_CHESTPLATE.get() || stack.getItem() == UCItems.CACTUS_HELM.get() || stack.getItem() == UCItems.CACTUS_LEGGINGS.get())
-            stack.enchant(Enchantments.THORNS, 1);
+            stack.enchant(player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.THORNS), 1);
     }
 
     @Override
-    public boolean makesPiglinsNeutral(ItemStack stack, LivingEntity wearer) {
+    public boolean makesPiglinsNeutral(@NotNull ItemStack stack, @NotNull LivingEntity wearer) {
 
         if (stack.getItem() == UCItems.GLASSES_3D.get() || stack.getItem() == UCItems.GLASSES_PIXELS.get() || stack.getItem() == UCItems.THUNDERPANTZ.get())
             return true;

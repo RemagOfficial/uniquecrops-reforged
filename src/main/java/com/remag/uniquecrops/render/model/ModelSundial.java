@@ -36,9 +36,9 @@ public class ModelSundial extends Model {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int red, int green, int blue) {
 
-        Dial.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        DialRedstone.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        Dial.render(poseStack, vertexConsumer, red, green, blue);
+        DialRedstone.render(poseStack, vertexConsumer, red, green, blue);
     }
 }

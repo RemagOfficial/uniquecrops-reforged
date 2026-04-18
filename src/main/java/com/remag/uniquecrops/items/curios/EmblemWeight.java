@@ -4,8 +4,8 @@ import com.remag.uniquecrops.entities.DonkItemEntity;
 import com.remag.uniquecrops.items.base.ItemCurioUC;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.Mth;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 
 import java.util.Random;
 
@@ -13,12 +13,11 @@ public class EmblemWeight extends ItemCurioUC {
 
     public EmblemWeight() {
 
-        MinecraftForge.EVENT_BUS.addListener(this::onItemToss);
+        NeoForge.EVENT_BUS.addListener(this::onItemToss);
     }
 
     private void onItemToss(ItemTossEvent event) {
 
-        if (event.getPlayer() == null) return;
 
         if (this.hasCurio(event.getPlayer())) {
             Player player = event.getPlayer();

@@ -77,10 +77,10 @@ public class RenderItero implements BlockEntityRenderer<TileItero> {
 
             Matrix4f mat = ms.last().pose();
             int tint = tintcolors[plateIdx];
-            vc.vertex(mat, -0.5F * w, -0.25F, 0.0F).color(tint).uv(0f, 1f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
-            vc.vertex(mat,0.5F * w, -0.25F, 0.0F).color(tint).uv(1f, 1f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
-            vc.vertex(mat,0.5F, 0.75F * h, 0.0F).color(tint).uv(1f, 0f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
-            vc.vertex(mat, -0.5F, 0.75F * h, 0.0F).color(tint).uv(0f, 0f).uv2(0x00F000F0).normal(1, 0, 0).endVertex();
+            vc.addVertex(mat, -0.5F * w, -0.25F, 0.0F).setColor(tint).setUv(0f, 1f).setLight(0x00F000F0).setNormal(1, 0, 0);
+            vc.addVertex(mat,0.5F * w, -0.25F, 0.0F).setColor(tint).setUv(1f, 1f).setLight(0x00F000F0).setNormal(1, 0, 0);
+            vc.addVertex(mat,0.5F, 0.75F * h, 0.0F).setColor(tint).setUv(1f, 0f).setLight(0x00F000F0).setNormal(1, 0, 0);
+            vc.addVertex(mat, -0.5F, 0.75F * h, 0.0F).setColor(tint).setUv(0f, 0f).setLight(0x00F000F0).setNormal(1, 0, 0);
             ms.popPose();
         }
     }

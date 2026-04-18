@@ -1,26 +1,20 @@
 package com.remag.uniquecrops.crafting;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.remag.uniquecrops.api.IArtisiaRecipe;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCRecipes;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +34,11 @@ public class RecipeArtisia implements IArtisiaRecipe {
     }
 
     @Override
-    public boolean matches(Container inv, Level world) {
+    public boolean matches(RecipeInput inv, Level world) {
 
         List<Ingredient> ingredientsMissing = new ArrayList<>(inputs);
 
-        for (int i = 0; i < inv.getContainerSize(); i++) {
+        for (int i = 0; i < inv.size(); i++) {
             ItemStack input = inv.getItem(i);
             if (input.isEmpty()) {
                 break;
@@ -67,12 +61,12 @@ public class RecipeArtisia implements IArtisiaRecipe {
     }
 
     @Override
-    public @NotNull ItemStack assemble(Container p_44001_, RegistryAccess p_267165_) {
-        return getResultItem(p_267165_).copy();
+    public @NotNull ItemStack assemble(RecipeInput container, HolderLookup.Provider provider) {
+        return getResultItem(provider).copy();
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(RegistryAccess p_267052_) {
+    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
         return output.copy();
     }
 
@@ -86,7 +80,6 @@ public class RecipeArtisia implements IArtisiaRecipe {
         return this.inputs;
     }
 
-    @Override
     public @NotNull ResourceLocation getId() {
 
         return id;
@@ -100,46 +93,55 @@ public class RecipeArtisia implements IArtisiaRecipe {
 
     public static class Serializer implements RecipeSerializer<RecipeArtisia> {
 
+        private static final MapCodec<RecipeArtisia> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResourceLocation.CODEC.optionalFieldOf("id", IArtisiaRecipe.RES).forGetter(recipe -> recipe.id),
+                ItemStack.CODEC.fieldOf("output").forGetter(recipe -> recipe.output),
+                Ingredient.CODEC.listOf().fieldOf("ingredients").forGetter(recipe -> List.copyOf(recipe.inputs))
+        ).apply(instance, (id, output, inputs) -> new RecipeArtisia(id, output, inputs.toArray(new Ingredient[0]))));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf, RecipeArtisia> STREAM_CODEC = StreamCodec.of(
+                Serializer::toNetwork,
+                Serializer::fromNetwork
+        );
+
         @Override
-        public @NotNull RecipeArtisia fromJson(ResourceLocation id, JsonObject json) {
-
-            ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
-            JsonArray ingredients = GsonHelper.getAsJsonArray(json, "ingredients");
-            List<Ingredient> inputs = new ArrayList<>();
-            for (JsonElement e : ingredients)
-                inputs.add(Ingredient.fromJson(e));
-
-            return new RecipeArtisia(id, output, inputs.toArray(new Ingredient[0]));
-        }
-
-        @Nullable
-        @Override
-        public RecipeArtisia fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
-
-            Ingredient[] inputs = new Ingredient[buf.readVarInt()];
-            for (int i = 0; i < inputs.length; i++)
-                inputs[i] = Ingredient.fromNetwork(buf);
-
-            ItemStack output = buf.readItem();
-            return new RecipeArtisia(id, output, inputs);
+        public MapCodec<RecipeArtisia> codec() {
+            return CODEC;
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buf, RecipeArtisia recipe) {
+        public StreamCodec<RegistryFriendlyByteBuf, RecipeArtisia> streamCodec() {
+            return STREAM_CODEC;
+        }
 
-            buf.writeVarInt(recipe.getIngredients().size());
-            for (Ingredient input : recipe.getIngredients())
-                input.toNetwork(buf);
+        private static RecipeArtisia fromNetwork(RegistryFriendlyByteBuf buf) {
 
-            buf.writeItemStack(recipe.getResultItem(), false);
+            ResourceLocation id = buf.readResourceLocation();
+            ItemStack output = ItemStack.STREAM_CODEC.decode(buf);
+            int size = buf.readVarInt();
+            Ingredient[] ingredients = new Ingredient[size];
+            for (int i = 0; i < size; i++)
+                ingredients[i] = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
+
+            return new RecipeArtisia(id, output, ingredients);
+        }
+
+        private static void toNetwork(RegistryFriendlyByteBuf buf, RecipeArtisia recipe) {
+
+            buf.writeResourceLocation(recipe.id);
+            ItemStack.STREAM_CODEC.encode(buf, recipe.output);
+            buf.writeVarInt(recipe.inputs.size());
+            for (Ingredient input : recipe.inputs)
+                Ingredient.CONTENTS_STREAM_CODEC.encode(buf, input);
         }
     }
 
     public static IArtisiaRecipe findRecipe(List<ItemStack> inputs, Level level) {
 
-        for (Recipe<?> recipe : level.getRecipeManager().getRecipes()) {
-            if (recipe instanceof IArtisiaRecipe && ((IArtisiaRecipe)recipe).matches(UCUtils.wrap(inputs), level))
-                return ((IArtisiaRecipe)recipe);
+        for (RecipeHolder<?> holder : level.getRecipeManager().getRecipes()) {
+            Recipe<?> recipe = holder.value();
+            if (recipe instanceof IArtisiaRecipe artisiaRecipe && artisiaRecipe.matches(UCUtils.wrap(inputs), level))
+                return artisiaRecipe;
         }
         return null;
     }

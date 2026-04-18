@@ -3,12 +3,12 @@ package com.remag.uniquecrops.blocks.tiles;
 import com.remag.uniquecrops.init.UCTiles;
 import com.remag.uniquecrops.network.UCPacketDispatcher;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class TileSunBlock extends BaseTileUC {
 
@@ -36,19 +36,19 @@ public class TileSunBlock extends BaseTileUC {
 
     @OnlyIn(Dist.CLIENT)
     public AABB getRenderBoundingBox() {
-
-        return BlockEntity.INFINITE_EXTENT_AABB;
+        // Use an infinite bounding box for rendering, as BlockEntity.INFINITE_EXTENT_AABB is no longer available.
+        return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putInt("UC_powerlevel", powerlevel);
         tag.putBoolean("UC_powered", powered);
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.powerlevel = tag.getInt("UC_powerlevel");
         this.powered = tag.getBoolean("UC_powered");

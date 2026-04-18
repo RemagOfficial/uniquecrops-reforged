@@ -1,10 +1,7 @@
 package com.remag.uniquecrops;
 
-import com.remag.uniquecrops.core.DyeUtils;
-import com.remag.uniquecrops.core.UCConfig;
-import com.remag.uniquecrops.core.UCStrings;
-import com.remag.uniquecrops.core.UCTab;
-import com.remag.uniquecrops.core.UCWorldData;
+import com.mojang.logging.LogUtils;
+import com.remag.uniquecrops.core.*;
 import com.remag.uniquecrops.data.DataGenerators;
 import com.remag.uniquecrops.events.UCEventHandlerCommon;
 import com.remag.uniquecrops.init.*;
@@ -15,39 +12,40 @@ import com.remag.uniquecrops.network.UCPacketHandler;
 import com.remag.uniquecrops.proxies.ClientProxy;
 import com.remag.uniquecrops.proxies.CommonProxy;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import org.slf4j.Logger;
 
 @Mod(UniqueCrops.MOD_ID)
 public class UniqueCrops {
 
     public static final String MOD_ID = "uniquecrops";
 
-    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+    public static final Logger LOGGER = LogUtils.getLogger();
 
-    @SuppressWarnings("removal")
-    public UniqueCrops() {
+    public static CommonProxy proxy = FMLEnvironment.dist == Dist.CLIENT ? new ClientProxy() : new CommonProxy();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, UCConfig.CLIENT_SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, UCConfig.COMMON_SPEC);
+    public UniqueCrops(IEventBus bus, ModContainer modContainer) {
 
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        modContainer.registerConfig(ModConfig.Type.CLIENT, UCConfig.CLIENT_SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, UCConfig.COMMON_SPEC);
+
         bus.addListener(this::setup);
         bus.addListener(this::enqueueIMC);
         bus.addListener(this::processIMC);
@@ -67,9 +65,9 @@ public class UniqueCrops {
         UCTab.CREATIVE_MODE_TABS.register(bus);
         bus.addListener(DataGenerators::gatherData);
 
-        IEventBus forgeBus = MinecraftForge.EVENT_BUS;
+        IEventBus forgeBus = NeoForge.EVENT_BUS;
         forgeBus.addListener(UCEventHandlerCommon::onBlockInteract);
-        forgeBus.addGenericListener(ItemStack.class, UCEventHandlerCommon::attachItemCaps);
+		// forgeBus.addListener(UCEventHandlerCommon::attachItemCaps); // Removed: method does not exist
         forgeBus.addListener(UCEventHandlerCommon::updateAnvilCost);
         forgeBus.addListener(UCEventHandlerCommon::onBonemealEvent);
         forgeBus.addListener(UCEventHandlerCommon::jumpTele);
@@ -83,7 +81,6 @@ public class UniqueCrops {
 
         event.enqueueWork(() -> {
             UCFeatures.registerOre();
-            UCRecipes.registerBrews();
             UCPacketHandler.init();
             UCItems.registerCompostables();
         });
@@ -92,8 +89,8 @@ public class UniqueCrops {
             DispenserBlock.registerBehavior(dbItem, new OptionalDispenseItemBehavior() {
                 protected ItemStack execute(BlockSource pBlockSource, ItemStack pItemStack) {
                     this.setSuccess(true);
-                    Level level = pBlockSource.getLevel();
-                    BlockPos blockpos = pBlockSource.getPos().relative(pBlockSource.getBlockState().getValue(DispenserBlock.FACING));
+                    Level level = pBlockSource.level();
+                    BlockPos blockpos = pBlockSource.pos().relative(pBlockSource.state().getValue(DispenserBlock.FACING));
                     if (!DyedBonemealItem.dispenseOn(pItemStack, level, blockpos)) {
                         this.setSuccess(false);
                     }
@@ -117,14 +114,18 @@ public class UniqueCrops {
                 });
     }
 
-    private void onServerStarting(final FMLDedicatedServerSetupEvent event) {
-
-        UCWorldData.getInstance(ServerLifecycleHooks.getCurrentServer().overworld()).setDirty();
+    private void onServerStarting(final ServerStartingEvent event) {
+        UCWorldData.getInstance(event.getServer().overworld()).setDirty();
         EmblemIronStomach.init();
     }
 
     private void registerCommands(final RegisterCommandsEvent event) {
 
         UCCommands.register(event.getDispatcher());
+    }
+
+    private void registerBrews(final RegisterBrewingRecipesEvent event) {
+
+        UCRecipes.registerBrews(event);
     }
 }

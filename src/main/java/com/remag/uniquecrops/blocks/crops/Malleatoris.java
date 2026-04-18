@@ -5,19 +5,19 @@ import com.remag.uniquecrops.core.enums.EnumParticle;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
 
@@ -30,20 +30,20 @@ public class Malleatoris extends BaseCropsBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 
-        if (this.getAge(state) < getMaxAge()) return InteractionResult.PASS;
+        if (this.getAge(state) < getMaxAge()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         if (!world.isClientSide && hand == InteractionHand.MAIN_HAND) {
             ItemStack stacky = player.getMainHandItem();
-            if (stacky.isEmpty() || (!stacky.isEmpty() && !stacky.isDamaged())) return InteractionResult.PASS;
+            if (stacky.isEmpty() || (!stacky.isEmpty() && !stacky.isDamaged())) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
             int repair = stacky.getMaxDamage() / 2;
             stacky.setDamageValue(Math.max(stacky.getDamageValue() - repair, 0));
             world.setBlock(pos, this.setValueAge(0), 2);
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
@@ -52,7 +52,8 @@ public class Malleatoris extends BaseCropsBlock {
         if (this.isMaxAge(state)) return;
 
         if (!world.isClientSide) {
-            AABB aabb = new AABB(pos.offset(-4, 0, -4), pos.offset(4, 1, 4));
+            // Fix AABB: convert BlockPos to Vec3 using getCenter()
+            AABB aabb = new AABB(pos.offset(-4, 0, -4).getCenter(), pos.offset(5, 2, 5).getCenter());
             List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, aabb);
             for (ItemEntity item : items) {
                 if (calcGrowth(item, rand)) {

@@ -2,18 +2,12 @@ package com.remag.uniquecrops.items.curios;
 
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemCurioUC;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
-
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class EmblemBookworm extends ItemCurioUC {
 
@@ -24,24 +18,23 @@ public class EmblemBookworm extends ItemCurioUC {
 
     public static FoodProperties getFood(ItemStack stack) {
 
-        ListTag enchants = EnchantedBookItem.getEnchantments(stack);
+        var enchants = EnchantmentHelper.getEnchantmentsForCrafting(stack);
         int hunger = 0;
         float saturation = 0.0F;
         float f = 0.25F;
-        if (!enchants.isEmpty()) {
-            for (int i = 0; i < enchants.size(); i++) {
-                CompoundTag tag = enchants.getCompound(i);
-                Enchantment ench = ForgeRegistries.ENCHANTMENTS.getValue(ResourceLocation.tryParse(tag.getString("id")));
-                if (ench != null) {
-                    float sat =  Math.max(f * ench.getRarity().ordinal(), f);
-                    if (sat > saturation)
-                        saturation = sat;
-                    int lvl = tag.getShort("lvl");
-                    hunger += lvl * 2;
-                }
-            }
+
+        for (var enchant : enchants.entrySet()) {
+            int lvl = enchant.getIntValue();
+            if (lvl <= 0)
+                continue;
+
+            float sat = Math.max(f * lvl, f);
+            if (sat > saturation)
+                saturation = sat;
+            hunger += lvl * 2;
         }
-        return new FoodProperties.Builder().nutrition(hunger).saturationMod(saturation).build();
+
+        return new FoodProperties.Builder().nutrition(hunger).saturationModifier(saturation).build();
     }
 
     public static boolean isEquipped(LivingEntity living) {

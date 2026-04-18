@@ -74,7 +74,6 @@ public class CPCapability implements ICropPower {
         this.ignoreCooldown = flag;
     }
 
-    @Override
     public CompoundTag serializeNBT() {
 
         CompoundTag tag = new CompoundTag();
@@ -85,7 +84,6 @@ public class CPCapability implements ICropPower {
         return tag;
     }
 
-    @Override
     public void deserializeNBT(CompoundTag nbt) {
 
         this.capacity = nbt.getInt("UC:cropPowerCapacity");

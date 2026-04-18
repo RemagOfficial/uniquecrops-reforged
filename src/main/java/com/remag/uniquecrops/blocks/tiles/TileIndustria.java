@@ -4,18 +4,13 @@ import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.core.UCConfig;
 import com.remag.uniquecrops.init.UCTiles;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-public class TileIndustria extends BaseTileUC {
+public class TileIndustria extends BaseTileUC implements IEnergyStorage {
 
     final UCEnergyStorage energy = new UCEnergyStorage(40000, 200);
 
@@ -39,22 +34,46 @@ public class TileIndustria extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putInt("UC:energy", this.energy.getEnergyStored());
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         energy.setEnergy(tag.getInt("UC:energy"));
     }
 
-    @Nonnull
+    // IEnergyStorage implementation delegates to internal energy storage
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    public int receiveEnergy(int maxReceive, boolean simulate) {
+        return energy.receiveEnergy(maxReceive, simulate);
+    }
 
-        return cap == ForgeCapabilities.ENERGY ? LazyOptional.of(() -> energy).cast() : LazyOptional.empty();
+    @Override
+    public int extractEnergy(int maxExtract, boolean simulate) {
+        return energy.extractEnergy(maxExtract, simulate);
+    }
+
+    @Override
+    public int getEnergyStored() {
+        return energy.getEnergyStored();
+    }
+
+    @Override
+    public int getMaxEnergyStored() {
+        return energy.getMaxEnergyStored();
+    }
+
+    @Override
+    public boolean canExtract() {
+        return energy.canExtract();
+    }
+
+    @Override
+    public boolean canReceive() {
+        return energy.canReceive();
     }
 
     public static class UCEnergyStorage extends EnergyStorage {

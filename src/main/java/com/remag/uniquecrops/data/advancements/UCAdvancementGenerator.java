@@ -3,41 +3,43 @@ package com.remag.uniquecrops.data.advancements;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.init.UCBlocks;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementType;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.ForgeAdvancementProvider;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.data.AdvancementProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredItem;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.remag.uniquecrops.init.UCItems.*;
 
-public class UCAdvancementGenerator implements ForgeAdvancementProvider.AdvancementGenerator {
-    private Advancement artisiaCraft;
+public class UCAdvancementGenerator implements AdvancementProvider.AdvancementGenerator {
+    private AdvancementHolder artisiaCraft;
 
     @Override
-    public void generate(HolderLookup.@NotNull Provider registries, @NotNull Consumer<Advancement> consumer, @NotNull ExistingFileHelper existingFileHelper) {
+    public void generate(HolderLookup.@NotNull Provider registries, @NotNull Consumer<AdvancementHolder> consumer, @NotNull ExistingFileHelper existingFileHelper) {
 
-        Advancement root = Advancement.Builder.advancement()
+        AdvancementHolder root = Advancement.Builder.advancement()
                 .display(rootDisplay(UCBlocks.RUINEDBRICKS.get(), ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "textures/block/oldgravel.png")))
                 .addCriterion("seed", onPickup(NORMAL_SEED.get()))
                 .save(consumer, main("root"));
-        Advancement seedPickup = Advancement.Builder.advancement()
+        AdvancementHolder seedPickup = Advancement.Builder.advancement()
                 .display(simple(NORMAL_SEED.get(), "seedPickup"))
                 .parent(root)
                 .addCriterion("seed", onPickup(NORMAL_SEED.get()))
                 .save(consumer, main("seed_pickup"));
-        Advancement bookGuide = Advancement.Builder.advancement()
+        AdvancementHolder bookGuide = Advancement.Builder.advancement()
                 .display(simple(BOOK_GUIDE.get(), "craftingGuideBook"))
                 .parent(seedPickup)
                 .addCriterion("seed", onPickup(BOOK_GUIDE.get()))
@@ -79,22 +81,22 @@ public class UCAdvancementGenerator implements ForgeAdvancementProvider.Advancem
         cropAdvancement(INDUSTRIA_SEED, "craftingIndustria", consumer);
         cropAdvancement(MAGNES_SEED, "craftingMagnes", consumer);
         Advancement.Builder.advancement()
-                .display(hidden(ADVENTUS_SEED.get(), "craftingAdventus", FrameType.TASK))
+                .display(hidden(ADVENTUS_SEED.get(), "craftingAdventus", AdvancementType.TASK))
                 .parent(artisiaCraft)
                 .addCriterion("seed", onPickup(ADVENTUS_SEED.get()))
                 .save(consumer, main("adventus_pickup"));
         Advancement.Builder.advancement()
-                .display(hidden(BLESSED_SEED.get(), "craftingBlessed", FrameType.TASK))
+                .display(hidden(BLESSED_SEED.get(), "craftingBlessed", AdvancementType.TASK))
                 .parent(artisiaCraft)
                 .addCriterion("seed", onPickup(BLESSED_SEED.get()))
                 .save(consumer, main("blessed_pickup"));
         Advancement.Builder.advancement()
-                .display(hidden(STEVE_HEART.get(), "heartPickup", FrameType.CHALLENGE))
+                .display(hidden(STEVE_HEART.get(), "heartPickup", AdvancementType.CHALLENGE))
                 .parent(bookGuide)
                 .addCriterion("seed", onPickup(STEVE_HEART.get()))
                 .save(consumer, main("heart_pickup"));
         Advancement.Builder.advancement()
-                .display(hidden(TERIYAKI.get(), "teriyakiPickup", FrameType.CHALLENGE))
+                .display(hidden(TERIYAKI.get(), "teriyakiPickup", AdvancementType.CHALLENGE))
                 .parent(bookGuide)
                 .addCriterion("seed", onPickup(TERIYAKI.get()))
                 .save(consumer, main("teriyaki_pickup"));
@@ -105,15 +107,15 @@ public class UCAdvancementGenerator implements ForgeAdvancementProvider.Advancem
         return new DisplayInfo(new ItemStack(icon.asItem()),
                 Component.translatable("itemGroup.uniquecrops"),
                 Component.translatable("uniquecrops.desc"),
-                background, FrameType.TASK, false, false, false);
+                Optional.of(background), AdvancementType.TASK, false, false, false);
     }
 
-    private void cropAdvancement(RegistryObject<BlockItem> icon, String name, Consumer<Advancement> consumer) {
+    private void cropAdvancement(DeferredItem<BlockItem> icon, String name, Consumer<AdvancementHolder> consumer) {
 
         Advancement.Builder.advancement()
-                .display(simple(icon.get(), name))
+                .display(simple(icon, name))
                 .parent(artisiaCraft)
-                .addCriterion("seed", onPickup(icon.get()))
+                .addCriterion("seed", onPickup(icon))
 //                .addCriterion("artisia", onPickup(ARTISIA_SEED.get()))
                 .save(consumer, main(format(name)));
     }
@@ -139,26 +141,21 @@ public class UCAdvancementGenerator implements ForgeAdvancementProvider.Advancem
         return new DisplayInfo(new ItemStack(icon.asItem()),
                 Component.translatable(str),
                 Component.translatable(str + ".desc"),
-                null, FrameType.TASK, true, true, false);
+                Optional.empty(), AdvancementType.TASK, true, true, false);
     }
 
-    private DisplayInfo hidden(ItemLike icon, String name, FrameType frame) {
+    private DisplayInfo hidden(ItemLike icon, String name, AdvancementType frame) {
 
         String str = "advancement.uniquecrops:" + name;
         return new DisplayInfo(new ItemStack(icon.asItem()),
                 Component.translatable(str),
                 Component.translatable(str + ".desc"),
-                null, frame, true, true, true);
+                Optional.empty(), frame, true, true, true);
     }
 
-    private InventoryChangeTrigger.TriggerInstance onPickup(ItemLike... items) {
+    private Criterion<?> onPickup(ItemLike... items) {
 
-        return InventoryChangeTrigger.TriggerInstance.hasItems(matchItems(items));
-    }
-
-    private ItemPredicate matchItems(ItemLike... items) {
-
-        return ItemPredicate.Builder.item().of(items).build();
+        return InventoryChangeTrigger.TriggerInstance.hasItems(items);
     }
 
     private String main(String name) {

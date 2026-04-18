@@ -1,0 +1,9 @@
+{
+  "comparator_output": 8,
+  "description": {
+    "translate": "item.uniquecrops.record_taxi.desc"
+  },
+  "length_in_seconds": 118.0,
+  "sound_event": "uniquecrops:taxi"
+}
+

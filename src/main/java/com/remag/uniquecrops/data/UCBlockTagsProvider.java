@@ -3,18 +3,17 @@ package com.remag.uniquecrops.data;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.init.UCBlocks;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -23,7 +22,7 @@ import static com.remag.uniquecrops.init.UCBlocks.*;
 
 public class UCBlockTagsProvider extends BlockTagsProvider {
 
-    public static final Predicate<Block> UC_BLOCKS = b -> UniqueCrops.MOD_ID.equals(ForgeRegistries.BLOCKS.getKey(b).getNamespace());
+    public static final Predicate<Block> UC_BLOCKS = b -> UniqueCrops.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(b).getNamespace());
 
     public UCBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, UniqueCrops.MOD_ID, existingFileHelper);
@@ -41,7 +40,7 @@ public class UCBlockTagsProvider extends BlockTagsProvider {
         tag(Tags.Blocks.STORAGE_BLOCKS_IRON).add(UCBlocks.OLDIRON.get());
         tag(Tags.Blocks.STORAGE_BLOCKS_DIAMOND).add(UCBlocks.OLDDIAMOND.get());
         tag(Tags.Blocks.STORAGE_BLOCKS_GOLD).add(UCBlocks.OLDGOLD.get());
-        tag(Tags.Blocks.GRAVEL).add(UCBlocks.OLDGRAVEL.get());
+        tag(Tags.Blocks.GRAVELS).add(UCBlocks.OLDGRAVEL.get());
         tag(BlockTags.WOODEN_TRAPDOORS).add(UCBlocks.FLYWOOD_TRAPDOOR.get());
         tag(BlockTags.WOODEN_TRAPDOORS).add(UCBlocks.ROSEWOOD_TRAPDOOR.get());
 
@@ -50,7 +49,7 @@ public class UCBlockTagsProvider extends BlockTagsProvider {
 
     private void registerBlockMineable() {
 
-        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(getModBlocks(b -> ForgeRegistries.BLOCKS.getKey(b).getPath().contains("ruined")));
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(getModBlocks(b -> BuiltInRegistries.BLOCK.getKey(b).getPath().contains("ruined")));
         var pickaxe = Set.of(
                 BUCKET_ROPE.get(), CINDER_TORCH.get(), GOBLET.get(), HOURGLASS.get(),
                 OLDCOBBLE.get(), OLDGOLD.get(), OLDDIAMOND.get(), OLDIRON.get(),
@@ -72,16 +71,15 @@ public class UCBlockTagsProvider extends BlockTagsProvider {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
 
         return "Unique Crops block tags";
     }
 
     private Block[] getModBlocks(Predicate<Block> predicate) {
-        return ForgeRegistries.BLOCKS.getValues().stream()
+        return BuiltInRegistries.BLOCK.stream()
                 .filter(UC_BLOCKS.and(predicate))
-                .filter(block -> ForgeRegistries.BLOCKS.getKey(block) != null) // defensive check
-                .sorted(Comparator.comparing(block -> Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(block))))
+                .sorted(Comparator.comparing(block -> BuiltInRegistries.BLOCK.getKey(block).toString()))
                 .toArray(Block[]::new);
     }
 }

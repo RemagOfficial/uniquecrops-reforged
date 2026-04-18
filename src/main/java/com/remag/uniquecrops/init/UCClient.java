@@ -1,135 +1,125 @@
 package com.remag.uniquecrops.init;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.DyeUtils;
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
-import com.remag.uniquecrops.gui.*;
-import com.remag.uniquecrops.render.entity.*;
-import com.remag.uniquecrops.render.model.*;
+import com.remag.uniquecrops.gui.GuiBarrel;
+import com.remag.uniquecrops.gui.GuiCraftyPlant;
+import com.remag.uniquecrops.render.entity.RenderBattleCropEntity;
+import com.remag.uniquecrops.render.entity.RenderLayerPants;
+import com.remag.uniquecrops.render.entity.RenderNone;
+import com.remag.uniquecrops.render.model.ModelBattleCrop;
+import com.remag.uniquecrops.render.model.ModelCubeyThingy;
+import com.remag.uniquecrops.render.model.ModelExedo;
+import com.remag.uniquecrops.render.model.ModelSundial;
 import com.remag.uniquecrops.render.particle.SparkFX;
 import com.remag.uniquecrops.render.tile.*;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.entity.ThrownItemRenderer;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.color.item.ItemColors;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.KeyMapping;
-import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
-@Mod.EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT)
 public class UCClient {
 
     public static KeyMapping PIXEL_GLASSES;
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
-        registerRenderTypes();
-        registerScreens();
-        event.enqueueWork(UCClient::registerColorHandler);
         event.enqueueWork(UCClient::registerPropertyGetters);
-        event.enqueueWork(() -> {
-            Minecraft.getInstance().particleEngine.register(
-                    UCParticles.SPARK.get(),
-                    SparkFX.Factory::new
-            );
-        });
+        event.enqueueWork(() -> Minecraft.getInstance().particleEngine.register(
+                UCParticles.SPARK.get(),
+                SparkFX.Factory::new
+        ));
     }
 
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         PIXEL_GLASSES = new KeyMapping(
-                "key.uniquecrops.pixelglasses",                      // Translation key
-                KeyConflictContext.IN_GAME,                   // When the keybinding is active
-                InputConstants.getKey(GLFW.GLFW_KEY_V, 0),    // Default key
-                "key.categories.uc"                           // Category
+                "key.uniquecrops.pixelglasses",
+                KeyConflictContext.IN_GAME,
+                InputConstants.getKey(GLFW.GLFW_KEY_V, 0),
+                "key.categories.uc"
         );
         event.register(PIXEL_GLASSES);
     }
 
-    @SuppressWarnings("removal")
-    private static void registerRenderTypes() {
-
+    @SubscribeEvent
+    public static void registerRenderTypes(RegisterNamedRenderTypesEvent event) {
         for (Block block : UCBlocks.CROPS)
-            ItemBlockRenderTypes.setRenderLayer(block, RenderType.cutout());
+            event.register(block.builtInRegistryHolder().key().location(), RenderType.cutout(), Sheets.cutoutBlockSheet());
 
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.INVISIBILIA_GLASS.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.HOURGLASS.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.FLYWOOD_SAPLING.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.LILY_ENDER.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.LILY_ICE.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.LILY_JUNGLE.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.LILY_LAVA.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.SUN_BLOCK.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.DEMO_CORD.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.ITERO.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.SANALIGHT.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.FLYWOOD_TRAPDOOR.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.ROSEWOOD_TRAPDOOR.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(UCBlocks.DREAMCATCHER.get(), RenderType.cutout());
-
-        //ItemBlockRenderTypes.setRenderLayer(UCBlocks.CROP_PORTAL.get(), RenderType.translucent());
+        registerCutout(event,
+                UCBlocks.INVISIBILIA_GLASS.get(),
+                UCBlocks.HOURGLASS.get(),
+                UCBlocks.FLYWOOD_SAPLING.get(),
+                UCBlocks.LILY_ENDER.get(),
+                UCBlocks.LILY_ICE.get(),
+                UCBlocks.LILY_JUNGLE.get(),
+                UCBlocks.LILY_LAVA.get(),
+                UCBlocks.SUN_BLOCK.get(),
+                UCBlocks.DEMO_CORD.get(),
+                UCBlocks.ITERO.get(),
+                UCBlocks.SANALIGHT.get(),
+                UCBlocks.FLYWOOD_TRAPDOOR.get(),
+                UCBlocks.ROSEWOOD_TRAPDOOR.get(),
+                UCBlocks.DREAMCATCHER.get()
+        );
     }
 
-    private static void registerScreens() {
+    private static void registerCutout(RegisterNamedRenderTypesEvent event, Block... blocks) {
+        for (Block block : blocks)
+            event.register(block.builtInRegistryHolder().key().location(), RenderType.cutout(), Sheets.cutoutBlockSheet());
+    }
 
-        MenuScreens.register(UCScreens.BARREL.get(), GuiBarrel::new);
-        MenuScreens.register(UCScreens.CRAFTYPLANT.get(), GuiCraftyPlant::new);
+    @SubscribeEvent
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(UCScreens.BARREL.get(), GuiBarrel::new);
+        event.register(UCScreens.CRAFTYPLANT.get(), GuiCraftyPlant::new);
     }
 
     private static void registerPropertyGetters() {
-
         registerPropertyGetter(UCItems.DIAMONDS.get(), ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "diamonds"),
                 (stack, world, entity, seed) -> NBTUtils.getInt(stack, UCStrings.TAG_DIAMONDS, 0));
         registerPropertyGetter(UCItems.IMPACT_SHIELD.get(), ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "blocking"),
                 (stack, world, entity, seed) -> (entity != null && entity.getUseItem() == stack) ? 1.0F : 0.0F);
     }
 
-    private static void registerPropertyGetter(ItemLike item, ResourceLocation id, @SuppressWarnings("deprecation")ItemPropertyFunction prop) {
-
+    private static void registerPropertyGetter(ItemLike item, ResourceLocation id, @SuppressWarnings("deprecation") ItemPropertyFunction prop) {
         ItemProperties.register(item.asItem(), id, prop);
     }
 
-    private static void registerColorHandler() {
-
-        ItemColors ic = Minecraft.getInstance().getItemColors();
-        ic.register((stack, tintIndex) -> {
-
-            if (tintIndex == 0) {
-                if (stack.getItem() == UCItems.POTION_REVERSE.get())
-                    return 0x845c28;
-                if (stack.getItem() == UCItems.POTION_ENNUI.get())
-                    return 0xeef442;
-                if (stack.getItem() == UCItems.POTION_IGNORANCE.get())
-                    return 0x00ccff;
-                if (stack.getItem() == UCItems.POTION_ZOMBIFICATION.get())
-                    return 0x93C47D;
-            }
-            return 0xffffff;
-        }, UCItems.POTION_ENNUI.get(), UCItems.POTION_IGNORANCE.get(), UCItems.POTION_REVERSE.get(), UCItems.POTION_ZOMBIFICATION.get());
-
-        DyeUtils.BONEMEAL_DYE.forEach((key, value) -> ic.register((stack, tintIndex) -> tintIndex == 0 ? key.getMapColor().col : -1, value.asItem()));
-    }
+    /*@SubscribeEvent
+    public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+        UniqueCrops.LOGGER.info("Registering item colors");
+        event.register((stack, tintIndex) -> {
+            UniqueCrops.LOGGER.info("Tint index: " + tintIndex + " for item: " + stack.getItem());
+            return tintIndex == 1 ? 0x845c28 : -1;
+        }, UCItems.POTION_REVERSE.get());
+        event.register((stack, tintIndex) -> tintIndex == 1 ? 0xeef442 : -1, UCItems.POTION_ENNUI.get());
+        event.register((stack, tintIndex) -> tintIndex == 1 ? 0x00ccff : -1, UCItems.POTION_IGNORANCE.get());
+        event.register((stack, tintIndex) -> tintIndex == 1 ? 0x93C47D : -1, UCItems.POTION_ZOMBIFICATION.get());
+        UniqueCrops.LOGGER.info("Registered item colors");
+    }*/
 
     @SubscribeEvent
     public static void registerBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-
         event.registerBlockEntityRenderer(UCTiles.ARTISIA.get(), RenderItemTile.Artisia::new);
         event.registerBlockEntityRenderer(UCTiles.WEATHERFLESIA.get(), RenderItemTile.Weatherflesia::new);
         event.registerBlockEntityRenderer(UCTiles.LACUSIA.get(), RenderItemTile.Lacusia::new);
@@ -151,7 +141,6 @@ public class UCClient {
 
     @SubscribeEvent
     public static void registerEntityLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-
         event.registerLayerDefinition(ModelBattleCrop.LAYER_LOCATION, () -> LayerDefinition.create(ModelBattleCrop.createBodyLayer(), 32, 32));
         event.registerLayerDefinition(ModelCubeyThingy.LAYER_LOCATION, () -> LayerDefinition.create(ModelCubeyThingy.createBodyLayer(), 16, 16));
         event.registerLayerDefinition(ModelExedo.LAYER_LOCATION, () -> LayerDefinition.create(ModelExedo.createBodyLayer(), 64, 64));
@@ -160,11 +149,9 @@ public class UCClient {
 
     @SubscribeEvent
     public static void registerExtraLayers(EntityRenderersEvent.AddLayers event) {
-
         event.getSkins().forEach(s -> {
             if (event.getSkin(s) instanceof PlayerRenderer renderer)
                 renderer.addLayer(new RenderLayerPants(renderer));
         });
     }
-
 }

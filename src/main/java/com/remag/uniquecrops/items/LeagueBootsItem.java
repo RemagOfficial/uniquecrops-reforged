@@ -4,17 +4,17 @@ import com.remag.uniquecrops.api.IBookUpgradeable;
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
-import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,17 +30,17 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
     public LeagueBootsItem() {
 
         super(EnumArmorMaterial.BOOTS_LEAGUE, Type.BOOTS);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerJump);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerFall);
-        MinecraftForge.EVENT_BUS.addListener(this::playerTick);
-        MinecraftForge.EVENT_BUS.addListener(this::playerLoggedOut);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerJump);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerFall);
+        NeoForge.EVENT_BUS.addListener(this::playerTick);
+        NeoForge.EVENT_BUS.addListener(this::playerLoggedOut);
     }
 
     private void onPlayerJump(LivingEvent.LivingJumpEvent event) {
 
         if (event.getEntity() instanceof Player) {
             ItemStack boots = event.getEntity().getItemBySlot(EquipmentSlot.FEET);
-            if (boots.getItem() == UCItems.SEVEN_LEAGUE_BOOTS.get()) {
+            if (boots.getItem() == this) {
                 event.getEntity().setDeltaMovement(event.getEntity().getDeltaMovement().add(0, JUMP_FACTOR, 0));
                 event.getEntity().fallDistance -= FALL_BUFFER;
             }
@@ -58,16 +58,16 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
         }
     }
 
-    private void playerTick(LivingEvent.LivingTickEvent event) {
+    private void playerTick(PlayerTickEvent.Post event) {
 
-        if (event.getEntity() instanceof Player player) {
-            String name = getPlayerStr(player);
-            if (CMONSTEPITUP.contains(name)) {
-                ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
-                if (boots.getItem() != this) {
-                    player.setMaxUpStep(0.6F);
-                    CMONSTEPITUP.remove(name);
-                }
+        Player player = event.getEntity();
+        String name = getPlayerStr(player);
+        if (CMONSTEPITUP.contains(name)) {
+            ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
+            if (boots.getItem() != this) {
+                // TODO NeoForge 1.21: restore direct step-height reset when a public API is available again.
+                // player.setMaxUpStep(0.6F);
+                CMONSTEPITUP.remove(name);
             }
         }
     }
@@ -106,19 +106,20 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
     }
 
     @Override
-    public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
+    public boolean isValidRepairItem(@NotNull ItemStack toRepair, @NotNull ItemStack repair) {
 
         return false;
     }
+
 
     private String getPlayerStr(Player player) {
 
         return player.getGameProfile().getName() + ":" + player.level().isClientSide;
     }
 
-    @Override
+    /*@Override
     public Rarity getRarity(ItemStack stack) {
 
         return Rarity.EPIC;
-    }
+    }*/
 }

@@ -1,5 +1,6 @@
 package com.remag.uniquecrops.items;
 
+import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCItems;
@@ -8,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -15,11 +17,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 
 public class PixelBrushItem extends ItemBaseUC {
 
@@ -44,45 +45,53 @@ public class PixelBrushItem extends ItemBaseUC {
     }*/
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag whatisthis) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 
-        if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_BIOME)) {
-            ResourceLocation biomeId = ResourceLocation.tryParse(stack.getTag().getString(UCStrings.TAG_BIOME));
-            Biome biome = world.registryAccess().registryOrThrow(Registries.BIOME).get(biomeId);
-            ResourceLocation rl = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
-            if (rl == null || rl.getPath().isEmpty())
-                list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + biomeId.toString()));
-            else
-                list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + rl.getPath()));
+        if (NBTUtils.verifyExistance(stack, UCStrings.TAG_BIOME)) {
+            ResourceLocation biomeId = ResourceLocation.tryParse(NBTUtils.getString(stack, UCStrings.TAG_BIOME, ""));
+            if (biomeId == null) {
+                tooltipComponents.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + "<NONE>"));
+                return;
+            }
+
+            Biome biome = Objects.requireNonNull(context.level()).registryAccess().registryOrThrow(Registries.BIOME).get(biomeId);
+            ResourceLocation rl = biome == null ? null : Objects.requireNonNull(context.level()).registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+            if (rl == null || rl.getPath().isEmpty()) {
+                tooltipComponents.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + biomeId));
+            } else {
+                tooltipComponents.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + rl.getPath()));
+            }
         } else {
-            list.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + "<NONE>"));
+            tooltipComponents.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + "<NONE>"));
         }
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext ctx) {
+    public @NotNull InteractionResult useOn(@NotNull UseOnContext ctx) {
 
         if (ctx.getItemInHand().getDamageValue() == ctx.getItemInHand().getMaxDamage()) return InteractionResult.PASS;
-        if (!ctx.getItemInHand().hasTag() || (ctx.getItemInHand().hasTag() && !ctx.getItemInHand().getTag().contains(UCStrings.TAG_BIOME))) return InteractionResult.PASS;
+        if (!NBTUtils.verifyExistance(ctx.getItemInHand(), UCStrings.TAG_BIOME)) return InteractionResult.PASS;
 
-        ResourceLocation biomeId = ResourceLocation.tryParse(ctx.getItemInHand().getTag().getString(UCStrings.TAG_BIOME));
+        ResourceLocation biomeId = ResourceLocation.tryParse(NBTUtils.getString(ctx.getItemInHand(), UCStrings.TAG_BIOME, ""));
+        if (biomeId == null) return InteractionResult.PASS;
         boolean flag = UCUtils.setBiome(biomeId, ctx.getLevel(), ctx.getClickedPos());
         if (!flag) return InteractionResult.PASS;
-        if (!ctx.getLevel().isClientSide())
-            ctx.getItemInHand().hurtAndBreak(1, ctx.getPlayer(), (player) -> {});
+        if (!ctx.getLevel().isClientSide() && ctx.getPlayer() instanceof ServerPlayer serverPlayer) {
+            ItemStack usedStack = ctx.getItemInHand();
+            usedStack.hurtAndBreak(1, serverPlayer, serverPlayer.getEquipmentSlotForItem(usedStack));
+        }
 
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onCraftedBy(ItemStack stack, Level world, Player player) {
+    public void onCraftedBy(@NotNull ItemStack stack, @NotNull Level world, @NotNull Player player) {
 
         stack.setDamageValue(stack.getMaxDamage());
     }
 
     @Override
-    public boolean isEnchantable(ItemStack stack) {
+    public boolean isEnchantable(@NotNull ItemStack stack) {
 
         return false;
     }

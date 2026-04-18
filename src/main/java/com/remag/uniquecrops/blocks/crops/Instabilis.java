@@ -3,19 +3,20 @@ package com.remag.uniquecrops.blocks.crops;
 import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.init.UCBlocks;
 import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShearsItem;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Objects;
 
 public class Instabilis extends BaseCropsBlock {
 
@@ -55,7 +56,7 @@ public class Instabilis extends BaseCropsBlock {
         if (stack.getItem() instanceof ShearsItem) {
             if (!world.isClientSide) {
                 if (!player.isCreative())
-                    stack.hurt(1, world.random, (ServerPlayer)player);
+                    stack.hurtAndBreak(1, player, Objects.requireNonNull(player.getMainHandItem().getEquipmentSlot()));
                 if (isMaxAge(state))
                     Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(UCBlocks.DEMO_CORD.get()));
                 world.removeBlock(pos, false);

@@ -53,14 +53,14 @@ public class RenderSucco implements BlockEntityRenderer<TileSucco> {
 
     private void quad(VertexConsumer buff, Matrix4f mat, float x, float y, float z, float a) {
 
-        buff.vertex(mat, -x, -y, z).color(1.0F, 1.0F, 1.0F, a).uv(0, 1).uv2(15728880).normal(1, 0, 0).endVertex();
-        buff.vertex(mat, -x, y, z).color(1.0F, 1.0F, 1.0F, a).uv(1, 1).uv2(15728880).normal(1, 0, 0).endVertex();
-        buff.vertex(mat, x, y, z).color(1.0F, 1.0F, 1.0F, a).uv(1, 0).uv2(15728880).normal(1, 0, 0).endVertex();
-        buff.vertex(mat, x, -y, z).color(1.0F, 1.0F, 1.0F, a).uv(0, 0).uv2(15728880).normal(1, 0, 0).endVertex();
+        buff.addVertex(mat, -x, -y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(0, 1).setLight(15728880).setNormal(1, 0, 0);
+        buff.addVertex(mat, -x, y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(1, 1).setLight(15728880).setNormal(1, 0, 0);
+        buff.addVertex(mat, x, y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(1, 0).setLight(15728880).setNormal(1, 0, 0);
+        buff.addVertex(mat, x, -y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(0, 0).setLight(15728880).setNormal(1, 0, 0);
 
-        buff.vertex(mat, -x, -y + 0.5F, z + 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(0, 1).uv2(15728880).normal(1, 0, 0).endVertex(); // bottom z
-        buff.vertex(mat, -x, y - 0.5F, z - 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(1, 1).uv2(15728880).normal(1, 0, 0).endVertex();
-        buff.vertex(mat, x, y - 0.5F, z - 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(1, 0).uv2(15728880).normal(1, 0, 0).endVertex();
-        buff.vertex(mat, x, -y + 0.5F, z + 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(0, 0).uv2(15728880).normal(1, 0, 0).endVertex(); // top z
+        buff.addVertex(mat, -x, -y + 0.5F, z + 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(0, 1).setLight(15728880).setNormal(1, 0, 0); // bottom z
+        buff.addVertex(mat, -x, y - 0.5F, z - 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(1, 1).setLight(15728880).setNormal(1, 0, 0);
+        buff.addVertex(mat, x, y - 0.5F, z - 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(1, 0).setLight(15728880).setNormal(1, 0, 0);
+        buff.addVertex(mat, x, -y + 0.5F, z + 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(0, 0).setLight(15728880).setNormal(1, 0, 0); // top z
     }
 }

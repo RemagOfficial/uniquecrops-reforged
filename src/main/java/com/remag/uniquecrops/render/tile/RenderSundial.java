@@ -38,7 +38,7 @@ public class RenderSundial implements BlockEntityRenderer<TileSundial> {
         model.Dial.yRot = te.rotation;
 
         VertexConsumer buffer = buff.getBuffer(model.renderType(RES));
-        model.renderToBuffer(ms, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.renderToBuffer(ms, buffer, light, overlay);
         ms.popPose();
     }
 }

@@ -16,10 +16,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.NoteBlockEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -52,7 +52,7 @@ public class Musica extends BaseCropsBlock implements EntityBlock {
         setBonemealable(false);
         setIgnoreGrowthRestrictions(true);
         setIncludeSeed(false);
-        MinecraftForge.EVENT_BUS.addListener(this::notePlayEvent);
+        NeoForge.EVENT_BUS.addListener(this::notePlayEvent);
     }
 
     private void notePlayEvent(NoteBlockEvent.Play event) {

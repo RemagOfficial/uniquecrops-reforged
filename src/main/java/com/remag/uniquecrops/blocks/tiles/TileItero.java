@@ -6,6 +6,7 @@ import com.remag.uniquecrops.init.UCTiles;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketDispatcher;
 import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PressurePlateBlock;
@@ -126,7 +127,7 @@ public class TileItero extends BaseTileUC {
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.showDemo = tag.getBoolean("showDemo");
         this.gameIndex = tag.getInt("gameIndex");
@@ -135,7 +136,7 @@ public class TileItero extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putBoolean("showDemo", this.showDemo);
         tag.putInt("gameIndex", this.gameIndex);

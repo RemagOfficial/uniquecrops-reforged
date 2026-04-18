@@ -2,15 +2,16 @@ package com.remag.uniquecrops.blocks.tiles;
 
 import com.remag.uniquecrops.init.UCBlocks;
 import com.remag.uniquecrops.init.UCTiles;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class TileLacusia extends BaseTileUC {
 
@@ -41,25 +42,23 @@ public class TileLacusia extends BaseTileUC {
                     if (!level.hasChunkAt(looppos)) return;
 
                     BlockEntity tile = level.getBlockEntity(looppos);
-                    if (tile != null && tile.getCapability(ForgeCapabilities.ITEM_HANDLER, face).isPresent()) {
+                    if (tile instanceof TileLacusia || tile == null) continue;
+                    if (tile instanceof IItemHandler) {
                         tileInv = tile;
                         dir = face.ordinal();
                         break;
                     }
                 }
-                if (tileInv != null) {
-                    tileInv.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.from2DDataValue(dir))
-                            .ifPresent(cap -> {
-                                for (int i = 0; i < cap.getSlots(); i++) {
-                                    ItemStack extract = cap.getStackInSlot(i);
-                                    if (!extract.isEmpty()) {
-                                        this.setItem(extract.copy());
-                                        cap.extractItem(i, extract.getMaxStackSize(), false);
-                                        this.markBlockForUpdate();
-                                        break;
-                                    }
-                                }
-                            });
+                if (tileInv != null && tileInv instanceof IItemHandler cap) {
+                    for (int i = 0; i < cap.getSlots(); i++) {
+                        ItemStack extract = cap.getStackInSlot(i);
+                        if (!extract.isEmpty()) {
+                            this.setItem(extract.copy());
+                            cap.extractItem(i, extract.getMaxStackSize(), false);
+                            this.markBlockForUpdate();
+                            break;
+                        }
+                    }
                 }
             }
             else if (!canAdd()) {
@@ -88,26 +87,22 @@ public class TileLacusia extends BaseTileUC {
                             lacusia.dir = face.ordinal();
                         }
                     }
-                    if (tile != null && tile.getCapability(ForgeCapabilities.ITEM_HANDLER, face).isPresent()) {
-                        Direction finalFace = face;
-                        tile.getCapability(ForgeCapabilities.ITEM_HANDLER, face).ifPresent(cap -> {
-                            ItemStack simulate = ItemHandlerHelper.insertItem(cap, getItem().copy(), true);
-                            int available = getItem().getCount() - simulate.getCount();
+                    if (tile instanceof IItemHandler cap) {
+                        ItemStack simulate = ItemHandlerHelper.insertItem(cap, getItem().copy(), true);
+                        int available = getItem().getCount() - simulate.getCount();
 
-                            if (available >= getItem().getCount()) {
-                                ItemHandlerHelper.insertItem(cap, getItem(), false);
-                                this.setItem(simulate);
-                                this.markBlockForUpdate();
-                                dir = finalFace.ordinal();
-                                if (!getItem().isEmpty())
-                                    level.scheduleTick(getBlockPos(), UCBlocks.LACUSIA_CROP.get(), waitTime);
-//                                break;
-                            }
-                            else if (available <= 0) {
-                                dir = finalFace.ordinal();
-                                level.scheduleTick(getBlockPos(), UCBlocks.LACUSIA_CROP.get(), waitTimeStuck);
-                            }
-                        });
+                        if (available >= getItem().getCount()) {
+                            ItemHandlerHelper.insertItem(cap, getItem(), false);
+                            this.setItem(simulate);
+                            this.markBlockForUpdate();
+                            dir = face.ordinal();
+                            if (!getItem().isEmpty())
+                                level.scheduleTick(getBlockPos(), UCBlocks.LACUSIA_CROP.get(), waitTime);
+                        }
+                        else if (available <= 0) {
+                            dir = face.ordinal();
+                            level.scheduleTick(getBlockPos(), UCBlocks.LACUSIA_CROP.get(), waitTimeStuck);
+                        }
                     }
                 }
             }
@@ -135,16 +130,16 @@ public class TileLacusia extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putInt("UC:facing", dir);
-        tag.put("inventory", inv.serializeNBT());
+        tag.put("inventory", inv.serializeNBT(null));
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         dir = tag.getInt("UC:facing");
-        inv.deserializeNBT(tag.getCompound("inventory"));
+        inv.deserializeNBT(null, tag.getCompound("inventory"));
     }
 }

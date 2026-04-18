@@ -1,0 +1,9 @@
+{
+  "comparator_output": 5,
+  "description": {
+    "translate": "item.uniquecrops.record_faraway.desc"
+  },
+  "length_in_seconds": 125.0,
+  "sound_event": "uniquecrops:faraway"
+}
+

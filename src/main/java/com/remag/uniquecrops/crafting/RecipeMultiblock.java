@@ -1,35 +1,30 @@
 package com.remag.uniquecrops.crafting;
 
+import com.google.common.collect.Sets;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.remag.uniquecrops.api.IMultiblockRecipe;
 import com.remag.uniquecrops.core.UCUtils;
-import com.remag.uniquecrops.data.recipes.UCRecipeProvider;
 import com.remag.uniquecrops.init.UCRecipes;
-import com.google.gson.reflect.TypeToken;
-import com.google.common.collect.Sets;
-import com.google.gson.*;
-import com.google.gson.annotations.JsonAdapter;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.Container;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class RecipeMultiblock implements IMultiblockRecipe {
 
@@ -50,9 +45,9 @@ public class RecipeMultiblock implements IMultiblockRecipe {
         this.shape = shape;
         this.shapeResult = shapeResult;
         this.origin = origin;
-        this.definition = definition;
+        this.definition = new HashMap<>(definition);
         this.definition.put(' ', new Slot(Blocks.AIR.defaultBlockState()));
-        this.definitionResult = definitionResult;
+        this.definitionResult = new HashMap<>(definitionResult);
         this.definitionResult.put(' ', new Slot(Blocks.AIR.defaultBlockState()));
 
         char originChar = shape[origin.y].charAt(origin.x);
@@ -77,27 +72,21 @@ public class RecipeMultiblock implements IMultiblockRecipe {
     }
 
     @Override
-    public ItemStack assemble(Container p_44001_, RegistryAccess p_267165_) {
-        return getResultItem(p_267165_).copy();
+    public @NotNull ItemStack assemble(RecipeInput container, HolderLookup.Provider provider) {
+        return getResultItem(provider).copy();
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess p_267052_) {
+    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 
-    public ItemStack getResultItem() {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ResourceLocation getId() {
-
+    public @NotNull ResourceLocation getId() {
         return id;
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public @NotNull RecipeSerializer<?> getSerializer() {
 
         return UCRecipes.MULTIBLOCK_SERIALIZER.get();
     }
@@ -105,7 +94,6 @@ public class RecipeMultiblock implements IMultiblockRecipe {
     @Override
     public boolean match(Level world, BlockPos originBlock) {
 
-        Set<BlockPos> matched = Sets.newHashSet();
         for (int y = 0; y < shape.length; y++) {
             String line = shape[y];
             for (int x = 0; x < line.length(); x++) {
@@ -113,8 +101,6 @@ public class RecipeMultiblock implements IMultiblockRecipe {
                 BlockState state = world.getBlockState(offset);
                 if (!definition.get(line.charAt(x)).test(state))
                     return false;
-
-                matched.add(offset);
             }
         }
         return true;
@@ -171,7 +157,6 @@ public class RecipeMultiblock implements IMultiblockRecipe {
 
     public static class Slot implements Predicate<BlockState> {
 
-        @JsonAdapter(UCRecipeProvider.SerializerBlockState.class)
         public final Set<BlockState> states;
 
         public Slot(BlockState... states) {
@@ -182,7 +167,6 @@ public class RecipeMultiblock implements IMultiblockRecipe {
         public Slot(Block block) {
 
             this(block.defaultBlockState());
-//            this(block.getStateContainer().getValidStates().toArray(new BlockState[0]));
         }
 
         @Override
@@ -196,58 +180,76 @@ public class RecipeMultiblock implements IMultiblockRecipe {
 
         public BlockState getFirstState() {
 
-            Iterator iter = states.iterator();
-            return (BlockState)iter.next();
+            Iterator<BlockState> iter = states.iterator();
+            return iter.next();
         }
     }
 
     public static class Serializer implements RecipeSerializer<RecipeMultiblock> {
 
+        private static final Codec<Character> CHARACTER_CODEC = Codec.STRING.xmap(s -> s.charAt(0), String::valueOf);
+        private static final Codec<Slot> SLOT_CODEC = Codec.list(BlockState.CODEC)
+                .xmap(states -> new Slot(states.toArray(new BlockState[0])), slot -> new ArrayList<>(slot.states));
+        private static final Codec<Point> POINT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.INT.fieldOf("x").forGetter(point -> point.x),
+                Codec.INT.fieldOf("y").forGetter(point -> point.y)
+        ).apply(instance, Point::new));
+        private static final Codec<String[]> SHAPE_CODEC = Codec.list(Codec.STRING)
+                .xmap(list -> list.toArray(new String[0]), Arrays::asList);
+
+        private static final MapCodec<RecipeMultiblock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResourceLocation.CODEC.optionalFieldOf("id", IMultiblockRecipe.RES).forGetter(recipe -> recipe.id),
+                ItemStack.CODEC.fieldOf("catalyst").forGetter(recipe -> recipe.catalyst),
+                Codec.INT.fieldOf("power").forGetter(recipe -> recipe.power),
+                SHAPE_CODEC.fieldOf("shape").forGetter(recipe -> recipe.shape),
+                SHAPE_CODEC.fieldOf("shaperesult").forGetter(recipe -> recipe.shapeResult),
+                POINT_CODEC.fieldOf("origin").forGetter(recipe -> recipe.origin),
+                Codec.unboundedMap(CHARACTER_CODEC, SLOT_CODEC).fieldOf("definition").forGetter(recipe -> recipe.definition),
+                Codec.unboundedMap(CHARACTER_CODEC, SLOT_CODEC).fieldOf("definitionresult").forGetter(recipe -> recipe.definitionResult)
+        ).apply(instance, RecipeMultiblock::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf, RecipeMultiblock> STREAM_CODEC = StreamCodec.of(
+                Serializer::toNetwork,
+                Serializer::fromNetwork
+        );
+
         @Override
-        public RecipeMultiblock fromJson(ResourceLocation id, JsonObject obj) {
-
-            ResourceLocation itemId = ResourceLocation.tryParse(obj.getAsJsonObject("catalyst").getAsJsonPrimitive("item").getAsString());
-            int power = obj.getAsJsonObject("catalyst").getAsJsonPrimitive("power").getAsInt();
-            ItemStack catalyst = new ItemStack(Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(itemId)));
-
-            String[] shape = UCUtils.convertJson(obj.getAsJsonArray("shape"));
-            String[] shapeResult = UCUtils.convertJson(obj.getAsJsonArray("shaperesult"));
-            JsonObject point = GsonHelper.getAsJsonObject(obj, "origin");
-            Point origin = new Point(point.get("x").getAsInt(), point.get("y").getAsInt());
-            JsonObject definition = obj.getAsJsonObject("definition");
-            Map<Character, Slot> mapDefinition = new GsonBuilder().create().fromJson(definition, new TypeToken<Map<Character, Slot>>(){}.getType());
-            JsonObject definitionResult = obj.getAsJsonObject("definitionresult");
-            Map<Character, Slot> mapDefinitionResult = new GsonBuilder().create().fromJson(definitionResult, new TypeToken<Map<Character, Slot>>(){}.getType());
-
-            return new RecipeMultiblock(id, catalyst, power, shape, shapeResult, origin, mapDefinition, mapDefinitionResult);
+        public MapCodec<RecipeMultiblock> codec() {
+            return CODEC;
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buf, RecipeMultiblock recipe) {
+        public StreamCodec<RegistryFriendlyByteBuf, RecipeMultiblock> streamCodec() {
+            return STREAM_CODEC;
+        }
 
-            buf.writeItem(recipe.catalyst);
+        private static RecipeMultiblock fromNetwork(RegistryFriendlyByteBuf buf) {
+
+            ResourceLocation id = buf.readResourceLocation();
+            ItemStack catalyst = ItemStack.STREAM_CODEC.decode(buf);
+            int power = buf.readVarInt();
+            String[] shape = UCUtils.deserializeString(buf);
+            String[] shapeResult = UCUtils.deserializeString(buf);
+            int[] origin = buf.readVarIntArray();
+            Point point = new Point(origin[0], origin[1]);
+            CompoundTag defTag = Objects.requireNonNullElseGet(buf.readNbt(), CompoundTag::new);
+            CompoundTag defResultTag = Objects.requireNonNullElseGet(buf.readNbt(), CompoundTag::new);
+            Map<Character, Slot> definition = UCUtils.deserializeMap("definition", defTag);
+            Map<Character, Slot> definitionResult = UCUtils.deserializeMap("definitionresult", defResultTag);
+
+            return new RecipeMultiblock(id, catalyst, power, shape, shapeResult, point, definition, definitionResult);
+        }
+
+        private static void toNetwork(RegistryFriendlyByteBuf buf, RecipeMultiblock recipe) {
+
+            buf.writeResourceLocation(recipe.id);
+            ItemStack.STREAM_CODEC.encode(buf, recipe.catalyst);
             buf.writeVarInt(recipe.power);
             UCUtils.serializeArray(buf, recipe.shape);
             UCUtils.serializeArray(buf, recipe.shapeResult);
             buf.writeVarIntArray(new int[] { recipe.origin.x, recipe.origin.y });
             buf.writeNbt(UCUtils.serializeMap("definition", recipe.definition));
             buf.writeNbt(UCUtils.serializeMap("definitionresult", recipe.definitionResult));
-        }
-
-        @Nullable
-        @Override
-        public RecipeMultiblock fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
-
-            ItemStack catalyst = buf.readItem();
-            int power = buf.readVarInt();
-            String[] shape = UCUtils.deserializeString(buf);
-            String[] shapeResult = UCUtils.deserializeString(buf);
-            int[] origin = buf.readVarIntArray();
-            Point point = new Point(origin[0], origin[1]);
-            Map<Character, Slot> definition = UCUtils.deserializeMap("definition", buf.readNbt());
-            Map<Character, Slot> definitionResult = UCUtils.deserializeMap("definitionresult", buf.readNbt());
-
-            return new RecipeMultiblock(id, catalyst, power, shape, shapeResult, point, definition, definitionResult);
         }
     }
 }

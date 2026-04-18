@@ -16,9 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AnvilMenu.class)
 public class MixinAnvilMenu extends MixinItemCombinerMenu {
 
-    @Shadow @Final private DataSlot cost;
+    @Shadow
+    @Final
+    private DataSlot cost;
 
-    @Inject(method = "createResult", at = @At("TAIL"))
+    @Inject(method = "createResult", at = @At("TAIL"), remap = false)
     public void uniquecrops_result(CallbackInfo info) {
 
         ItemStack left = inputSlots.getItem(0);

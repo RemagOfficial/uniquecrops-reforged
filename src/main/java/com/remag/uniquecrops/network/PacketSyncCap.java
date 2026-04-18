@@ -1,11 +1,11 @@
 package com.remag.uniquecrops.network;
 
 import com.remag.uniquecrops.UniqueCrops;
+import com.remag.uniquecrops.api.ICropPower;
 import com.remag.uniquecrops.capabilities.CPProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -28,13 +28,21 @@ public class PacketSyncCap {
         return new PacketSyncCap(buf.readNbt());
     }
 
-    public static void handle(PacketSyncCap msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PacketSyncCap msg, Supplier<UCPacketHandler.PacketContext> ctx) {
 
-        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+        if (ctx.get().isClientSide()) {
             ctx.get().enqueueWork(() -> {
                 Player player = UniqueCrops.proxy.getPlayer();
-                player.getMainHandItem().getCapability(CPProvider.CROP_POWER, null).ifPresent(crop ->
-                        crop.deserializeNBT(msg.tag));
+                if (player == null) {
+                    return;
+                }
+
+                ICropPower crop = player.getMainHandItem().getCapability(CPProvider.CROP_POWER, null);
+                if (crop == null) {
+                    return;
+                }
+
+                crop.deserializeNBT(msg.tag);
             });
         }
         ctx.get().setPacketHandled(true);

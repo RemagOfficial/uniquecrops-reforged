@@ -1,7 +1,8 @@
 package com.remag.uniquecrops.capabilities;
 
+import com.remag.uniquecrops.core.NBTUtils;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.EnergyStorage;
 
 public class UCEnergy extends EnergyStorage {
 
@@ -41,11 +42,15 @@ public class UCEnergy extends EnergyStorage {
     @Override
     public int getEnergyStored() {
 
-        return this.stack.getOrCreateTag().getInt("UC_Energy");
+        int legacy = NBTUtils.getInt(this.stack, "UC_Energy", Integer.MIN_VALUE);
+        if (legacy != Integer.MIN_VALUE)
+            return legacy;
+
+        return NBTUtils.getInt(this.stack, "UC_energy", 0);
     }
 
     private void setEnergyStored(int amount) {
 
-        this.stack.getOrCreateTag().putInt("UC_Energy", amount);
+        NBTUtils.setInt(this.stack, "UC_Energy", amount);
     }
 }

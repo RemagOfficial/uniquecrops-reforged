@@ -1,18 +1,16 @@
 package com.remag.uniquecrops.gui;
 
-import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.capabilities.CPProvider;
-import com.remag.uniquecrops.core.UCConfig;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.remag.uniquecrops.UniqueCrops;
+import com.remag.uniquecrops.api.ICropPower;
+import com.remag.uniquecrops.capabilities.CPProvider;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.Util;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.lwjgl.opengl.GL11;
 
 public class GuiStaffOverlay {
@@ -28,13 +26,11 @@ public class GuiStaffOverlay {
         this.mc = mc;
     }
 
-    @SubscribeEvent
-    public void renderOverlay(RenderGuiOverlayEvent.Post event) {
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+    public void renderOverlay(GuiGraphics guiGraphics, String overlayId) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null) return; // skip if a screen is open
+        if (mc.screen != null || mc.player == null) return;
 
-        if (!event.getOverlay().id().toString().equals("minecraft:crosshair")) return;
+        if (!"minecraft:crosshair".equals(overlayId)) return;
 
         ProfilerFiller profiler = mc.getProfiler();
         profiler.push("UC-hud");
@@ -44,7 +40,8 @@ public class GuiStaffOverlay {
 
         Window scaled = mc.getWindow();
 
-        mc.player.getMainHandItem().getCapability(CPProvider.CROP_POWER, null).ifPresent(crop -> {
+        Object capability = mc.player.getMainHandItem().getCapability(CPProvider.CROP_POWER, null);
+        if (capability instanceof ICropPower crop) {
             int i = crop.getPower();
             boolean flag = this.staffUpdateCounter > this.updateCounter;
             if (flag)
@@ -69,7 +66,7 @@ public class GuiStaffOverlay {
 
             this.renderLeafBar(scaled, crop.getPower(), crop.getCapacity(), guiGraphics);
             this.capacity = i;
-        });
+        }
 
         ms.popPose();
         profiler.pop();
@@ -82,8 +79,8 @@ public class GuiStaffOverlay {
 
         if (capacity <= 0) return;
 
-        int x = res.getGuiScaledWidth() / 2 + UCConfig.CLIENT.guiWidth.get();
-        int y = res.getGuiScaledHeight() + UCConfig.CLIENT.guiHeight.get();
+        int x = res.getGuiScaledWidth() / 2;
+        int y = res.getGuiScaledHeight();
 
         RenderSystem.setShaderTexture(0, TEX);
         RenderSystem.enableBlend();
@@ -93,13 +90,12 @@ public class GuiStaffOverlay {
         if (capacity < count)
             count = capacity;
         double start = Math.PI / 2;
-        int direction = -1;
         int radius = 15;
         double interval = 2 * Math.PI / count;
-        int mod = capacity / count;
+        int mod = Math.max(1, capacity / count);
 
         for (int i = 0; i < count; ++i) {
-            double angle = start + i * interval * (direction < 0 ? -1 : 1);
+            double angle = start - i * interval;
             double r1 = radius * Math.cos(angle);
             double r2 = radius * Math.sin(angle);
             guiGraphics.blit(ICONS, (int)r1 + x, (int)r2 + y, 0, 0, 15, 15, 256, 256);

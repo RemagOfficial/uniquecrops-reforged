@@ -1,18 +1,16 @@
 package com.remag.uniquecrops.core.enums;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import net.minecraft.world.level.block.state.BlockState;
+import com.remag.uniquecrops.core.UCUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.GrassBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
-import com.remag.uniquecrops.core.UCUtils;
-import net.minecraftforge.eventbus.api.Event;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public enum EnumBonemealDye {
 
@@ -52,9 +50,9 @@ public enum EnumBonemealDye {
         this.states.add(flower);
     }
 
-    public Event.Result grow(Level world, BlockPos pos) {
+    public boolean grow(Level world, BlockPos pos) {
 
-        if (states == null || states.size() <= 0) return Event.Result.DENY;
+        if (states == null || states.size() <= 0) return false;
 
         final int range = 3;
         List<BlockPos> growthSpots = new ArrayList<>();
@@ -71,13 +69,13 @@ public enum EnumBonemealDye {
             growthSpots.remove(flowerPos);
             growFlower(world, flowerPos);
         }
-        return Event.Result.ALLOW;
+        return true;
     }
 
     public void growFlower(Level world, BlockPos pos) {
 
         BlockState randomState = UCUtils.selectRandom(world.random, this.states);
-        if (randomState.getBlock() instanceof DoublePlantBlock doubleplant)
+        if (randomState.getBlock() instanceof DoublePlantBlock)
             DoublePlantBlock.placeAt(world, randomState, pos, 2);
         else
             world.setBlock(pos, randomState, 2);

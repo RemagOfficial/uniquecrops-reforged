@@ -1,9 +1,8 @@
 package com.remag.uniquecrops.api;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
 
-public interface ICropPower extends INBTSerializable<CompoundTag>  {
+public interface ICropPower {
 
     int getCapacity();
 
@@ -26,4 +25,8 @@ public interface ICropPower extends INBTSerializable<CompoundTag>  {
     void setCooldown(int amount);
 
     void setIgnoreCooldown(boolean flag);
+
+    CompoundTag serializeNBT();
+
+    void deserializeNBT(CompoundTag nbt);
 }

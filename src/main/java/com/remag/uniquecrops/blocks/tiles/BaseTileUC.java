@@ -2,6 +2,7 @@ package com.remag.uniquecrops.blocks.tiles;
 
 import com.remag.uniquecrops.core.UCUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.level.Level;
@@ -20,27 +21,27 @@ public abstract class BaseTileUC extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
 
-        writeCustomNBT(tag);
+        writeCustomNBT(tag, provider);
     }
 
     @Override
-    public void load(CompoundTag tag) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
 
-        readCustomNBT(tag);
-        super.load(tag);
+        readCustomNBT(tag, provider);
+        super.loadAdditional(tag, provider);
     }
 
-    public void writeCustomNBT(CompoundTag tag) {}
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {}
 
-    public void readCustomNBT(CompoundTag tag) {}
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {}
 
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
 
         var tag = new CompoundTag();
-        writeCustomNBT(tag);
+        writeCustomNBT(tag, provider);
         return tag;
     }
 
@@ -77,9 +78,9 @@ public abstract class BaseTileUC extends BlockEntity {
         }
     }
 
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
+    /* @Override
+    public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         UCUtils.unregister(this);
-    }
+    } */
 }

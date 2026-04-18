@@ -8,12 +8,13 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
-@Mod.EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT)
 public class UCTickHandler {
 
     public static final ResourceLocation BITS = ResourceLocation.fromNamespaceAndPath("minecraft", "shaders/post/bits.json");
@@ -33,26 +34,22 @@ public class UCTickHandler {
     }
 
     @SubscribeEvent
-    public static void renderTick(TickEvent.RenderTickEvent event) {
+    public static void renderTick(RenderFrameEvent.Pre event) {
 
-        if (event.phase == TickEvent.Phase.START)
-            partialTicks = event.renderTickTime;
-        else
-            calcDelta();
+        partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(true);
     }
 
     @SubscribeEvent
-    public static void clientTickEnd(TickEvent.ClientTickEvent event) {
+    public static void clientTickEnd(ClientTickEvent.Post event) {
 
         Minecraft mc = Minecraft.getInstance();
-        if (event.phase == TickEvent.Phase.END) {
-            Screen gui = mc.screen;
-            if (gui == null || !gui.isPauseScreen()) {
-                ticksInGame++;
-                partialTicks = 0;
-            }
-            calcDelta();
+        Screen gui = mc.screen;
+        if (gui == null || !gui.isPauseScreen()) {
+            ticksInGame++;
+            partialTicks = 0;
         }
+        calcDelta();
+
         Player player = mc.player;
         if (mc.level == null || player == null) return;
 
@@ -61,7 +58,7 @@ public class UCTickHandler {
             boolean flag = NBTUtils.getBoolean(glasses, "isActive", false);
             if (flag)
                 mc.gameRenderer.loadEffect(BITS);
-            else if (!flag && mc.gameRenderer.currentEffect() != null && mc.gameRenderer.currentEffect().getName().equals(BITS.toString()))
+            else if (mc.gameRenderer.currentEffect() != null && mc.gameRenderer.currentEffect().getName().equals(BITS.toString()))
                 mc.gameRenderer.shutdownEffect();
         }
         else if (mc.gameRenderer.currentEffect() != null && mc.gameRenderer.currentEffect().getName().equals(BITS.toString()))

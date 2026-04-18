@@ -1,9 +1,11 @@
 package com.remag.uniquecrops.items.curios;
 
-import com.remag.uniquecrops.core.NBTUtils;
-import com.remag.uniquecrops.items.base.ItemCurioUC;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.items.base.ItemCurioUC;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -37,11 +39,11 @@ public class EmblemLeaf extends ItemCurioUC {
         ctx.entity().getAttributes().removeAttributeModifiers(getEquippedAttributeModifiers(stack));
     }
 
-    public Multimap<Attribute, AttributeModifier> getEquippedAttributeModifiers(ItemStack stack) {
+    public Multimap<Holder<Attribute>, AttributeModifier> getEquippedAttributeModifiers(ItemStack stack) {
 
         int armorCount = NBTUtils.getInt(stack, ARMORCOUNT, 0);
-        Multimap<Attribute, AttributeModifier> attributes = HashMultimap.create();
-        attributes.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(getCurioUUID(stack), "Leaf Emblem", armorCount, AttributeModifier.Operation.ADDITION));
+        Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
+        attributes.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(BuiltInRegistries.ITEM.getKey(stack.getItem()), armorCount, AttributeModifier.Operation.ADD_VALUE));
         return attributes;
     }
 }

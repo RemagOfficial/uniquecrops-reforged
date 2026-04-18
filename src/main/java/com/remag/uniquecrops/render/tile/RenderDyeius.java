@@ -68,14 +68,14 @@ public class RenderDyeius implements BlockEntityRenderer<TileDyeius> {
             vTop = (float)(frame) / 17f + 0.002f;    // There are 17 frames in the image. The first is blank.
             vBottom = vTop + 1f / 17f - 0.004f;
         }
-        buff.vertex(mat, -x, -y, z).color(1.0F, 1.0F, 1.0F, a).uv(0f, vBottom).uv2(p).normal(1, 0, 0).endVertex();
-        buff.vertex(mat, -x,  y, z).color(1.0F, 1.0F, 1.0F, a).uv(1f, vBottom).uv2(p).normal(1, 0, 0).endVertex();
-        buff.vertex(mat,  x,  y, z).color(1.0F, 1.0F, 1.0F, a).uv(1f, vTop).uv2(p).normal(1, 0, 0).endVertex();
-        buff.vertex(mat,  x, -y, z).color(1.0F, 1.0F, 1.0F, a).uv(0f, vTop).uv2(p).normal(1, 0, 0).endVertex();
+        buff.addVertex(mat, -x, -y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(0f, vBottom).setLight(p).setNormal(1, 0, 0);
+        buff.addVertex(mat, -x,  y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(1f, vBottom).setLight(p).setNormal(1, 0, 0);
+        buff.addVertex(mat,  x,  y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(1f, vTop).setLight(p).setNormal(1, 0, 0);
+        buff.addVertex(mat,  x, -y, z).setColor(1.0F, 1.0F, 1.0F, a).setUv(0f, vTop).setLight(p).setNormal(1, 0, 0);
 
-        buff.vertex(mat, -x, -y + 0.5F, z + 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(0f, vBottom).uv2(p).normal(1, 0, 0).endVertex(); // bottom z
-        buff.vertex(mat, -x,  y - 0.5F, z - 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(1f, vBottom).uv2(p).normal(1, 0, 0).endVertex();
-        buff.vertex(mat,  x,  y - 0.5F, z - 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(1f, vTop).uv2(p).normal(1, 0, 0).endVertex();
-        buff.vertex(mat,  x, -y + 0.5F, z + 0.5F).color(1.0F, 1.0F, 1.0F, a).uv(0f, vTop).uv2(p).normal(1, 0, 0).endVertex(); // top z
+        buff.addVertex(mat, -x, -y + 0.5F, z + 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(0f, vBottom).setLight(p).setNormal(1, 0, 0); // bottom z
+        buff.addVertex(mat, -x,  y - 0.5F, z - 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(1f, vBottom).setLight(p).setNormal(1, 0, 0);
+        buff.addVertex(mat,  x,  y - 0.5F, z - 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(1f, vTop).setLight(p).setNormal(1, 0, 0);
+        buff.addVertex(mat,  x, -y + 0.5F, z + 0.5F).setColor(1.0F, 1.0F, 1.0F, a).setUv(0f, vTop).setLight(p).setNormal(1, 0, 0); // top z
     }
 }

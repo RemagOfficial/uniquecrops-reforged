@@ -1,21 +1,20 @@
 package com.remag.uniquecrops.network;
 
-import com.remag.uniquecrops.UniqueCrops;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class UCPacketHandler {
 
-    private static final String PROTOCOL = "9";
-    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "chan"), () -> PROTOCOL, PROTOCOL::equals, PROTOCOL::equals);
+    public static final LegacyChannel INSTANCE = new LegacyChannel();
 
     public static void init() {
         int id = 0;
@@ -35,12 +34,65 @@ public final class UCPacketHandler {
             ws.getChunkSource().chunkMap.getPlayers(new ChunkPos(pos), false)
                     .stream()
                     .filter(p -> p.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) < 64 * 64)
-                    .forEach(p -> INSTANCE.send(PacketDistributor.PLAYER.with(() -> p), toSend));
+                    .forEach(p -> INSTANCE.send(p, toSend));
         }
     }
 
     public static void sendTo(ServerPlayer playerMP, Object toSend) {
 
-        INSTANCE.sendTo(toSend, playerMP.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        INSTANCE.send(playerMP, toSend);
+    }
+
+    /**
+     * Compatibility shim while packet classes are migrated to NeoForge CustomPacketPayload.
+     */
+    public static final class LegacyChannel {
+
+        public void sendToServer(Object msg) {
+            // TODO: replace with PacketDistributor.sendToServer(payload) once packets are migrated.
+        }
+
+        public void send(Object target, Object msg) {
+            // TODO: replace with PacketDistributor.sendToPlayer/sendToPlayersTrackingChunk.
+        }
+
+        public <MSG, CTX> void registerMessage(
+                int id,
+                Class<MSG> messageType,
+                BiConsumer<MSG, FriendlyByteBuf> encoder,
+                Function<FriendlyByteBuf, MSG> decoder,
+                BiConsumer<MSG, Supplier<PacketContext>> handler) {
+            // TODO: replace with RegisterPayloadHandlersEvent + PayloadRegistrar registration.
+        }
+    }
+
+    /**
+     * Minimal compatibility context for old packet handlers during staged migration.
+     */
+    public static final class PacketContext {
+
+        private final @Nullable ServerPlayer sender;
+        private final boolean clientSide;
+
+        public PacketContext(@Nullable ServerPlayer sender, boolean clientSide) {
+            this.sender = sender;
+            this.clientSide = clientSide;
+        }
+
+        public void enqueueWork(Runnable task) {
+            task.run();
+        }
+
+        public @Nullable ServerPlayer getSender() {
+            return sender;
+        }
+
+        public boolean isClientSide() {
+            return clientSide;
+        }
+
+        public void setPacketHandled(boolean handled) {
+            // no-op in shim
+        }
     }
 }

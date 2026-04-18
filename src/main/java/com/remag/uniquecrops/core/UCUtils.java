@@ -1,47 +1,44 @@
 package com.remag.uniquecrops.core;
 
+import com.google.gson.JsonArray;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.core.enums.EnumGrowthSteps;
 import com.remag.uniquecrops.crafting.RecipeMultiblock;
 import com.remag.uniquecrops.network.PacketChangeBiome;
 import com.remag.uniquecrops.network.UCPacketHandler;
-import com.google.gson.JsonArray;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.*;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,6 +56,8 @@ public class UCUtils {
 
         if (uuid != null) {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (server == null)
+                return null;
             for (ServerLevel ws : server.getAllLevels()) {
                 Entity entity = ws.getEntity(uuid);
                 if (entity instanceof LivingEntity && entity.isAlive())
@@ -158,19 +157,20 @@ public class UCUtils {
         return null;
     }
 
-    public static SimpleContainer wrap(List<ItemStack> stacks) {
-
-        SimpleContainer inv = new SimpleContainer(stacks.size()) {
-            @Override
-            public int getMaxStackSize() {
-
-                return 1;
+    // Updated: wrap now returns RecipeInput for NeoForge 1.21+
+    public static RecipeInput wrap(List<ItemStack> stacks) {
+        // If only one stack, use SingleRecipeInput
+        if (stacks.size() == 1) {
+            return new SingleRecipeInput(stacks.get(0));
+        }
+        // If multiple, use the first non-empty stack (or adapt if you have a MultiRecipeInput)
+        for (ItemStack stack : stacks) {
+            if (!stack.isEmpty()) {
+                return new SingleRecipeInput(stack);
             }
-        };
-        for (int i = 0; i < stacks.size(); i++)
-            inv.setItem(i, stacks.get(i));
-
-        return inv;
+        }
+        // Fallback: empty input
+        return new SingleRecipeInput(ItemStack.EMPTY);
     }
 
     public static void drawSplitString(GuiGraphics guiGraphics, Font font, Component text, float x, float y, int wordWrap, int color) {
@@ -253,26 +253,38 @@ public class UCUtils {
         if (current.is(key)) return false;
 
         biomes.set(quartX, quartY, quartZ, biome);
-        LevelChunk chunkSafe = world.getChunkSource().getChunk(pos.getX() >> 3, pos.getZ() >> 3, false);
-
         chunk.setUnsaved(true);
 
-        if (world instanceof ServerLevel serverLevel) {
+        if (world instanceof ServerLevel) {
             PacketChangeBiome msg = new PacketChangeBiome(pos, biomeId);
-            UCPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
+            UCPacketHandler.sendToNearbyPlayers(world, pos, msg);
         }
 
         return true;
     }
 
 
-    public static <T extends Recipe<C>, C extends Container> Collection<T> loadType(RecipeType<T> type) {
+    @SuppressWarnings("unchecked")
+    public static <T extends Recipe<?>> Collection<T> loadType(RecipeType<T> type) {
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null)
-            return ServerLifecycleHooks.getCurrentServer().getRecipeManager().getAllRecipesFor(type);
+        if (mc.level == null) {
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (server == null)
+                return Collections.emptyList();
 
-        return mc.level.getRecipeManager().getAllRecipesFor(type);
+            return server.getRecipeManager().getRecipes().stream()
+                    .map(RecipeHolder::value)
+                    .filter(recipe -> recipe.getType() == type)
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+
+        return mc.level.getRecipeManager().getRecipes().stream()
+                .map(RecipeHolder::value)
+                .filter(recipe -> recipe.getType() == type)
+                .map(recipe -> (T) recipe)
+                .toList();
     }
 
     public static <E> List<E> makeCollection(Iterable<E> iter, boolean shuffle) {
@@ -295,14 +307,16 @@ public class UCUtils {
         return list.get(rand.nextInt(list.size()));
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> boolean hasTag(TagKey<?> tagKey, T tag) {
 
         if (tag instanceof Block block) {
-            return ForgeRegistries.BLOCKS.tags().getTag((TagKey<Block>)tagKey).contains(block);
+            return block.builtInRegistryHolder().is((TagKey<Block>) tagKey);
         }
         if (tag instanceof Item item) {
-            return ForgeRegistries.ITEMS.tags().getTag((TagKey<Item>)tagKey).contains(item);
+            return item.builtInRegistryHolder().is((TagKey<Item>) tagKey);
         }
         return false;
     }
+
 }

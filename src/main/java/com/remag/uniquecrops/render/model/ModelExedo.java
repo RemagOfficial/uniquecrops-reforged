@@ -63,18 +63,18 @@ public class ModelExedo extends Model {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int red, int green, int blue) {
 
-        stalk.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        stalk2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        stalk3.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        leaf1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        leaf2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        stamen.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        petal1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        petal2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        petal3.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        petal4.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        stalk.render(poseStack, vertexConsumer, red, green, blue);
+        stalk2.render(poseStack, vertexConsumer, red, green, blue);
+        stalk3.render(poseStack, vertexConsumer, red, green, blue);
+        leaf1.render(poseStack, vertexConsumer, red, green, blue);
+        leaf2.render(poseStack, vertexConsumer, red, green, blue);
+        stamen.render(poseStack, vertexConsumer, red, green, blue);
+        petal1.render(poseStack, vertexConsumer, red, green, blue);
+        petal2.render(poseStack, vertexConsumer, red, green, blue);
+        petal3.render(poseStack, vertexConsumer, red, green, blue);
+        petal4.render(poseStack, vertexConsumer, red, green, blue);
     }
 
     public void renderWithWiggle(TileExedo te, PoseStack ms, VertexConsumer buffer, int light, int overlay) {

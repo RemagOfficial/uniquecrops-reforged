@@ -1,20 +1,21 @@
 package com.remag.uniquecrops.items;
 
+import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
-import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ import java.util.Random;
 public class GoodieBagItem extends ItemBaseUC {
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player player, @NotNull InteractionHand hand) {
 
         ItemStack stack = player.getItemInHand(hand);
         if (world instanceof ServerLevel) {
@@ -36,7 +37,7 @@ public class GoodieBagItem extends ItemBaseUC {
                 }
                 Random rand = new Random(((ServerLevel)world).getSeed() + getDayOfMonth(player, false));
                 ItemStack prize = getHolidayItem(player, rand);
-                ItemHandlerHelper.giveItemToPlayer(player, prize);
+                player.addItem(prize);
                 stack.shrink(1);
             }
         }
@@ -48,12 +49,13 @@ public class GoodieBagItem extends ItemBaseUC {
         if (isHolidayTime(player)) {
             ItemStack stack;
             if (rand.nextBoolean())
-                stack = new ItemStack(UCUtils.selectRandom(RandomSource.create(), ForgeRegistries.BLOCKS.getValues().stream().toList()));
+                stack = new ItemStack(UCUtils.selectRandom(RandomSource.create(), BuiltInRegistries.BLOCK.stream().toList()));
             else
-                stack = new ItemStack(UCUtils.selectRandom(RandomSource.create(), ForgeRegistries.ITEMS.getValues().stream().toList()));
+                stack = new ItemStack(UCUtils.selectRandom(RandomSource.create(), BuiltInRegistries.ITEM.stream().toList()));
             return stack;
         }
-        return new ItemStack(UCItems.USELESS_LUMP.get());
+        ResourceLocation lumpId = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "useless_lump");
+        return new ItemStack(BuiltInRegistries.ITEM.getOptional(lumpId).orElse(Items.DEAD_BUSH));
     }
 
     private int getDayOfMonth(Player player, boolean increment) {
@@ -69,7 +71,7 @@ public class GoodieBagItem extends ItemBaseUC {
             day = 1;
             tag.putInt(UCStrings.TAG_ADVENT, day);
         }
-        return Mth.clamp(1, day, currentDay);
+        return Mth.clamp(day, 1, currentDay);
     }
 
     public static boolean isHoliday() {

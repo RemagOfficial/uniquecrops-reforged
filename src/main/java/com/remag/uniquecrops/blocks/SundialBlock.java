@@ -2,24 +2,23 @@ package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.blocks.tiles.TileSundial;
 import com.remag.uniquecrops.network.UCPacketDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SundialBlock extends Block implements EntityBlock {
 
@@ -27,7 +26,7 @@ public class SundialBlock extends Block implements EntityBlock {
 
     public SundialBlock() {
 
-        super(Properties.copy(Blocks.COBBLESTONE).noOcclusion().noCollission());
+        super(Properties.ofFullCopy(Blocks.COBBLESTONE).noOcclusion().noCollission());
     }
 
     @Override
@@ -37,7 +36,7 @@ public class SundialBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
 
         if (!world.isClientSide) {
             BlockEntity tile = world.getBlockEntity(pos);
@@ -54,10 +53,10 @@ public class SundialBlock extends Block implements EntityBlock {
     @Override
     public int getSignal(BlockState state, BlockGetter reader, BlockPos pos, Direction side) {
 
-        if (reader.getBlockEntity(pos) instanceof TileSundial) {
-            if (((TileSundial)reader.getBlockEntity(pos)).hasPower)
-                return 15;
-        }
+        BlockEntity tile = reader.getBlockEntity(pos);
+        if (tile instanceof TileSundial sundial && sundial.hasPower)
+            return 15;
+
         return 0;
     }
 

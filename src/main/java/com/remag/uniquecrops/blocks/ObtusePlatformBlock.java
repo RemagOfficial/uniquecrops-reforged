@@ -13,7 +13,7 @@ public class ObtusePlatformBlock extends Block {
 
     public ObtusePlatformBlock() {
 
-        super(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noOcclusion().noCollission());
+        super(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion().noCollission());
     }
 
     @Override

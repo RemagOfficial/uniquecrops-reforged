@@ -4,7 +4,6 @@ import com.remag.uniquecrops.UniqueCrops;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -28,11 +27,14 @@ public class PacketOpenBook {
         return new PacketOpenBook(id);
     }
 
-    public static void handle(PacketOpenBook packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PacketOpenBook packet, Supplier<UCPacketHandler.PacketContext> ctx) {
 
-        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+        if (ctx.get().isClientSide()) {
             ctx.get().enqueueWork(() -> {
                 Player player = UniqueCrops.proxy.getPlayer();
+                if (player == null) {
+                    return;
+                }
                 Entity entity = player.level().getEntity(packet.id);
                 if (entity instanceof Player && packet.id == player.getId()) {
                     UniqueCrops.proxy.openBook();

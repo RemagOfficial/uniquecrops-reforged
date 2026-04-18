@@ -6,45 +6,44 @@ import com.remag.uniquecrops.core.enums.EnumParticle;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 
 public class Imperia extends BaseCropsBlock {
 
     public Imperia() {
 
-        super(() -> Items.AIR, UCItems.IMPERIA_SEED, Properties.copy(Blocks.WHEAT).lightLevel(s -> s.getValue(AGE) >= 7 ? 15 : 0));
+        super(() -> Items.AIR, UCItems.IMPERIA_SEED, Properties.ofFullCopy(Blocks.WHEAT).lightLevel(s -> s.getValue(AGE) >= 7 ? 15 : 0));
         setClickHarvest(false);
         setBonemealable(false);
-        MinecraftForge.EVENT_BUS.addListener(this::checkDenySpawn);
-        MinecraftForge.EVENT_BUS.addListener(this::checkEntityDeath);
+        // NeoForge.EVENT_BUS.addListener(this::checkDenySpawn); // TODO: Fix event name for NeoForge 1.21
+        NeoForge.EVENT_BUS.addListener(this::checkEntityDeath);
     }
 
     @Override
@@ -52,14 +51,15 @@ public class Imperia extends BaseCropsBlock {
         return true;
     }
 
-    private void checkDenySpawn(MobSpawnEvent.FinalizeSpawn event) {
+    // TODO: Fix event name for NeoForge 1.21
+    private void checkDenySpawn(MobSpawnEvent.PositionCheck event) {
 
         if (event.getLevel().isClientSide())  return;
         ChunkPos cPos = new ChunkPos(event.getEntity().blockPosition());
-        if (event.getSpawnType().equals(MobSpawnType.NATURAL) && event.getEntity() instanceof Monster || event.getEntity() instanceof Slime) {
+        if (event.getEntity().getSpawnType().equals(MobSpawnType.NATURAL) && event.getEntity() instanceof Monster || event.getEntity() instanceof Slime) {
             if (UCProtectionHandler.getInstance().getChunkInfo(event.getEntity().level()).contains(cPos)) {
-                event.setResult(Event.Result.DENY);
-                event.setSpawnCancelled(true);
+                event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+                // event.setSpawnCancelled(true);
             }
         }
     }
@@ -69,7 +69,7 @@ public class Imperia extends BaseCropsBlock {
         if (event.getEntity() instanceof Monster) {
             CompoundTag tag = event.getEntity().getPersistentData();
             if (tag.contains("ImperiaPosTag") && tag.contains("ImperiaStage")) {
-                BlockPos cropPos = NbtUtils.readBlockPos(tag.getCompound("ImperiaPosTag"));
+                BlockPos cropPos = NbtUtils.readBlockPos(tag, "ImperiaPosTag").orElseThrow();
                 Level world = event.getEntity().level();
                 if (!world.isEmptyBlock(cropPos) && world.hasChunkAt(cropPos)) {
                     if (world.getBlockState(cropPos).getBlock() == this && !world.isClientSide) {
@@ -88,7 +88,7 @@ public class Imperia extends BaseCropsBlock {
             return;
 
         String[] mobList = new String[] { "minecraft:witch", "minecraft:skeleton", "minecraft:zombie", "minecraft:spider" };
-        EntityType type = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(mobList[rand.nextInt(mobList.length)]));
+        EntityType type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.tryParse(mobList[rand.nextInt(mobList.length)]));
         Entity entity = type.create(world);
         if (!(entity instanceof LivingEntity)) return;
 

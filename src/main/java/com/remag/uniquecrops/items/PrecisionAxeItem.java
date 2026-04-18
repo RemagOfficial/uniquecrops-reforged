@@ -3,6 +3,8 @@ package com.remag.uniquecrops.items;
 import com.remag.uniquecrops.api.IBookUpgradeable;
 import com.remag.uniquecrops.core.enums.TierItem;
 import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -15,27 +17,28 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class PrecisionAxeItem extends AxeItem implements IBookUpgradeable {
 
     public PrecisionAxeItem() {
 
-        super(TierItem.PRECISION, 5, -3.0F, UCItems.unstackable());
-        MinecraftForge.EVENT_BUS.addListener(this::checkDrops);
+        super(TierItem.PRECISION, UCItems.unstackable());
+        NeoForge.EVENT_BUS.addListener(this::checkDrops);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag flag) {
 
         if (stack.getItem() instanceof IBookUpgradeable) {
             if (((IBookUpgradeable)stack.getItem()).getLevel(stack) > -1)
@@ -46,52 +49,58 @@ public class PrecisionAxeItem extends AxeItem implements IBookUpgradeable {
     }
 
     private void checkDrops(LivingDropsEvent event) {
+        LivingEntity el = event.getEntity();
+        if (el instanceof Player) return;
 
-        if (!(event.getEntity() instanceof Player) && event.getSource().getEntity() instanceof Player player) {
-            LivingEntity el = event.getEntity();
-            ItemStack boots = el.getItemBySlot(EquipmentSlot.FEET);
-            if (!boots.isEmpty() && player.getInventory().contains(new ItemStack(UCItems.SLIPPERGLASS.get()))) {
-                if (player.level().random.nextInt(2) == 0) {
-                    addDrop(event, new ItemStack(UCItems.GLASS_SLIPPERS.get()));
-                    for (int i = 0; i < player.getInventory().items.size(); i++) {
-                        ItemStack singleslipper = player.getInventory().getItem(i);
-                        if (singleslipper.getItem() == UCItems.SLIPPERGLASS.get()) {
-                            singleslipper.shrink(1);
-                            //player.getInventory().setItem(i, ItemStack.EMPTY);
-                            break;
-                        }
+        DamageSource source = event.getSource();
+        if (!(source.getEntity() instanceof Player player)) return;
+
+        ItemStack boots = el.getItemBySlot(EquipmentSlot.FEET);
+        Item slipperGlass = UCItems.SLIPPERGLASS.get();
+        Item glassSlippers = UCItems.GLASS_SLIPPERS.get();
+        if (!boots.isEmpty() && player.getInventory().contains(new ItemStack(slipperGlass))) {
+            if (player.level().random.nextInt(2) == 0) {
+                addDrop(event, el, new ItemStack(glassSlippers));
+                for (int i = 0; i < player.getInventory().items.size(); i++) {
+                    ItemStack singleslipper = player.getInventory().getItem(i);
+                    if (singleslipper.getItem() == slipperGlass) {
+                        singleslipper.shrink(1);
+                        break;
                     }
                 }
             }
-            if (player.getMainHandItem().getItem() == this) {
-                ItemStack axe = player.getMainHandItem();
-                if (((IBookUpgradeable)axe.getItem()).isMaxLevel(axe)) {
-                    int looting = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, player.getMainHandItem());
-                    if (player.level().random.nextInt(15) <= 2 + looting) {
-                        if (el instanceof Skeleton)
-                            addDrop(event, new ItemStack(Items.SKELETON_SKULL));
-                        if (el instanceof WitherSkeleton)
-                            addDrop(event, new ItemStack(Items.WITHER_SKELETON_SKULL));
-                        if (el instanceof Zombie)
-                            addDrop(event, new ItemStack(Items.ZOMBIE_HEAD));
-                        if (el instanceof Creeper)
-                            addDrop(event, new ItemStack(Items.CREEPER_HEAD));
-                    }
+        }
+
+        if (player.getMainHandItem().getItem() == this) {
+            ItemStack axe = player.getMainHandItem();
+            if (((IBookUpgradeable) axe.getItem()).isMaxLevel(axe)) {
+                int looting = EnchantmentHelper.getItemEnchantmentLevel(
+                        player.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.FORTUNE),
+                        player.getMainHandItem());
+                if (player.level().random.nextInt(15) <= 2 + looting) {
+                    if (el instanceof Skeleton)
+                        addDrop(event, el, new ItemStack(Items.SKELETON_SKULL));
+                    if (el instanceof WitherSkeleton)
+                        addDrop(event, el, new ItemStack(Items.WITHER_SKELETON_SKULL));
+                    if (el instanceof Zombie)
+                        addDrop(event, el, new ItemStack(Items.ZOMBIE_HEAD));
+                    if (el instanceof Creeper)
+                        addDrop(event, el, new ItemStack(Items.CREEPER_HEAD));
                 }
             }
         }
     }
 
-    private void addDrop(LivingDropsEvent event, ItemStack drop) {
+    private void addDrop(LivingDropsEvent event, LivingEntity entity, ItemStack drop) {
 
-        ItemEntity ei = new ItemEntity(event.getEntity().level(), event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(), drop);
+        ItemEntity ei = new ItemEntity(entity.level(), entity.getX(), entity.getY(), entity.getZ(), drop);
         ei.setPickUpDelay(10);
         event.getDrops().add(ei);
     }
 
     @Override
-    public void onCraftedBy(ItemStack stack, Level world, Player player) {
+    public void onCraftedBy(@NotNull ItemStack stack, @NotNull Level world, @NotNull Player player) {
 
-        stack.enchant(Enchantments.SILK_TOUCH, 1);
+        stack.enchant(world.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.SILK_TOUCH), 1);
     }
 }

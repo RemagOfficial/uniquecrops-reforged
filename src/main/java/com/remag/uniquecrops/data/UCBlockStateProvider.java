@@ -1,13 +1,13 @@
 package com.remag.uniquecrops.data;
 
 import com.remag.uniquecrops.UniqueCrops;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class UCBlockStateProvider extends BlockStateProvider {
 
@@ -53,7 +53,7 @@ public class UCBlockStateProvider extends BlockStateProvider {
 
     private void cubeIt(Block block, String sideTexture, String bottomTexture, String topTexture) {
 
-        String modelName = ForgeRegistries.BLOCKS.getKey(block).getPath();
+        String modelName = BuiltInRegistries.BLOCK.getKey(block).getPath();
         ModelFile cube = models().cubeBottomTop(modelName, prefix(sideTexture), prefix(bottomTexture), prefix(topTexture));
         simpleBlock(block, cube);
     }

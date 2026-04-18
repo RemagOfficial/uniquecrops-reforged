@@ -3,27 +3,28 @@ package com.remag.uniquecrops.blocks.crops;
 import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.init.UCItems;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.WrittenBookItem;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -62,40 +63,43 @@ public class Knowledge extends BaseCropsBlock {
             BlockState loopState = world.getBlockState(posit);
             if (loopState.getEnchantPowerBonus(world, posit) >= 1F) {
                 BlockEntity be = world.getBlockEntity(posit.above());
-                if (be != null) {
-                    be.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.DOWN).ifPresent(cap -> {
+                if (be instanceof ICapabilityProvider provider) {
+                    IItemHandler cap = (IItemHandler) provider.getCapability(Capabilities.ItemHandler.BLOCK, Direction.DOWN);
+                    if (cap != null) {
                         for (int i = 0; i < cap.getSlots(); i++) {
                             ItemStack book = cap.getStackInSlot(i);
                             if (!book.isEmpty() && book.getItem() == Items.WRITTEN_BOOK) {
-                                CompoundTag tag = book.getTag();
-                                if (WrittenBookItem.makeSureTagIsValid(tag)
-                                        && !NBTUtils.getBoolean(book, BOOKMARK, false)
-                                        && WrittenBookItem.getGeneration(book) == 0) {
+                                WrittenBookContent tag;
+                                tag = book.get(DataComponents.WRITTEN_BOOK_CONTENT);
+                                if (!tag.pages().isEmpty()
+                                        && !NBTUtils.getBoolean(book, BOOKMARK, false)) {
 
-                                    ListTag tagList = tag.getList("pages", Tag.TAG_STRING);
+                                    List<Filterable<Component>> tagList = tag.pages();
                                     for (int j = 0; j < tagList.size(); j++) {
-                                        String str = tagList.getString(j);
+                                        String str = tagList.get(j).toString();
                                         Component text;
                                         try {
-                                            text = Component.Serializer.fromJson(str); // use strict parsing
+                                            text = Component.Serializer.fromJsonLenient(str, null);
                                         } catch (Exception e) {
-                                            e.printStackTrace();
-                                            text = Component.literal(str); // fallback
+                                            text = Component.literal(str);
                                         }
 
-                                        String newString = eatSomeVowels(text.getString()); // use getString(), not getContents()
+                                        String newString = eatSomeVowels(text.getString());
                                         Component newComponent = Component.literal(newString);
-                                        tagList.set(j, StringTag.valueOf(Component.Serializer.toJson(newComponent)));
+                                        tagList.set(j, new Filterable<>(newComponent, null));
                                         result.set(j + 1);
                                         i = cap.getSlots(); // skip remaining chest slots
                                     }
 
-                                    tag.put("pages", tagList);
+                                    // add all the modified pages with a loop
+                                    for (Filterable<Component> page : tagList) {
+                                        tag.pages().add(page);
+                                    }
                                     NBTUtils.setBoolean(book, BOOKMARK, true);
                                 }
                             }
                         }
-                    });
+                    }
                 }
             }
         }

@@ -6,31 +6,28 @@ import com.remag.uniquecrops.items.base.ItemBaseUC;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.ambient.Bat;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class StaffBatItem extends ItemBaseUC {
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 
-        tooltip.add(Component.translatable(UCStrings.TOOLTIP + "batstaff").withStyle(ChatFormatting.GRAY));
+        tooltipComponents.add(Component.translatable(UCStrings.TOOLTIP + "batstaff").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -40,7 +37,7 @@ public class StaffBatItem extends ItemBaseUC {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player player, @NotNull InteractionHand hand) {
 
         ItemStack stack = player.getItemInHand(hand);
         boolean damage = false;
@@ -54,14 +51,14 @@ public class StaffBatItem extends ItemBaseUC {
                     damage = true;
                 }
             }
-            if (damage && !world.isClientSide)
-                stack.hurt(1, world.random, (ServerPlayer)player);
+            if (damage && player instanceof ServerPlayer serverPlayer)
+                stack.hurtAndBreak(1, serverPlayer, player.getEquipmentSlotForItem(stack));
         }
         return damage ? InteractionResultHolder.success(player.getItemInHand(hand)) : InteractionResultHolder.pass(player.getItemInHand(hand));
     }
 
     protected List<? extends LivingEntity> getEntityToErase(Level world, BlockPos pos) {
 
-        return world.getEntitiesOfClass(Bat.class, new AABB(pos.offset(-15, -15, -15), pos.offset(15, 15, 15)));
+        return world.getEntitiesOfClass(Bat.class, new AABB(pos).inflate(15));
     }
 }

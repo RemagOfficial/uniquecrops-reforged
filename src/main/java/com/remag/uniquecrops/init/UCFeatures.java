@@ -5,38 +5,36 @@ import com.remag.uniquecrops.core.UCOreHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.grower.AbstractTreeGrower;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BulkSectionAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.OreFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.BlobFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.BitSet;
 
 public class UCFeatures {
 
-    public static final DeferredRegister<Feature<?>> FEATURE = DeferredRegister.create(ForgeRegistries.FEATURES, UniqueCrops.MOD_ID);
+    public static final DeferredRegister<Feature<?>> FEATURE = DeferredRegister.create(BuiltInRegistries.FEATURE, UniqueCrops.MOD_ID);
 
-    public static final RegistryObject<UCOreFeature> UC_ORE_FEATURE = FEATURE.register("uc_ore", UCOreFeature::new);
+    public static final DeferredHolder<Feature<?>, UCOreFeature> UC_ORE_FEATURE = FEATURE.register("uc_ore", UCOreFeature::new);
     // public static Holder<PlacedFeature> ORE_PIXELGEN;
     public static Holder<ConfiguredFeature<TreeConfiguration, ?>> FLYWOOD;
 
@@ -62,14 +60,12 @@ public class UCFeatures {
                 new TwoLayersFeatureSize(1, 0, 1)).ignoreVines();
     }
 
-    public static class FlywoodTreeGrower extends AbstractTreeGrower {
-
-        @Override
-        protected ResourceKey<ConfiguredFeature<?, ?>> getConfiguredFeature(RandomSource rand, boolean largeHive) {
-
-            return null; //FLYWOOD;
-        }
-    }
+    public static final TreeGrower FLYWOOD_TREE_GROWER = new TreeGrower(
+            "flywood",
+            java.util.Optional.empty(),
+            java.util.Optional.empty(),
+            java.util.Optional.empty()
+    );
 
     private static class UCOreFeature extends OreFeature {
 

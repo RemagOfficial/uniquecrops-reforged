@@ -8,13 +8,13 @@ import com.remag.uniquecrops.init.UCTiles;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketDispatcher;
 import com.remag.uniquecrops.network.UCPacketHandler;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,18 +167,24 @@ public class TileArtisia extends BaseTileUC {
         UCPacketDispatcher.dispatchTEToNearbyPlayers(this);
     }
 
-    @Override
-    public void writeCustomNBT(CompoundTag tag) {
-
-        tag.putLong("Core", core.asLong());
-        tag.put("inventory", inv.serializeNBT());
+    // Update: readCustomNBT now requires a HolderLookup.Provider parameter
+    public void readCustomNBT(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
+        if (tag.contains("Core", 4)) {
+            this.core = BlockPos.of(tag.getLong("Core"));
+        } else {
+            this.core = BlockPos.ZERO;
+        }
+        if (tag.contains("inventory", 10)) {
+            inv.deserializeNBT(provider, tag.getCompound("inventory"));
+        } else {
+            inv.deserializeNBT(provider, new CompoundTag());
+        }
     }
 
-    @Override
-    public void readCustomNBT(CompoundTag tag) {
-
-        this.core = BlockPos.of(tag.getLong("Core"));
-        inv.deserializeNBT(tag.getCompound("inventory"));
+    // Update: writeCustomNBT now requires a HolderLookup.Provider parameter
+    public void writeCustomNBT(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
+        tag.putLong("Core", core != null ? core.asLong() : 0L);
+        tag.put("inventory", inv.serializeNBT(provider));
     }
 
     @Override

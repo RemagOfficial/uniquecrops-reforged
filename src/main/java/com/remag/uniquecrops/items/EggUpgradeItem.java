@@ -2,29 +2,29 @@ package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 public class EggUpgradeItem extends ItemBaseUC {
 
     public EggUpgradeItem() {
 
-        MinecraftForge.EVENT_BUS.addListener(this::maximumOvercluck);
-        MinecraftForge.EVENT_BUS.addListener(this::checkEggUpgrade);
+        NeoForge.EVENT_BUS.addListener(this::maximumOvercluck);
+        NeoForge.EVENT_BUS.addListener(this::checkEggUpgrade);
     }
 
-    private void maximumOvercluck(LivingEvent.LivingTickEvent event) {
+    private void maximumOvercluck(EntityTickEvent.Post event) {
 
         if (!event.getEntity().level().isClientSide && event.getEntity() instanceof Chicken chicken) {
             if (chicken.isBaby()) return;

@@ -3,6 +3,7 @@ package com.remag.uniquecrops.blocks.tiles;
 import com.remag.uniquecrops.init.UCTiles;
 import com.remag.uniquecrops.network.UCPacketDispatcher;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -34,7 +35,7 @@ public class TileSundial extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putInt("UC_savedTime", savedTime);
         tag.putBoolean("UC_hasPower", hasPower);
@@ -43,7 +44,7 @@ public class TileSundial extends BaseTileUC {
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.savedTime = tag.getInt("UC_savedTime");
         this.hasPower = tag.getBoolean("UC_hasPower");

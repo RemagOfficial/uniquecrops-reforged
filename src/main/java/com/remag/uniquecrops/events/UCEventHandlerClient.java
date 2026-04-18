@@ -1,46 +1,51 @@
 package com.remag.uniquecrops.events;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.api.IBookUpgradeable;
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.gui.GuiStaffOverlay;
-import com.remag.uniquecrops.init.*;
+import com.remag.uniquecrops.init.UCBlocks;
+import com.remag.uniquecrops.init.UCClient;
+import com.remag.uniquecrops.init.UCItems;
+import com.remag.uniquecrops.init.UCSounds;
 import com.remag.uniquecrops.network.PacketSendKey;
 import com.remag.uniquecrops.network.UCPacketHandler;
 import com.remag.uniquecrops.render.CustomBufferSource;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.sound.PlaySoundEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-@Mod.EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT)
 public class UCEventHandlerClient {
 
     @SubscribeEvent
-    public static void onDrawScreenPost(RenderGuiOverlayEvent.Post event) {
+    public static void onDrawScreenPost(RenderGuiLayerEvent.Post event) {
 
         Minecraft mc = Minecraft.getInstance();
         GuiStaffOverlay overlay = new GuiStaffOverlay(mc);
-        overlay.renderOverlay(event);
+        overlay.renderOverlay(event.getGuiGraphics(), event.getName().toString());
     }
 
     @SubscribeEvent
@@ -78,18 +83,21 @@ public class UCEventHandlerClient {
         if (event.getItemStack().getItem() != Blocks.SPAWNER.asItem()) return;
 
         ItemStack tooltipper = event.getItemStack();
-        if (!tooltipper.hasTag() || (tooltipper.hasTag() && !tooltipper.getTag().contains("Spawner"))) return;
+        CustomData beData = tooltipper.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (beData == null) return;
 
-        CompoundTag tag = tooltipper.getTag().getCompound("Spawner");
+        CompoundTag root = beData.copyTag();
+        if (!root.contains("Spawner")) return;
+
+        CompoundTag tag = root.getCompound("Spawner");
         event.getToolTip().add(Component.literal("Mob spawner data:"));
         event.getToolTip().add(Component.literal(ChatFormatting.GOLD + tag.getCompound("SpawnData").getString("id")));
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return; // run only once per tick
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
 
-        Player player = event.player;
+        Player player = event.getEntity();
         if (player.level().isClientSide) { // just to be safe, confirm client side
 
             // Check if player is wearing your special armor

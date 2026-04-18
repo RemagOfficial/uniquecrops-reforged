@@ -21,7 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class Artisia extends BaseCropsBlock implements EntityBlock {
 
@@ -51,12 +51,12 @@ public class Artisia extends BaseCropsBlock implements EntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
 
         if (!this.isMaxAge(state)) return InteractionResult.PASS;
 
         BlockEntity te = world.getBlockEntity(pos);
-        if (te instanceof TileArtisia && hand == InteractionHand.MAIN_HAND) {
+        if (te instanceof TileArtisia && player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
             ItemStack tileStack = ((TileArtisia)te).getItem().copy();
             ((TileArtisia)te).setItem(ItemStack.EMPTY);
             ItemHandlerHelper.giveItemToPlayer(player, tileStack);

@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.potions;
 
-import com.remag.uniquecrops.init.UCPotions;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -10,7 +10,7 @@ import java.util.*;
 
 public class PotionBehavior {
 
-    private static final Map<MobEffect, MobEffect> REVERSE_MAP = new IdentityHashMap<>();
+    private static final Map<Holder<MobEffect>, Holder<MobEffect>> REVERSE_MAP = new IdentityHashMap<>();
 
     static {
         REVERSE_MAP.put(MobEffects.NIGHT_VISION, MobEffects.BLINDNESS);
@@ -29,7 +29,11 @@ public class PotionBehavior {
 
     public static void reverseEffects(Player player) {
 
-        player.removeEffect(UCPotions.REVERSE.get());
+        player.getActiveEffects().stream()
+                .filter(eff -> eff.getEffect().value() instanceof PotionReverse)
+                .findFirst()
+                .ifPresent(eff -> player.removeEffect(eff.getEffect()));
+
         List<MobEffectInstance> activeEffects = new ArrayList<>(player.getActiveEffects());
         if (!activeEffects.isEmpty()) {
             for (MobEffectInstance eff : activeEffects) {

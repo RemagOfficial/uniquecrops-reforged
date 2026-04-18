@@ -10,10 +10,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.InterModComms;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
 import java.util.List;
 
@@ -23,9 +21,10 @@ public class EmblemScarab extends ItemCurioUC {
 
     public EmblemScarab() {
 
-        InterModComms.sendTo(UniqueCrops.MOD_ID, UCStrings.BLACKLIST_EFFECT, () -> "minecraft.effect.awkward");
-        InterModComms.sendTo(UniqueCrops.MOD_ID, UCStrings.BLACKLIST_EFFECT, () -> "effect.uniquecrops.zombification" );
-        MinecraftForge.EVENT_BUS.addListener(this::onApplyPotion);
+        // Keep local blacklist initialization direct; this class no longer self-sends IMC.
+        blacklistPotionEffect("minecraft.effect.awkward");
+        blacklistPotionEffect("effect.uniquecrops.zombification");
+        NeoForge.EVENT_BUS.addListener(this::onApplyPotion);
     }
 
     private void onApplyPotion(MobEffectEvent.Applicable event) {
@@ -33,12 +32,12 @@ public class EmblemScarab extends ItemCurioUC {
 
         if (entity instanceof Player player) {
             MobEffectInstance effectInstance = event.getEffectInstance();
-            MobEffect effect = effectInstance.getEffect();
+            var effect = effectInstance.getEffect();
 
             // Block all effects if Curio is equipped and not in blacklist
             if (hasCurio(player)) {
-                if (!BLACKLIST.contains(effect.getDescriptionId())) {
-                    event.setResult(Event.Result.DENY);
+                if (!BLACKLIST.contains(effect.value().getDescriptionId())) {
+                    event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
                     return;
                 }
             }
@@ -46,7 +45,7 @@ public class EmblemScarab extends ItemCurioUC {
             // Special case for Hunger
             if (effect == MobEffects.HUNGER) {
                 if (hasCurio(player, UCItems.EMBLEM_IRONSTOMACH.get())) {
-                    event.setResult(Event.Result.DENY);
+                    event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
                 }
             }
         }

@@ -1,23 +1,23 @@
 package com.remag.uniquecrops.blocks;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class CropPortalBlock extends Block {
 
@@ -25,7 +25,7 @@ public class CropPortalBlock extends Block {
 
     public CropPortalBlock() {
 
-        super(Properties.copy(Blocks.NETHER_PORTAL));
+        super(Properties.ofFullCopy(Blocks.NETHER_PORTAL));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class CropPortalBlock extends Block {
             double d3 = (double)(k >> 16 & 255) / 255.0D;
             double d4 = (double)(k >> 8 & 255) / 255.0D;
             double d5 = (double)(k >> 0 & 255) / 255.0D;
-            world.addParticle(ParticleTypes.ENTITY_EFFECT, d0, d1, d2, d3, d4, d5);
+            world.addParticle(() -> ParticleTypes.ENTITY_EFFECT, d0, d1, d2, d3, d4, d5);
         }
     }
 }

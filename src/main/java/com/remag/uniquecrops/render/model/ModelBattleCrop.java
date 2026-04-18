@@ -62,15 +62,15 @@ public class ModelBattleCrop extends EntityModel<BattleCropEntity> {
     }
 
     @Override
-    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int red, int green, int blue) {
 
-        crop1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        crop2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        bipedHead.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        bipedRightLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        bipedLeftLeg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        bipedRightArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        bipedLeftArm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        crop1.render(poseStack, vertexConsumer, red, green, blue);
+        crop2.render(poseStack, vertexConsumer, red, green, blue);
+        bipedHead.render(poseStack, vertexConsumer, red, green, blue);
+        bipedRightLeg.render(poseStack, vertexConsumer, red, green, blue);
+        bipedLeftLeg.render(poseStack, vertexConsumer, red, green, blue);
+        bipedRightArm.render(poseStack, vertexConsumer, red, green, blue);
+        bipedLeftArm.render(poseStack, vertexConsumer, red, green, blue);
     }
 
     @Override

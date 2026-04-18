@@ -10,11 +10,12 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class Cocito extends BaseSuperCropsBlock {
 
     private void cookNearbyThings(ServerLevel world, BlockPos pos) {
 
-        List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(pos.offset(-4, 0, -4), pos.offset(4, 1, 4)));
+        List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(Vec3.atLowerCornerOf(pos.offset(-4, 0, -4)), Vec3.atLowerCornerOf(pos.offset(4, 1, 4))));
         for (ItemEntity ei : items) {
             if (ei.isAlive() && !(ei instanceof CookingItemEntity)) {
                 if (ei.getItem().getItem() == UCItems.USELESS_LUMP.get()) continue;

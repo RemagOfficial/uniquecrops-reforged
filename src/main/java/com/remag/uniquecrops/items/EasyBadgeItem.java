@@ -4,27 +4,24 @@ import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class EasyBadgeItem extends ItemBaseUC {
@@ -37,10 +34,9 @@ public class EasyBadgeItem extends ItemBaseUC {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag whatisthis) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 
-        list.add(Component.translatable(UCStrings.TOOLTIP + "easybadge").withStyle(ChatFormatting.GRAY));
+        tooltipComponents.add(Component.translatable(UCStrings.TOOLTIP + "easybadge").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -52,14 +48,14 @@ public class EasyBadgeItem extends ItemBaseUC {
             return;
 
         BlockPos pos = entity.blockPosition();
-        List<Monster> monsters = world.getEntitiesOfClass(Monster.class, new AABB(pos.offset(-RANGE, -RANGE, -RANGE), pos.offset(RANGE, RANGE, RANGE)));
+        List<Monster> monsters = world.getEntitiesOfClass(Monster.class, new AABB(pos).expandTowards(RANGE, RANGE, RANGE));
         for (Monster ent: monsters) {
 
             if (ent instanceof Zombie zombo)
                 zombo.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(0.0D);
 
             if (ent instanceof Skeleton skele)
-                skele.goalSelector.getRunningGoals().filter(goal -> goal.getGoal() instanceof RangedBowAttackGoal)
+                skele.goalSelector.getAvailableGoals().stream().filter(goal -> goal.getGoal() instanceof RangedBowAttackGoal)
                         .findFirst().ifPresent(g -> {
                     ((RangedBowAttackGoal)g.getGoal()).setMinAttackInterval(80);
                 });

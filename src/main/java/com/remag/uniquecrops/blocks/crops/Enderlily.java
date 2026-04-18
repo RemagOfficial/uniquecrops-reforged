@@ -18,8 +18,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class Enderlily extends BaseCropsBlock {
     public Enderlily() {
 
         super(UCItems.LILYTWINE, UCItems.ENDERLILY_SEED);
-        MinecraftForge.EVENT_BUS.addListener(this::onEnderpearl);
+        NeoForge.EVENT_BUS.addListener(this::onEnderpearl);
     }
 
     private void onEnderpearl(EntityTeleportEvent.EnderPearl event) {

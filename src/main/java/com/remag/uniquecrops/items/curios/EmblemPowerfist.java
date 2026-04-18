@@ -2,14 +2,14 @@ package com.remag.uniquecrops.items.curios;
 
 import com.remag.uniquecrops.items.base.ItemCurioUC;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 public class EmblemPowerfist extends ItemCurioUC {
 
     public EmblemPowerfist() {
 
-        MinecraftForge.EVENT_BUS.addListener(this::fistingSpeed);
+        NeoForge.EVENT_BUS.addListener(this::fistingSpeed);
     }
 
     private void fistingSpeed(PlayerEvent.BreakSpeed event) {

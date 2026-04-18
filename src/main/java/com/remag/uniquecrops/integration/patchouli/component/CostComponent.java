@@ -1,14 +1,14 @@
 package com.remag.uniquecrops.integration.patchouli.component;
 
 import com.remag.uniquecrops.api.IMultiblockRecipe;
-import com.remag.uniquecrops.capabilities.CPProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import vazkii.patchouli.api.IComponentRenderContext;
 import vazkii.patchouli.api.ICustomComponent;
 import vazkii.patchouli.api.IVariable;
@@ -17,10 +17,10 @@ import java.util.function.UnaryOperator;
 
 public class CostComponent implements ICustomComponent {
 
-    ResourceLocation RES = ResourceLocation.tryParse("patchouli:textures/gui/crafting.png");
+    ResourceLocation RES = ResourceLocation.fromNamespaceAndPath("patchouli", "textures/gui/crafting.png");
 
     private transient int x, y;
-    private transient ItemStack stack;
+    private transient ItemStack stack = ItemStack.EMPTY;
     private transient int cost;
 
     IVariable multiblock;
@@ -40,9 +40,6 @@ public class CostComponent implements ICustomComponent {
         RenderSystem.setShaderTexture(0, RES);
         int w = 66, h = 26;
         guiGraphics.blit(RES, (x + 120) / 2 - w / 2, 10, 0, 128 - h, w, h, 128, 256);
-        if (cost > 0) {
-            stack.getCapability(CPProvider.CROP_POWER, null).ifPresent(crop -> crop.setPower(cost));
-        }
         ctx.renderItemStack(guiGraphics, (x + 120) / 2 - 8, 14, mouseX, mouseY, stack);
         String title = "Recipe Catalyst", text = (cost > 0) ? "Cost: " + cost : "Consumable";
         ms.pushPose();
@@ -52,11 +49,19 @@ public class CostComponent implements ICustomComponent {
     }
 
     @Override
-    public void onVariablesAvailable(UnaryOperator<IVariable> lookup) {
+    public void onVariablesAvailable(UnaryOperator<IVariable> lookup, HolderLookup.Provider registries) {
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null)
+            return;
 
         IVariable recipeVar = lookup.apply(multiblock);
-        Recipe<?> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(ResourceLocation.tryParse(recipeVar.asString())).orElseThrow(IllegalArgumentException::new);
-        if (recipe instanceof IMultiblockRecipe mb) {
+        ResourceLocation id = ResourceLocation.tryParse(recipeVar.asString());
+        if (id == null)
+            return;
+
+        RecipeHolder<?> holder = mc.level.getRecipeManager().byKey(id).orElseThrow(IllegalArgumentException::new);
+        if (holder.value() instanceof IMultiblockRecipe mb) {
             stack = mb.getCatalyst();
             cost = mb.getPower();
         }

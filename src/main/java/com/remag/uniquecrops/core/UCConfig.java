@@ -1,24 +1,24 @@
 package com.remag.uniquecrops.core;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class UCConfig {
 
     public static final Client CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
+    public static final ModConfigSpec CLIENT_SPEC;
     static {
-        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        final Pair<Client, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Client::new);
         CLIENT_SPEC = specPair.getRight();
         CLIENT = specPair.getLeft();
     }
 
     public static class Client {
 
-        public final ForgeConfigSpec.IntValue guiWidth;
-        public final ForgeConfigSpec.IntValue guiHeight;
+        public final ModConfigSpec.IntValue guiWidth;
+        public final ModConfigSpec.IntValue guiHeight;
 
-        public Client(ForgeConfigSpec.Builder builder) {
+        public Client(ModConfigSpec.Builder builder) {
 
             guiWidth = builder
                     .comment("Adjust placement of Wildwood staff GUI on the x axis.")
@@ -30,43 +30,43 @@ public final class UCConfig {
     }
 
     public static final Common COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ModConfigSpec COMMON_SPEC;
     static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+        final Pair<Common, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = specPair.getRight();
         COMMON = specPair.getLeft();
     }
 
     public static class Common {
 
-        public final ForgeConfigSpec.IntValue millenniumTime;
-        public final ForgeConfigSpec.IntValue cubeCooldown;
-        public final ForgeConfigSpec.IntValue energyPerTick;
-        public final ForgeConfigSpec.BooleanValue convertObsidian;
+        public final ModConfigSpec.IntValue millenniumTime;
+        public final ModConfigSpec.IntValue cubeCooldown;
+        public final ModConfigSpec.IntValue energyPerTick;
+        public final ModConfigSpec.BooleanValue convertObsidian;
 
-        public final ForgeConfigSpec.BooleanValue moonPhase;
-        public final ForgeConfigSpec.BooleanValue hasTorch;
-        public final ForgeConfigSpec.BooleanValue likesDarkness;
-        public final ForgeConfigSpec.BooleanValue dryFarmland;
-        public final ForgeConfigSpec.BooleanValue underFarmland;
-        public final ForgeConfigSpec.BooleanValue burningPlayer;
-        public final ForgeConfigSpec.BooleanValue hellWorld;
-        public final ForgeConfigSpec.BooleanValue likesLilypads;
-        public final ForgeConfigSpec.BooleanValue likesHeights;
-        public final ForgeConfigSpec.BooleanValue thirstyPlant;
-        public final ForgeConfigSpec.BooleanValue hungryPlant;
-        public final ForgeConfigSpec.BooleanValue likesChicken;
-        public final ForgeConfigSpec.BooleanValue likesRedstone;
-        public final ForgeConfigSpec.BooleanValue vampirePlant;
-        public final ForgeConfigSpec.BooleanValue fullBrightness;
-        public final ForgeConfigSpec.BooleanValue likesWarts;
-        public final ForgeConfigSpec.BooleanValue likesCooking;
-        public final ForgeConfigSpec.BooleanValue likesBrewing;
-        public final ForgeConfigSpec.BooleanValue likesCheckers;
-        public final ForgeConfigSpec.BooleanValue dontBonemeal;
-        public final ForgeConfigSpec.BooleanValue selfSacrifice;
+        public final ModConfigSpec.BooleanValue moonPhase;
+        public final ModConfigSpec.BooleanValue hasTorch;
+        public final ModConfigSpec.BooleanValue likesDarkness;
+        public final ModConfigSpec.BooleanValue dryFarmland;
+        public final ModConfigSpec.BooleanValue underFarmland;
+        public final ModConfigSpec.BooleanValue burningPlayer;
+        public final ModConfigSpec.BooleanValue hellWorld;
+        public final ModConfigSpec.BooleanValue likesLilypads;
+        public final ModConfigSpec.BooleanValue likesHeights;
+        public final ModConfigSpec.BooleanValue thirstyPlant;
+        public final ModConfigSpec.BooleanValue hungryPlant;
+        public final ModConfigSpec.BooleanValue likesChicken;
+        public final ModConfigSpec.BooleanValue likesRedstone;
+        public final ModConfigSpec.BooleanValue vampirePlant;
+        public final ModConfigSpec.BooleanValue fullBrightness;
+        public final ModConfigSpec.BooleanValue likesWarts;
+        public final ModConfigSpec.BooleanValue likesCooking;
+        public final ModConfigSpec.BooleanValue likesBrewing;
+        public final ModConfigSpec.BooleanValue likesCheckers;
+        public final ModConfigSpec.BooleanValue dontBonemeal;
+        public final ModConfigSpec.BooleanValue selfSacrifice;
 
-        public Common(ForgeConfigSpec.Builder builder) {
+        public Common(ModConfigSpec.Builder builder) {
 
             millenniumTime = builder
                     .comment("Minimum time (in minutes) for Millennium crop to advance a stage.")

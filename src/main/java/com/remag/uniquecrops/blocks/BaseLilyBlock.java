@@ -1,18 +1,17 @@
 package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.core.enums.EnumLily;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.WaterlilyBlock;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.PlantType;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WaterlilyBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class BaseLilyBlock extends WaterlilyBlock {
 
@@ -20,14 +19,10 @@ public class BaseLilyBlock extends WaterlilyBlock {
 
     public BaseLilyBlock(EnumLily lilyEnum) {
 
-        super(Properties.copy(Blocks.LILY_PAD));
+        super(Properties.ofFullCopy(Blocks.LILY_PAD));
         this.lily = lilyEnum;
     }
 
-    @Override
-    public PlantType getPlantType(BlockGetter world, BlockPos pos) {
-        return PlantType.WATER;
-    }
 
     @Override
     public boolean canSurvive(BlockState state, LevelReader reader, BlockPos pos) {

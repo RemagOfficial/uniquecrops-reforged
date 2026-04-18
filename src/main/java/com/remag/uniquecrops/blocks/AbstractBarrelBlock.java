@@ -1,31 +1,29 @@
 package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.blocks.tiles.TileBarrel;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.Containers;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
@@ -60,31 +58,28 @@ public class AbstractBarrelBlock extends Block implements SimpleWaterloggedBlock
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
 
-        if (!world.isClientSide) {
+        if (!world.isClientSide && player instanceof ServerPlayer serverPlayer) {
             BlockEntity tile = world.getBlockEntity(pos);
             if (tile instanceof TileBarrel)
-                NetworkHooks.openScreen((ServerPlayer)player, (MenuProvider)tile, pos);
+                serverPlayer.openMenu((MenuProvider)tile, pos);
         }
         return InteractionResult.SUCCESS;
     }
 
     @Override
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-
         if (state.getBlock() == this) return;
 
         BlockEntity tile = world.getBlockEntity(pos);
-        if (tile instanceof TileBarrel) {
-            tile.getCapability(ForgeCapabilities.ITEM_HANDLER, null)
-                    .ifPresent(inventory -> {
-                        for (int i = 0; i < inventory.getSlots(); i++) {
-                            ItemStack stack = inventory.getStackInSlot(i);
-                            if (!stack.isEmpty() && !world.isClientSide)
-                                Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
-                        }
-                    });
+        if (tile instanceof TileBarrel barrel) {
+            IItemHandler inventory = (IItemHandler) (Object) barrel.getInventory();
+            for (int i = 0; i < inventory.getSlots(); i++) {
+                ItemStack stack = inventory.getStackInSlot(i);
+                if (!stack.isEmpty() && !world.isClientSide)
+                    Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
         }
         super.onRemove(state, world, pos, newState, isMoving);
     }

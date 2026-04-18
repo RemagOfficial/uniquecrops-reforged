@@ -3,13 +3,13 @@ package com.remag.uniquecrops.data;
 import com.remag.uniquecrops.data.advancements.UCAdvancementGenerator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.ForgeAdvancementProvider;
+import net.neoforged.neoforge.common.data.AdvancementProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class UCAdvancementProvider extends ForgeAdvancementProvider {
+public class UCAdvancementProvider extends AdvancementProvider {
 
     public UCAdvancementProvider(DataGenerator gen, CompletableFuture<HolderLookup.Provider> providerCompletableFuture, ExistingFileHelper existingFileHelper) {
 

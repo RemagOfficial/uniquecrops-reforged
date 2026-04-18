@@ -1,30 +1,29 @@
 package com.remag.uniquecrops.core;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-
-import javax.annotation.Nonnull;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 /**
  * credit to: TehNut
@@ -126,7 +125,8 @@ public class JsonUtils {
 
     public static JsonObject serializeStack(ItemStack stack) {
 
-        CompoundTag nbt = stack.save(new CompoundTag());
+        Tag saved = stack.save(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+        CompoundTag nbt = saved instanceof CompoundTag compoundTag ? compoundTag : new CompoundTag();
         byte c = nbt.getByte("Count");
         if (c != 1)
             nbt.putByte("count", c);
@@ -160,7 +160,7 @@ public class JsonUtils {
         // Validate block ID
         String name = nbt.getString("Name");
         ResourceLocation id = ResourceLocation.tryParse(name);
-        if (id == null || !ForgeRegistries.BLOCKS.containsKey(id)) {
+        if (id == null || !BuiltInRegistries.BLOCK.containsKey(id)) {
             throw new IllegalArgumentException("Invalid or unknown block ID: " + name);
         }
 

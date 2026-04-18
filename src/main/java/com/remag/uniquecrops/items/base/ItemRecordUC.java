@@ -1,16 +1,14 @@
 package com.remag.uniquecrops.items.base;
 
-import com.remag.uniquecrops.init.UCItems;
-import net.minecraft.world.item.RecordItem;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.sounds.SoundEvent;
 
-import java.util.function.Supplier;
+public class ItemRecordUC extends Item {
 
-public class ItemRecordUC extends RecordItem {
+    public ItemRecordUC(ResourceKey<JukeboxSong> songKey) {
 
-    public ItemRecordUC(Supplier<SoundEvent> sound) {
-
-        super(1, sound, UCItems.defaultBuilder().stacksTo(1).rarity(Rarity.UNCOMMON), 1);
+        super(new Properties().stacksTo(1).rarity(Rarity.UNCOMMON).jukeboxPlayable(songKey));
     }
 }

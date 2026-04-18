@@ -7,9 +7,9 @@ import com.remag.uniquecrops.items.base.ItemBaseUC;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
 public class DiamondBunchItem extends ItemBaseUC {
@@ -19,7 +19,7 @@ public class DiamondBunchItem extends ItemBaseUC {
     public DiamondBunchItem() {
 
         super(UCItems.unstackable());
-        MinecraftForge.EVENT_BUS.addListener(this::onItemToss);
+        NeoForge.EVENT_BUS.addListener(this::onItemToss);
     }
 
     @Override

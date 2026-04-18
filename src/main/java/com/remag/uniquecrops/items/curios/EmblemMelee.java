@@ -1,33 +1,34 @@
 package com.remag.uniquecrops.items.curios;
 
-import com.remag.uniquecrops.items.base.ItemCurioUC;
 import com.google.common.collect.HashMultimap;
-import net.minecraft.world.entity.LivingEntity;
+import com.google.common.collect.Multimap;
+import com.remag.uniquecrops.items.base.ItemCurioUC;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
-import com.google.common.collect.Multimap;
+import top.theillusivec4.curios.api.SlotContext;
 
-@SuppressWarnings("ALL")
 public class EmblemMelee extends ItemCurioUC {
 
     @Override
-    public void onEquip(String identifier, int index, LivingEntity entity, ItemStack stack) {
+    public void onEquip(SlotContext ctx, ItemStack prevStack, ItemStack stack) {
 
-        entity.getAttributes().addTransientAttributeModifiers(getEquippedAttributeModifiers(stack));
+        ctx.entity().getAttributes().addTransientAttributeModifiers(getEquippedAttributeModifiers(stack));
     }
 
     @Override
-    public void onUnequip(String identifier, int index, LivingEntity entity, ItemStack stack) {
+    public void onUnequip(SlotContext ctx, ItemStack newStack, ItemStack stack) {
 
-        entity.getAttributes().removeAttributeModifiers(getEquippedAttributeModifiers(stack));
+        ctx.entity().getAttributes().removeAttributeModifiers(getEquippedAttributeModifiers(stack));
     }
 
-    public Multimap<Attribute, AttributeModifier> getEquippedAttributeModifiers(ItemStack stack) {
+    public Multimap<Holder<Attribute>, AttributeModifier> getEquippedAttributeModifiers(ItemStack stack) {
 
-        Multimap<Attribute, AttributeModifier> attributes = HashMultimap.create();
-        attributes.put(Attributes.ATTACK_SPEED, new AttributeModifier(getCurioUUID(stack), "Melee Emblem", 1, AttributeModifier.Operation.ADDITION));
+        Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
+        attributes.put(Attributes.ATTACK_SPEED, new AttributeModifier(BuiltInRegistries.ITEM.getKey(stack.getItem()), 1, AttributeModifier.Operation.ADD_VALUE));
         return attributes;
     }
 }

@@ -2,23 +2,23 @@ package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.blocks.tiles.TileSunBlock;
 import com.remag.uniquecrops.core.UCStrings;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class SunBlock extends Block implements EntityBlock {
 
     public SunBlock() {
 
-        super(Properties.copy(Blocks.GLASS).lightLevel(s -> 15));
+        super(Properties.ofFullCopy(Blocks.GLASS).lightLevel(s -> 15));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class SunBlock extends Block implements EntityBlock {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, BlockGetter world, List<Component> list, TooltipFlag whatisthis) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> list, TooltipFlag whatisthis) {
 
         list.add(Component.translatable(UCStrings.TOOLTIP + "sunblock").withStyle(ChatFormatting.GRAY));
     }

@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import vazkii.patchouli.api.IComponentRenderContext;
 import vazkii.patchouli.api.ICustomComponent;
@@ -71,7 +72,7 @@ public class CropComponent implements ICustomComponent {
 
 
     @Override
-    public void onVariablesAvailable(UnaryOperator<IVariable> lookup) {
+    public void onVariablesAvailable(UnaryOperator<IVariable> lookup, HolderLookup.Provider provider) {
 
         IVariable blockVar = lookup.apply(blockstate);
         state = PatchouliUtils.deserialize(blockVar.asString());

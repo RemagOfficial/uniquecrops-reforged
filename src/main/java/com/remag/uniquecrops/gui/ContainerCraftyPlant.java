@@ -1,23 +1,21 @@
 package com.remag.uniquecrops.gui;
 
 import com.remag.uniquecrops.api.IArtisiaRecipe;
-import com.remag.uniquecrops.api.ICropPower;
 import com.remag.uniquecrops.blocks.tiles.TileCraftyPlant;
-import com.remag.uniquecrops.capabilities.CPProvider;
+import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.crafting.RecipeArtisia;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.init.UCScreens;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -28,18 +26,20 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
     TileCraftyPlant tile;
     final int OUTPUT_SLOT = 9;
     final int STAFF_SLOT = 10;
+    private final IItemHandlerModifiable inv;
 
     public ContainerCraftyPlant(int windowId, Inventory playerinv, TileCraftyPlant tile) {
 
         super(UCScreens.CRAFTYPLANT.get(), windowId);
         this.tile = tile;
+        this.inv = tile.getCraftingInventory();
 
-        addSlot(new SlotSeedCrafting(tile.getCraftingInventory(), OUTPUT_SLOT, 124, 35));
-        addSlot(new SlotSeedCrafting(tile.getCraftingInventory(), STAFF_SLOT, 94, 17));
+        addSlot(new SlotSeedCrafting(inv, OUTPUT_SLOT, 124, 35));
+        addSlot(new SlotSeedCrafting(inv, STAFF_SLOT, 94, 17));
 
         for (int i = 0; i < 3; ++i) {
             for (int m = 0; m < 3; ++m)
-                this.addSlot(new SlotSeedCrafting(tile.getCraftingInventory(), m + i * 3, 30 + m * 18, 17 + i * 18));
+                this.addSlot(new SlotSeedCrafting(inv, m + i * 3, 30 + m * 18, 17 + i * 18));
         }
         for (int j = 0; j < 3; j++) {
             for (int k = 0; k < 9; k++)
@@ -50,15 +50,15 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int i) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int i) {
 
         ItemStack stack = ItemStack.EMPTY;
         Slot slot = this.slots.get(i);
 
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack stack1 = slot.getItem();
             stack = stack1.copy();
-            int size = tile.getCraftingInventory().getSlots();
+            int size = tile.getCraftingSize() + 2;
 
             if (i < size) {
                 slot.onTake(player, stack1);
@@ -91,7 +91,7 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
 
         return true;
     }
@@ -120,9 +120,8 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
         @Override
         public void setChanged() {
 
-            if (!tile.getLevel().isClientSide && this.indexSlot < 9) {
-                IItemHandler handler = getItemHandler();
-                List<ItemStack> stacks = IntStream.range(0, tile.getCraftingSize()).mapToObj(i -> handler.getStackInSlot(i)).collect(Collectors.toList());
+            if (tile.getLevel() != null && !tile.getLevel().isClientSide && this.indexSlot < 9) {
+                List<ItemStack> stacks = IntStream.range(0, tile.getCraftingSize()).mapToObj(inv::getStackInSlot).collect(Collectors.toList());
                 AtomicReference<ItemStack> result = new AtomicReference<>(ItemStack.EMPTY);
                 IArtisiaRecipe artisiaRecipe = RecipeArtisia.findRecipe(stacks, tile.getLevel());
                 if (artisiaRecipe != null)
@@ -134,39 +133,32 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
         }
 
         @Override
-        public void onTake(Player player, ItemStack stack) {
+        public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 
-
-            if (!tile.getLevel().isClientSide && indexSlot == tile.getCraftingSize()) {
-                if (!stack.isEmpty()) {
-                    if (indexSlot == tile.getCraftingSize()) {
-                        if (!stack.isEmpty()) {
-                            LazyOptional<ICropPower> cap = tile.getStaff().getCapability(CPProvider.CROP_POWER, null);
-                            if (!cap.isPresent()) {
-                                IntStream.range(0, tile.getCraftingSize()).forEach(i -> {
-                                    if (!getItemHandler().getStackInSlot(i).isEmpty())
-                                        getItemHandler().getStackInSlot(i).shrink(1);
-                                });
-                            }
-                            cap.ifPresent(crop -> {
-                                if (crop.getPower() >= COST) {
-                                    crop.remove(COST);
-                                    getItemHandler().insertItem(OUTPUT_SLOT, stack.copy(), false);
-                                } else
-                                    IntStream.range(0, tile.getCraftingSize()).forEach(i -> {
-                                        if (!getItemHandler().getStackInSlot(i).isEmpty())
-                                            getItemHandler().getStackInSlot(i).shrink(1);
-                                    });
-                            });
-                        }
+            if (tile.getLevel() != null && !tile.getLevel().isClientSide && indexSlot == tile.getCraftingSize()) {
+                if (stack != null && NBTUtils.detectNBT(stack)) {
+                    int cropPower = NBTUtils.getInt(stack, "UC:cropPowerCurrent", 0);
+                    if (cropPower >= COST) {
+                        NBTUtils.setInt(stack, "UC:cropPowerCurrent", cropPower - COST);
+                        inv.insertItem(OUTPUT_SLOT, stack.copy(), false);
+                    } else {
+                        IntStream.range(0, tile.getCraftingSize()).forEach(i -> {
+                            if (!inv.getStackInSlot(i).isEmpty())
+                                inv.getStackInSlot(i).shrink(1);
+                        });
                     }
+                } else {
+                    IntStream.range(0, tile.getCraftingSize()).forEach(i -> {
+                        if (!inv.getStackInSlot(i).isEmpty())
+                            inv.getStackInSlot(i).shrink(1);
+                    });
                 }
             }
             super.onTake(player, stack);
         }
 
         @Override
-        public boolean mayPlace(@Nonnull ItemStack stack) {
+        public boolean mayPlace(@NotNull ItemStack stack) {
 
             if (indexSlot == OUTPUT_SLOT)
                 return false;
@@ -176,4 +168,5 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
             return true;
         }
     }
+
 }

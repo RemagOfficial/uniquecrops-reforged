@@ -66,12 +66,12 @@ public enum EnumLily {
                 if (!player.isCreative()) {
                     ItemStack boots = player.getInventory().armor.get(0);
                     if (boots.isEmpty())
-                        player.setSecondsOnFire(3);
+                        player.igniteForSeconds(3);
                 }
             }
             else if (entity instanceof LivingEntity) {
                 if (!entity.fireImmune())
-                    entity.setSecondsOnFire(3);
+                    entity.igniteForSeconds(3);
             }
         }
 

@@ -1,22 +1,19 @@
 package com.remag.uniquecrops.mixin;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
+// TODO: Fix obfuscation mappings for 1.21.1
 @Mixin(RecipeManager.class)
 public interface AccessorRecipeManager {
-
     @Invoker("byType")
-    <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> uc_byType(RecipeType<T> type);
+    <I extends RecipeInput, T extends Recipe<I>> Collection<RecipeHolder<T>> uc_byType(RecipeType<T> type);
 
     @Invoker("getAllRecipesFor")
-    <C extends Container, T extends Recipe<C>> List<T> uc_getRecipes(RecipeType<T> type);
+    <C extends Container, T extends Recipe<RecipeInput>> List<T> uc_getRecipes(RecipeType<T> type);
 }

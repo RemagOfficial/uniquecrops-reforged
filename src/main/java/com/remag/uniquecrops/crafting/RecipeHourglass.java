@@ -1,23 +1,19 @@
 package com.remag.uniquecrops.crafting;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.remag.uniquecrops.api.IHourglassRecipe;
-import com.remag.uniquecrops.core.JsonUtils;
 import com.remag.uniquecrops.init.UCRecipes;
-import com.google.gson.JsonObject;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.Container;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
 
 public class RecipeHourglass implements IHourglassRecipe {
 
@@ -51,12 +47,12 @@ public class RecipeHourglass implements IHourglassRecipe {
     }
 
     @Override
-    public @NotNull ItemStack assemble(Container p_44001_, RegistryAccess p_267165_) {
-        return getResultItem(p_267165_).copy();
+    public @NotNull ItemStack assemble(RecipeInput container, HolderLookup.Provider provider) {
+        return getResultItem(provider).copy();
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(RegistryAccess p_267052_) {
+    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
         return new ItemStack(output.getBlock().asItem());
     }
 
@@ -64,7 +60,6 @@ public class RecipeHourglass implements IHourglassRecipe {
         return new ItemStack(output.getBlock().asItem());
     }
 
-    @Override
     public @NotNull ResourceLocation getId() {
 
         return id;
@@ -78,30 +73,40 @@ public class RecipeHourglass implements IHourglassRecipe {
 
     public static class Serializer implements RecipeSerializer<RecipeHourglass> {
 
+        private static final MapCodec<RecipeHourglass> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResourceLocation.CODEC.optionalFieldOf("id", IHourglassRecipe.RES).forGetter(recipe -> recipe.id),
+                BlockState.CODEC.fieldOf("input").forGetter(recipe -> recipe.input),
+                BlockState.CODEC.fieldOf("output").forGetter(recipe -> recipe.output)
+        ).apply(instance, RecipeHourglass::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf, RecipeHourglass> STREAM_CODEC = StreamCodec.of(
+                Serializer::toNetwork,
+                Serializer::fromNetwork
+        );
+
         @Override
-        public @NotNull RecipeHourglass fromJson(ResourceLocation id, JsonObject obj) {
-            HolderGetter<Block> blockGetter = BuiltInRegistries.BLOCK.asLookup();
-
-            BlockState input = JsonUtils.readBlockState(GsonHelper.getAsJsonObject(obj, "input"), blockGetter);
-            BlockState output = JsonUtils.readBlockState(GsonHelper.getAsJsonObject(obj, "output"), blockGetter);
-
-            return new RecipeHourglass(id, input, output);
+        public MapCodec<RecipeHourglass> codec() {
+            return CODEC;
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buff, RecipeHourglass recipe) {
-
-            buff.writeVarInt(Block.getId(recipe.input));
-            buff.writeVarInt(Block.getId(recipe.output));
+        public StreamCodec<RegistryFriendlyByteBuf, RecipeHourglass> streamCodec() {
+            return STREAM_CODEC;
         }
 
-        @Nullable
-        @Override
-        public RecipeHourglass fromNetwork(ResourceLocation id, FriendlyByteBuf buff) {
+        private static RecipeHourglass fromNetwork(RegistryFriendlyByteBuf buf) {
 
-            BlockState input = Block.stateById(buff.readVarInt());
-            BlockState output = Block.stateById(buff.readVarInt());
+            ResourceLocation id = buf.readResourceLocation();
+            BlockState input = Block.stateById(buf.readVarInt());
+            BlockState output = Block.stateById(buf.readVarInt());
             return new RecipeHourglass(id, input, output);
+        }
+
+        private static void toNetwork(RegistryFriendlyByteBuf buf, RecipeHourglass recipe) {
+
+            buf.writeResourceLocation(recipe.id);
+            buf.writeVarInt(Block.getId(recipe.input));
+            buf.writeVarInt(Block.getId(recipe.output));
         }
     }
 }

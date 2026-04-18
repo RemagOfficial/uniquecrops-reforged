@@ -2,6 +2,7 @@ package com.remag.uniquecrops.blocks.tiles;
 
 import com.remag.uniquecrops.init.UCTiles;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -23,14 +24,14 @@ public class TileMillennium extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         if (!isTimeEmpty())
             tag.putString("UC_timestamp", timestamp);
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         if (tag.contains("UC_timestamp"))
             timestamp = tag.getString("UC_timestamp");

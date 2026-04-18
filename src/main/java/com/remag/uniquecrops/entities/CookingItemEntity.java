@@ -7,17 +7,21 @@ import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.Containers;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.Containers;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,10 +43,10 @@ public class CookingItemEntity extends ItemEntity {
     }
 
     @Override
-    public void defineSynchedData() {
+    protected void defineSynchedData(@NotNull SynchedEntityData.Builder builder) {
 
-        super.defineSynchedData();
-        this.entityData.define(COOKING_TIME, 0);
+        super.defineSynchedData(builder);
+        builder.define(COOKING_TIME, 0);
     }
 
     @Override
@@ -84,15 +88,19 @@ public class CookingItemEntity extends ItemEntity {
         AtomicReference<ItemStack> result = new AtomicReference<>(new ItemStack(UCItems.USELESS_LUMP.get()));
 
         IHeaterRecipe ihr = findRecipe(this.level(), this.getItem());
-        if (ihr != null) {  // Cocito-specific smelting recipe
+        if (ihr != null) {
            result.set(ihr.getResultItem());
            result.get().setCount(this.getItem().getCount());
         } else {
-            this.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, wrap(this.getItem()), this.level())
-                    .ifPresent(recipe -> {
-                        result.set(recipe.getResultItem(registryAccess).copy());
-                        result.get().setCount(this.getItem().getCount());
-                    });
+            SingleRecipeInput input = new SingleRecipeInput(this.getItem());
+            for (RecipeHolder<?> holder : this.level().getRecipeManager().getRecipes()) {
+                Recipe<?> recipe = holder.value();
+                if (recipe.getType() == RecipeType.SMELTING && recipe instanceof SmeltingRecipe smelting && smelting.matches(input, this.level())) {
+                    result.set(smelting.getResultItem(registryAccess).copy());
+                    result.get().setCount(this.getItem().getCount());
+                    break;
+                }
+            }
         }
         return result.get();
     }
@@ -107,9 +115,10 @@ public class CookingItemEntity extends ItemEntity {
 
     private static IHeaterRecipe findRecipe(Level world, ItemStack stack) {
 
-        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
-            if (recipe instanceof IHeaterRecipe && ((IHeaterRecipe)recipe).matches(stack))
-                return ((IHeaterRecipe)recipe);
+        for (RecipeHolder<?> holder : world.getRecipeManager().getRecipes()) {
+            Recipe<?> recipe = holder.value();
+            if (recipe instanceof IHeaterRecipe heaterRecipe && heaterRecipe.matches(stack))
+                return heaterRecipe;
         }
 
         return null;

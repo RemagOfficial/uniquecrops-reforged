@@ -2,10 +2,11 @@ package com.remag.uniquecrops.blocks.tiles;
 
 import com.remag.uniquecrops.init.UCTiles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class TileWeatherflesia extends BaseTileUC {
 
@@ -24,17 +25,17 @@ public class TileWeatherflesia extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         tag.putInt("UC:biomeStrength", this.biomeStrength);
-        tag.put("inventory", inv.serializeNBT());
+        tag.put("inventory", inv.serializeNBT(null));
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         this.biomeStrength = tag.getInt("UC:biomeStrength");
-        inv.deserializeNBT(tag.getCompound("inventory"));
+        inv.deserializeNBT(null, tag.getCompound("inventory"));
     }
 
     public int getBiomeStrength() {

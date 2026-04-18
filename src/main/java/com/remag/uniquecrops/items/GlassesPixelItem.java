@@ -1,20 +1,24 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.api.IBookUpgradeable;
+import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.core.*;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
-import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.Random;
 
@@ -24,22 +28,22 @@ public class GlassesPixelItem extends ItemArmorUC implements IBookUpgradeable {
     public GlassesPixelItem() {
 
         super(EnumArmorMaterial.GLASSES_PIXELS, Type.HELMET);
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerTick);
-        MinecraftForge.EVENT_BUS.addListener(this::onBlockBreak);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(this::onBlockBreak);
     }
 
-    private void onPlayerTick(TickEvent.PlayerTickEvent event) {
+    private void onPlayerTick(PlayerTickEvent.Pre event) {
 
-        Player player = event.player;
+        Player player = event.getEntity();
 
         ItemStack pixelGlasses = player.getInventory().armor.get(3);
         if (pixelGlasses.is(this)) {
             boolean flag = NBTUtils.getBoolean(pixelGlasses, "isActive", false);
             boolean flag2 = isMaxLevel(pixelGlasses);
             if (flag && flag2) {
-                if (event.phase == TickEvent.Phase.START && player.level().getGameTime() % 20 == 0) {
+                if (player.level().getGameTime() % 20 == 0) {
                     ChunkPos cPos = new ChunkPos(player.blockPosition());
-                    if (!event.side.isClient()) {
+                    if (!player.level().isClientSide) {
                         if (UCOreHandler.getInstance().getSaveInfo().containsKey(cPos)) {
                             BlockPos pos = UCOreHandler.getInstance().getSaveInfo().get(cPos);
                             NBTUtils.setLong(pixelGlasses, "orePos", pos.asLong());
@@ -54,20 +58,19 @@ public class GlassesPixelItem extends ItemArmorUC implements IBookUpgradeable {
             }
         }
         if (player.getPersistentData().contains(UCStrings.TAG_ABSTRACT)) {
-            if (event.phase == TickEvent.Phase.START && player.level().random.nextInt(1000) == 0) {
+            if (player.level().random.nextInt(1000) == 0) {
                 Random rand = new Random();
                 if (rand.nextInt(10) != 0) {
-                    ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(UCItems.ABSTRACT.get()));
-                    if (!event.player.level().isClientSide)
-                        UCUtils.setAbstractCropGrowth(event.player, -1);
+                    ResourceLocation abstractId = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "abstract");
+                    ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(BuiltInRegistries.ITEM.getOptional(abstractId).orElse(Items.AIR)));
+                    if (!player.level().isClientSide)
+                        UCUtils.setAbstractCropGrowth(player, -1);
                 }
             }
         }
     }
 
     private void onBlockBreak(BlockEvent.BreakEvent event) {
-
-        if (event.getPlayer() == null) return;
 
         Player player = event.getPlayer();
 
@@ -77,11 +80,13 @@ public class GlassesPixelItem extends ItemArmorUC implements IBookUpgradeable {
             if (flag && flag2 && event.getState().is(BlockTags.BASE_STONE_OVERWORLD)) {
                 if (UCOreHandler.getInstance().getSaveInfo().containsValue(event.getPos())) {
                     if (!event.getLevel().isClientSide()) {
-                        Containers.dropItemStack(event.getPlayer().level(), event.getPos().getX() + 0.5, event.getPos().getY() + 0.5, event.getPos().getZ() + 0.5, new ItemStack(UCItems.DIAMONDS.get()));
+                        ResourceLocation diamondsId = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "diamonds");
+                        Containers.dropItemStack(event.getPlayer().level(), event.getPos().getX() + 0.5, event.getPos().getY() + 0.5, event.getPos().getZ() + 0.5,
+                                new ItemStack(BuiltInRegistries.ITEM.getOptional(diamondsId).orElse(Items.DIAMOND)));
                         UCOreHandler.getInstance().removeChunk(event.getPlayer().level(), event.getPos(), true);
                     }
-                    if (!player.isCreative())
-                        player.getInventory().armor.get(3).hurtAndBreak(2, player, (entity) -> {});
+                    if (!player.isCreative() && player instanceof ServerPlayer serverPlayer)
+                        player.getInventory().armor.get(3).hurtAndBreak(2, serverPlayer, serverPlayer.getEquipmentSlotForItem(player.getInventory().armor.get(3)));
                 }
             }
         }

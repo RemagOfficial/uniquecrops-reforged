@@ -14,8 +14,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
 public class PotionZombification extends MobEffect {
 
@@ -34,8 +34,8 @@ public class PotionZombification extends MobEffect {
     public PotionZombification() {
 
         super(MobEffectCategory.HARMFUL, 0x93C47D);
-        MinecraftForge.EVENT_BUS.addListener(this::onPotionExpire);
-        MinecraftForge.EVENT_BUS.addListener(this::onPotionRemove);
+        NeoForge.EVENT_BUS.addListener(this::onPotionExpire);
+        NeoForge.EVENT_BUS.addListener(this::onPotionRemove);
     }
 
     private void onPotionExpire(MobEffectEvent.Expired event) {

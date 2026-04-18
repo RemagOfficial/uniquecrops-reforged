@@ -2,7 +2,7 @@ package com.remag.uniquecrops.capabilities;
 
 import com.remag.uniquecrops.api.IItemEnergy;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class UCEnergyImpl implements IEnergyStorage {
 

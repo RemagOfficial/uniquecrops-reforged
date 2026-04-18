@@ -4,7 +4,6 @@ import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.core.enums.EnumParticle;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -45,11 +44,14 @@ public class PacketUCEffect {
         return new PacketUCEffect(type, x, y, z, loopSize);
     }
 
-    public static void handle(PacketUCEffect msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PacketUCEffect msg, Supplier<UCPacketHandler.PacketContext> ctx) {
 
-        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+        if (ctx.get().isClientSide()) {
             ctx.get().enqueueWork(() -> {
                 Player player = UniqueCrops.proxy.getPlayer();
+                if (player == null) {
+                    return;
+                }
                 if (msg.loopSize > 0)
                     for (int i = 0; i < msg.loopSize; i++)
                         player.level().addParticle(msg.type.getType(), (msg.x + 0.5D) + player.level().random.nextFloat(), msg.y, (msg.z + 0.5D) + player.level().random.nextFloat(), 0, 0, 0);

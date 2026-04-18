@@ -5,15 +5,14 @@ import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
@@ -51,12 +50,6 @@ public class MagnetItem extends ItemBaseUC implements IBookUpgradeable {
             return InteractionResultHolder.success(player.getMainHandItem());
         }
         return InteractionResultHolder.pass(player.getItemInHand(hand));
-    }
-
-    @Override
-    public Rarity getRarity(ItemStack stack) {
-
-        return Rarity.RARE;
     }
 
     @Override

@@ -1,28 +1,26 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.UniqueCrops;
+import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 import vazkii.patchouli.api.PatchouliAPI;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class GuideBookItem extends ItemBaseUC {
@@ -33,16 +31,16 @@ public class GuideBookItem extends ItemBaseUC {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag whatisthis) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 
-        list.add(getEdition().copy().withStyle(ChatFormatting.GOLD));
+        tooltipComponents.add(getEdition().copy().withStyle(ChatFormatting.GOLD));
     }
 
     public static Component getEdition() {
 
         try {
-            return PatchouliAPI.get().getSubtitle(ForgeRegistries.ITEMS.getKey(UCItems.BOOK_GUIDE.get()));
+            ResourceLocation guideId = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "book_guide");
+            return PatchouliAPI.get().getSubtitle(guideId);
         } catch (IllegalArgumentException e) {
             return Component.literal("");
         }
@@ -50,15 +48,15 @@ public class GuideBookItem extends ItemBaseUC {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (!world.isClientSide && stack.getItem() == this) {
             ListTag playerTagList = UCUtils.getServerTaglist(player.getUUID());
             if (playerTagList != null) {
-                if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_GROWTHSTAGES))
-                    stack.getTag().remove(UCStrings.TAG_GROWTHSTAGES);
-                stack.addTagElement(UCStrings.TAG_GROWTHSTAGES, playerTagList);
+                if (NBTUtils.verifyExistance(stack, UCStrings.TAG_GROWTHSTAGES))
+                    NBTUtils.getNBT(stack).remove(UCStrings.TAG_GROWTHSTAGES);
+                NBTUtils.setList(stack, UCStrings.TAG_GROWTHSTAGES, playerTagList);
             }
         }
         if (!world.isClientSide && player instanceof ServerPlayer serverPlayer) {
@@ -72,7 +70,7 @@ public class GuideBookItem extends ItemBaseUC {
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+    public boolean shouldCauseReequipAnimation(@NotNull ItemStack oldStack, @NotNull ItemStack newStack, boolean slotChanged) {
 
         return !ItemStack.isSameItem(oldStack, newStack);
     }

@@ -1,22 +1,24 @@
 package com.remag.uniquecrops.render.tile;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.remag.uniquecrops.blocks.tiles.TileFascino;
 import com.remag.uniquecrops.events.UCTickHandler;
 import com.remag.uniquecrops.render.model.ModelCubeyThingy;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.BookModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.model.BookModel;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+
+import java.awt.*;
 
 public class RenderFascino implements BlockEntityRenderer<TileFascino> {
 
@@ -54,7 +56,7 @@ public class RenderFascino implements BlockEntityRenderer<TileFascino> {
         ms.translate(-0.25, wave + 0.65, 0);
 
         this.book.setupAnim(0, 0, 0, 0.005F);
-        this.book.render(ms, buffer.getBuffer(book.renderType(RES)), 0xF000F0, overlay, 1F, 1F, 1F, 1F);
+        this.book.render(ms, buffer.getBuffer(book.renderType(RES)), 0xF000F0, overlay, new Color(1F, 1F, 1F, 1F).getRGB());
         ms.popPose();
 
         if (tile != null) {
@@ -110,7 +112,7 @@ public class RenderFascino implements BlockEntityRenderer<TileFascino> {
                 float z1 = (float)(radiusZ * Math.sin(rad));
                 ms.pushPose();
                 ms.translate(x1, i * 0.1, z1);
-                this.cube.renderToBuffer(ms, buffer.getBuffer(book.renderType(RES)), 0xF000F0, overlay, 1F, 1F, 1F, 1F);
+                this.cube.renderToBuffer(ms, buffer.getBuffer(book.renderType(RES)), 0xF000F0, overlay, new Color(1F, 1F, 1F, 1F).getRGB());
                 ms.popPose();
             }
         }

@@ -1,16 +1,18 @@
 package com.remag.uniquecrops.integration.patchouli.component;
 
 import com.remag.uniquecrops.UniqueCrops;
+import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumGrowthSteps;
 import com.remag.uniquecrops.init.UCItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.item.ItemStack;
 import vazkii.patchouli.api.IComponentRenderContext;
 import vazkii.patchouli.api.ICustomComponent;
 import vazkii.patchouli.api.IVariable;
@@ -31,16 +33,21 @@ public class GrowthComponent implements ICustomComponent {
     @Override
     public void render(GuiGraphics guiGraphics, IComponentRenderContext ctx, float pticks, int mouseX, int mouseY) {
         Minecraft mc = ctx.getGui().getMinecraft();
+        if (mc.player == null) {
+            renderBlank(guiGraphics, mc.font);
+            return;
+        }
+
         ItemStack book = mc.player.getMainHandItem();
 
         if (book.getItem() == UCItems.BOOK_GUIDE.get()) {
-            if (!book.hasTag() || !book.getTag().contains(UCStrings.TAG_GROWTHSTAGES)) {
+            if (!NBTUtils.detectNBT(book) || !NBTUtils.getNBT(book).contains(UCStrings.TAG_GROWTHSTAGES)) {
                 renderBlank(guiGraphics, mc.font);
                 return;
             }
 
             guiGraphics.drawString(mc.font, Component.literal("Feroxia Growth Steps"), x, y, 0, false);
-            ListTag tagList = book.getTag().getList(UCStrings.TAG_GROWTHSTAGES, 10);
+            ListTag tagList = NBTUtils.getNBT(book).getList(UCStrings.TAG_GROWTHSTAGES, 10);
 
             for (int i = 0; i < tagList.size(); i++) {
                 CompoundTag tag = tagList.getCompound(i);
@@ -53,7 +60,7 @@ public class GrowthComponent implements ICustomComponent {
     }
 
     @Override
-    public void onVariablesAvailable(UnaryOperator<IVariable> lookup) {
+    public void onVariablesAvailable(UnaryOperator<IVariable> lookup, HolderLookup.Provider provider) {
 
     }
 

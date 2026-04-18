@@ -2,15 +2,15 @@ package com.remag.uniquecrops.api;
 
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.init.UCRecipes;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.Container;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.NotNull;
 
-public interface IEnchanterRecipe extends Recipe<Container> {
+public interface IEnchanterRecipe extends Recipe<RecipeInput> {
 
     ResourceLocation RES = ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "enchanter");
 

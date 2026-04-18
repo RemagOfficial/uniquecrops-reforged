@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RecipeManager.class)
 public class MixinRecipeLoad {
-
-    @Inject(method = "replaceRecipes", at = @At("RETURN"))
+    @Inject(method = "replaceRecipes", at = @At("RETURN"), remap = false)
     public void uniquecrops_onSync(Iterable<Recipe<?>> recipes, CallbackInfo info) {
 
         PatchouliUtils.registerMultiblocks();

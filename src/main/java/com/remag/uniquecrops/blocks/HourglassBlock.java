@@ -1,27 +1,26 @@
 package com.remag.uniquecrops.blocks;
-
 import com.remag.uniquecrops.api.IHourglassRecipe;
 import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +74,7 @@ public class HourglassBlock extends Block {
                 }
             }
         }
-        List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(pos.offset(-RANGE, -RANGE, -RANGE), pos.offset(RANGE, RANGE, RANGE)));
+        List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, new AABB(pos).expandTowards(RANGE, RANGE, RANGE));
         for (ItemEntity item : items) {
             if (item.isAlive() && !item.getItem().isEmpty() && item.getItem().is(Items.BOW)) {
                 ItemStack bow = item.getItem();
@@ -88,9 +87,11 @@ public class HourglassBlock extends Block {
 
     private static IHourglassRecipe findRecipe(Level world, BlockState state) {
 
-        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
-            if (recipe instanceof IHourglassRecipe && ((IHourglassRecipe)recipe).matches(state))
-                return ((IHourglassRecipe)recipe);
+        for (var holder : world.getRecipeManager().getRecipes()) {
+            Recipe<?> recipe = holder.value();
+            if (recipe instanceof IHourglassRecipe hourglassRecipe && hourglassRecipe.matches(state)) {
+                return hourglassRecipe;
+            }
         }
         return null;
     }

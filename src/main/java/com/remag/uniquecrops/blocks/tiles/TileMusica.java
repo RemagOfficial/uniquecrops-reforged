@@ -4,11 +4,12 @@ import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.init.UCTiles;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraftforge.event.level.NoteBlockEvent;
+import net.neoforged.neoforge.event.level.NoteBlockEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class TileMusica extends BaseTileUC{
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         ListTag taglist = tag.getList(UCStrings.TAG_BEATLIST, 10);
         for (int i = 0; i < taglist.size(); i++) {
@@ -72,7 +73,7 @@ public class TileMusica extends BaseTileUC{
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
 
         if (!beats.isEmpty() || beats.size() > 0) {
             ListTag taglist = new ListTag();

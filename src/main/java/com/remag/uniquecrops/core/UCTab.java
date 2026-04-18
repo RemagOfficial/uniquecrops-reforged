@@ -5,11 +5,10 @@ import com.remag.uniquecrops.init.UCItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public final class UCTab {
 
     public static final List<Supplier<? extends ItemLike>> UNIQUECROPS_TABS = new ArrayList<>();
 
-    public static final RegistryObject<CreativeModeTab> UNIQUECROPS_TAB = CREATIVE_MODE_TABS.register("uniquecrops_tab",
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> UNIQUECROPS_TAB = CREATIVE_MODE_TABS.register("uniquecrops_tab",
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(UCItems.BOOK_GUIDE.get()))
                     .title(Component.translatable("itemGroup.uniquecrops"))
                     .displayItems((pParameters, pOutput) -> {
@@ -30,7 +29,7 @@ public final class UCTab {
                     .build());
 
 
-    public static <T extends Item> RegistryObject<T> addToTab(RegistryObject<T> itemLike) {
+    public static <T extends ItemLike, H extends Supplier<T>> H addToTab(H itemLike) {
         UNIQUECROPS_TABS.add(itemLike);
         return itemLike;
     }

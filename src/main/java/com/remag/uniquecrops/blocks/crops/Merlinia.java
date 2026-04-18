@@ -2,17 +2,18 @@ package com.remag.uniquecrops.blocks.crops;
 
 import com.remag.uniquecrops.blocks.BaseCropsBlock;
 import com.remag.uniquecrops.init.UCItems;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class Merlinia extends BaseCropsBlock {
 
@@ -23,22 +24,25 @@ public class Merlinia extends BaseCropsBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 
         if (this.getAge(state) == 0) {
             if (!world.isClientSide) {
                 world.setBlock(pos, this.setValueAge(getMaxAge()), 3);
-                int fortune = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, player.getMainHandItem());
-                this.harvestItems(world, pos, state, 0);
+                int fortune = EnchantmentHelper.getItemEnchantmentLevel(
+                    world.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.FORTUNE),
+                    stack
+                );
+                this.harvestItems(world, pos, state, fortune);
             }
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
-        return merliniaGrowth(state, world, pos, player);
+        return merliniaGrowth(stack, state, world, pos, player);
     }
 
-    private InteractionResult merliniaGrowth(BlockState state, Level world, BlockPos pos, Player player) {
+    private ItemInteractionResult merliniaGrowth(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player) {
 
-        ItemStack timemeal = player.getMainHandItem();
+        ItemStack timemeal = stack;
         if (timemeal.getItem() == UCItems.TIMEMEAL.get()) {
             if (!world.isClientSide) {
                 int i = Math.max(this.getAge(state) - this.getBonemealAgeIncrease(world), 0);
@@ -47,9 +51,9 @@ public class Merlinia extends BaseCropsBlock {
                 if (!player.isCreative())
                     timemeal.shrink(1);
             }
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

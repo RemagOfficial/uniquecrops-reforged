@@ -1,17 +1,19 @@
 package com.remag.uniquecrops.core;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraft.server.MinecraftServer;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class UCWorldData extends SavedData {
@@ -22,7 +24,11 @@ public class UCWorldData extends SavedData {
 
     public UCWorldData(CompoundTag tag) {
 
-        ServerLifecycleHooks.getCurrentServer().getAllLevels().forEach(sw -> {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null)
+            return;
+
+        server.getAllLevels().forEach(sw -> {
            String s = sw.dimension().location().toString();
            ListTag savedList = tag.getList(s, 10);
            UCProtectionHandler.getInstance().clearQueue(sw);
@@ -43,12 +49,20 @@ public class UCWorldData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null)
+            return tag;
 
         String[] allDims = UCProtectionHandler.getInstance().getUnsavedDims().toArray(new String[0]);
         for (String s : allDims) {
-            ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, ResourceLocation.tryParse(s));
-            Level world = ServerLifecycleHooks.getCurrentServer().getLevel(key);
+            ResourceLocation dimId = ResourceLocation.tryParse(s);
+            if (dimId == null)
+                continue;
+
+            ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, dimId);
+            Level world = server.getLevel(key);
             if (world != null) {
                 ListTag savedList = new ListTag();
                 for (ChunkPos pos : UCProtectionHandler.getInstance().getChunkInfo(world)) {
@@ -77,6 +91,12 @@ public class UCWorldData extends SavedData {
             throw new RuntimeException("Don't access this clientside!");
 
         DimensionDataStorage storage = ((ServerLevel)world).getDataStorage();
-        return storage.computeIfAbsent(UCWorldData::new, UCWorldData::new, ID);
+        SavedData.Factory<UCWorldData> factory = new SavedData.Factory<>(UCWorldData::new, UCWorldData::load);
+        return storage.computeIfAbsent(factory, ID);
+    }
+
+    private static UCWorldData load(CompoundTag tag, HolderLookup.Provider provider) {
+
+        return new UCWorldData(tag);
     }
 }

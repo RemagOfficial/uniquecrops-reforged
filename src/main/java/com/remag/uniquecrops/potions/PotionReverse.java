@@ -13,14 +13,16 @@ public class PotionReverse extends InstantenousMobEffect {
     }
 
     @Override
-    public void applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
 
-        if (!entity.level().isClientSide && entity instanceof Player)
-            PotionBehavior.reverseEffects((Player)entity);
+        if (!entity.level().isClientSide && entity instanceof Player player) {
+            PotionBehavior.reverseEffects(player);
+        }
+        return true;
     }
 
     @Override
-    public boolean isDurationEffectTick(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
 
         return true;
     }

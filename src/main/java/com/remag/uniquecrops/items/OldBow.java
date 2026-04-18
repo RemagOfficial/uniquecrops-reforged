@@ -13,6 +13,7 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class OldBow extends ItemBaseUC {
 
@@ -22,18 +23,16 @@ public class OldBow extends ItemBaseUC {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player player, @NotNull InteractionHand hand) {
 
-        ItemStack stack = player.getMainHandItem();
+        ItemStack stack = player.getItemInHand(hand);
         if (stack.is(this) && player.getInventory().contains(new ItemStack(Items.ARROW))) {
             if (!world.isClientSide()) {
                 int charge = 15;
-                int i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, world, player, charge, true);
-                if (i < 0) return InteractionResultHolder.fail(stack);
-
-                ItemStack arrowItem = player.getInventory().items.stream().filter(arr -> arr.is(Items.ARROW)).findFirst().get();
+                ItemStack arrowItem = player.getInventory().items.stream().filter(arr -> arr.is(Items.ARROW)).findFirst().orElse(ItemStack.EMPTY);
+                if (arrowItem.isEmpty()) return InteractionResultHolder.fail(stack);
                 float f = BowItem.getPowerForTime(charge);
-                AbstractArrow arrow = ((ArrowItem)Items.ARROW).createArrow(world, arrowItem, player);
+                AbstractArrow arrow = ((ArrowItem)Items.ARROW).createArrow(world, arrowItem, player, stack);
                 if (player.isCreative())
                     arrow.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
                 arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, f * 3.0F, 1.0F);
@@ -53,7 +52,7 @@ public class OldBow extends ItemBaseUC {
     }
 
     @Override
-    public boolean isEnchantable(ItemStack stack) {
+    public boolean isEnchantable(@NotNull ItemStack stack) {
 
         return false;
     }

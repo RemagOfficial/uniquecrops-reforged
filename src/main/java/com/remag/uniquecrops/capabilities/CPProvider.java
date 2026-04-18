@@ -1,28 +1,28 @@
 package com.remag.uniquecrops.capabilities;
 
+import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.api.ICropPower;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.capabilities.ItemCapability;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+// NOTE: NeoForge 1.21+ ICapabilityProvider likely requires 3 type parameters: <T, C, R>
+// Adjust the generics and method signature below to match your NeoForge version if needed.
+public class CPProvider implements ICapabilityProvider<ItemStack, Void, ICropPower> {
 
-public class CPProvider implements ICapabilitySerializable<CompoundTag> {
-
-    public static Capability<ICropPower> CROP_POWER = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final ItemCapability<ICropPower, Void> CROP_POWER = ItemCapability.createVoid(
+        ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "crop_power"),
+        ICropPower.class
+    );
 
     private final ICropPower crop;
-    private final LazyOptional<ICropPower> instance;
 
     public CPProvider() {
 
         this.crop = new CPCapability();
-        this.instance = LazyOptional.of(() -> crop);
     }
 
     public CPProvider(int capacity, boolean ignoreCooldown) {
@@ -30,23 +30,20 @@ public class CPProvider implements ICapabilitySerializable<CompoundTag> {
         this.crop = new CPCapability();
         crop.setCapacity(capacity);
         crop.setIgnoreCooldown(ignoreCooldown);
-        this.instance = LazyOptional.of(() -> crop);
     }
 
-    @Nonnull
+    @Nullable
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    public ICropPower getCapability(ItemStack stack, Void context) {
 
-        return CROP_POWER.orEmpty(cap, instance);
+        return crop;
     }
 
-    @Override
     public CompoundTag serializeNBT() {
 
         return crop.serializeNBT();
     }
 
-    @Override
     public void deserializeNBT(CompoundTag nbt) {
 
         crop.deserializeNBT(nbt);

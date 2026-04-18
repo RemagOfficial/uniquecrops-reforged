@@ -8,7 +8,7 @@ public interface IBookUpgradeable {
 
     default int getLevel(ItemStack stack) {
 
-        if (stack.hasTag() && stack.getTag().contains(UCStrings.TAG_UPGRADE))
+        if (NBTUtils.detectNBT(stack) && NBTUtils.getNBT(stack).contains(UCStrings.TAG_UPGRADE))
             return NBTUtils.getInt(stack, UCStrings.TAG_UPGRADE, -1);
 
         return -1;

@@ -1,11 +1,10 @@
 package com.remag.uniquecrops.network;
 
 import com.remag.uniquecrops.core.NBTUtils;
-import com.remag.uniquecrops.init.UCItems;
+import com.remag.uniquecrops.items.GlassesPixelItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -22,13 +21,16 @@ public class PacketSendKey {
         return new PacketSendKey();
     }
 
-    public static void handle(PacketSendKey msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PacketSendKey msg, Supplier<UCPacketHandler.PacketContext> ctx) {
 
         ctx.get().enqueueWork(() -> {
 
             Player player = ctx.get().getSender();
+            if (player == null) {
+                return;
+            }
             ItemStack glasses = player.getInventory().armor.get(3);
-            if (glasses.getItem() == UCItems.GLASSES_PIXELS.get())
+            if (glasses.getItem() instanceof GlassesPixelItem)
                 NBTUtils.setBoolean(glasses, "isActive", !NBTUtils.getBoolean(glasses, "isActive", false));
         });
         ctx.get().setPacketHandled(true);

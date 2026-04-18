@@ -2,26 +2,27 @@ package com.remag.uniquecrops.items.curios;
 
 import com.remag.uniquecrops.items.base.ItemCurioUC;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
 public class EmblemPacifism extends ItemCurioUC {
 
     public EmblemPacifism() {
 
-        MinecraftForge.EVENT_BUS.addListener(this::noDamage);
+        NeoForge.EVENT_BUS.addListener(this::noDamage);
     }
 
-    private void noDamage(LivingAttackEvent event) {
+    private void noDamage(LivingIncomingDamageEvent event) {
 
-        Player player = null;
-        if (event.getEntity() instanceof Player) player = (Player)event.getEntity();
-        if (event.getSource().getDirectEntity() instanceof Player) player = (Player)event.getSource().getDirectEntity();
-        if (player == null) return;
+        Player victim = event.getEntity() instanceof Player p ? p : null;
+        Player attacker = event.getSource().getDirectEntity() instanceof Player p ? p : null;
 
-        if (!hasCurio(player)) return;
+        boolean blockIncomingToCurioWearer = victim != null && attacker != null && hasCurio(victim);
+        boolean blockOutgoingFromCurioWearer = attacker != null && hasCurio(attacker);
 
-        if (event.getEntity() instanceof Player && event.getSource().getDirectEntity() != null || event.getSource().getDirectEntity() == player)
+        if (blockIncomingToCurioWearer || blockOutgoingFromCurioWearer) {
+            event.setAmount(0F);
             event.setCanceled(true);
+        }
     }
 }

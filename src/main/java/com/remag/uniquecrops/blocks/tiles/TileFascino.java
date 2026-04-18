@@ -10,27 +10,34 @@ import com.remag.uniquecrops.init.UCTiles;
 import com.remag.uniquecrops.items.StaffWildwoodItem;
 import com.remag.uniquecrops.network.PacketUCEffect;
 import com.remag.uniquecrops.network.UCPacketHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public class TileFascino extends BaseTileUC {
 
@@ -90,67 +97,76 @@ public class TileFascino extends BaseTileUC {
     }
 
     public void checkEnchants(Player player, ItemStack staff) {
-
-            IEnchanterRecipe fascinoRecipe = findRecipe(level, wrap());
-            if (fascinoRecipe == null) {
-                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unknownrecipe"), true);
-                return;
-            }
-
-            ItemStack heldItem = ItemStack.EMPTY;
-            this.showMissingCrops = false;
-            for (ItemStack stack : player.getHandSlots()) {
-                if (!stack.isEmpty() && stack.getItem().isEnchantable(stack) && stack.getItem() != UCItems.WILDWOOD_STAFF.get()) {
-                    heldItem = stack;
-                    break;
-                }
-            }
-            if (heldItem.isEmpty()) {
-                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.nothing"), true);
-                return;
-            }
-            if (!fascinoRecipe.getEnchantment().category.canEnchant(heldItem.getItem())) {
-                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unenchantable",heldItem.getDisplayName()), true);
-                return;
-            }
-            if (EnchantmentHelper.getEnchantments(heldItem).containsKey(fascinoRecipe.getEnchantment())) {
-                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.enchantmentexists"), true);
-                return;
-            }
-            Map<Enchantment, Integer> enchantSet = EnchantmentHelper.getEnchantments(heldItem);
-            Set<Enchantment> enchantments = enchantSet.keySet();
-            for (Enchantment ench : enchantments) {
-                if (!ench.isCompatibleWith(fascinoRecipe.getEnchantment())) {
-                    player.displayClientMessage(Component.translatable("uniquecrops.enchanting.incompatible", ench.getDescriptionId()), true);
-                    return;
-                }
-            }
-            prepareEnchanting(player, heldItem.getEnchantmentTags().size() + 1, staff, fascinoRecipe.getCost());
-            enchantItem = heldItem;
-    }
-
-    private SimpleContainer wrap() {
-
-        SimpleContainer inv = new SimpleContainer(getInventory().getSlots()) {
-            @Override
-            public int getMaxStackSize() {
-
-                return 1;
-            }
-        };
-        for (int i = 0; i < getInventory().getSlots(); i++)
-            inv.setItem(i, getInventory().getStackInSlot(i));
-
-        return inv;
-    }
-
-    private static IEnchanterRecipe findRecipe(Level world, SimpleContainer con) {
-
-        for (Recipe<?> recipe : world.getRecipeManager().getRecipes()) {
-            if (recipe instanceof IEnchanterRecipe && ((IEnchanterRecipe)recipe).matches(con, world))
-                return ((IEnchanterRecipe)recipe);
+        IEnchanterRecipe fascinoRecipe = findRecipe(level, wrap());
+        if (fascinoRecipe == null) {
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unknownrecipe"), true);
+            return;
         }
 
+        ItemStack heldItem = ItemStack.EMPTY;
+        this.showMissingCrops = false;
+        for (ItemStack stack : player.getHandSlots()) {
+            if (!stack.isEmpty() && stack.isEnchantable() && stack.getItem() != UCItems.WILDWOOD_STAFF.get()) {
+                heldItem = stack;
+                break;
+            }
+        }
+        if (heldItem.isEmpty()) {
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.nothing"), true);
+            return;
+        }
+        if (!fascinoRecipe.getEnchantment().canEnchant(heldItem)) {
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.unenchantable", heldItem.getDisplayName()), true);
+            return;
+        }
+        HolderLookup.RegistryLookup<Enchantment> enchLookup = player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        var enchantments = heldItem.getAllEnchantments(enchLookup);
+        var registry = player.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+        var targetKey = registry.getResourceKey(fascinoRecipe.getEnchantment()).orElse(null);
+        Holder<Enchantment> targetHolder = targetKey != null ? registry.getHolder(targetKey).orElse(null) : null;
+        if (targetHolder != null && enchantments.getLevel(targetHolder) > 0) {
+            player.displayClientMessage(Component.translatable("uniquecrops.enchanting.enchantmentexists"), true);
+            return;
+        }
+        for (Holder<Enchantment> enchHolder : enchantments.keySet()) {
+            if (targetHolder != null && enchHolder != null && !Enchantment.areCompatible(targetHolder, enchHolder)) {
+                // Use getDescription() if available, else fallback to literal
+                Component desc;
+                try {
+                    desc = enchHolder.value().description();
+                } catch (Exception e) {
+                    desc = Component.literal(enchHolder.toString());
+                }
+                player.displayClientMessage(Component.translatable("uniquecrops.enchanting.incompatible", desc), true);
+                return;
+            }
+        }
+        // Use enchantments.keySet().size() + 1 for enchantmentSize
+        prepareEnchanting(player, enchantments.keySet().size() + 1, staff, fascinoRecipe.getCost());
+        enchantItem = heldItem;
+    }
+
+    // Replace wrap() to return a RecipeInput
+    private RecipeInput wrap() {
+        IItemHandler handler = getInventory();
+        // If only one slot is used for the recipe, use the first non-empty stack
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                return new SingleRecipeInput(stack);
+            }
+        }
+        // Fallback: empty input
+        return new SingleRecipeInput(ItemStack.EMPTY);
+    }
+
+    // Update findRecipe to use RecipeInput
+    private static IEnchanterRecipe findRecipe(Level world, RecipeInput input) {
+        for (RecipeHolder<?> holder : world.getRecipeManager().getRecipes()) {
+            Recipe<?> recipe = holder.value();
+            if (recipe instanceof IEnchanterRecipe enchanterRecipe && enchanterRecipe.matches(input, world))
+                return enchanterRecipe;
+        }
         return null;
     }
 
@@ -191,7 +207,9 @@ public class TileFascino extends BaseTileUC {
 
     private Player getEnchanter() {
 
-        List<Player> playerList = level.getEntitiesOfClass(Player.class, new AABB(worldPosition.offset(-RANGE, -1, -RANGE), worldPosition.offset(RANGE, 2, RANGE)));
+        Vec3 min = new Vec3(worldPosition.getX() - RANGE, worldPosition.getY() - 1, worldPosition.getZ() - RANGE);
+        Vec3 max = new Vec3(worldPosition.getX() + RANGE + 1, worldPosition.getY() + 2, worldPosition.getZ() + RANGE + 1);
+        List<Player> playerList = level.getEntitiesOfClass(Player.class, new AABB(min, max));
         for (Player player : playerList) {
             if (player.getUUID().equals(enchanterId)) {
                 return player;
@@ -314,9 +332,9 @@ public class TileFascino extends BaseTileUC {
     }
 
     @Override
-    public void writeCustomNBT(CompoundTag tag) {
-
-        tag.put("inventory", inv.serializeNBT());
+    public void writeCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
+        // NeoForge 1.21.1: serializeNBT now requires HolderLookup.Provider; pass null for now
+        tag.put("inventory", inv.serializeNBT(provider));
         tag.putInt(UCStrings.TAG_ENCHANTSTAGE, stage.ordinal());
         if (enchanterId != null)
             tag.putString("UC:targetEnchanter", enchanterId.toString());
@@ -324,23 +342,28 @@ public class TileFascino extends BaseTileUC {
             tag.remove("UC:targetEnchanter");
         tag.putInt(UCStrings.TAG_ENCHANT_TIMER, this.enchantingTicks);
         tag.putInt(UCStrings.TAG_ENCHANT_COST, this.enchantmentCost);
-
-        if (!enchantItem.isEmpty())
-            tag.put("enchItem", enchantItem.serializeNBT());
+        if (!enchantItem.isEmpty()) {
+            // NeoForge 1.21.1: ItemStack NBT serialization via CODEC
+            var result = ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, enchantItem);
+            result.result().ifPresent(nbt -> {
+                if (nbt instanceof CompoundTag compound)
+                    tag.put("enchItem", compound);
+            });
+        }
     }
 
     @Override
-    public void readCustomNBT(CompoundTag tag) {
-
-        inv.deserializeNBT(tag.getCompound("inventory"));
+    public void readCustomNBT(CompoundTag tag, HolderLookup.Provider provider) {
+        // NeoForge 1.21.1: deserializeNBT now requires HolderLookup.Provider; pass null for now
+        inv.deserializeNBT(provider, tag.getCompound("inventory"));
         stage = Stage.values()[tag.getInt(UCStrings.TAG_ENCHANTSTAGE)];
         if (tag.contains("UC:targetEnchanter"))
             enchanterId = UUID.fromString(tag.getString("UC:targetEnchanter"));
         enchantingTicks = tag.getInt(UCStrings.TAG_ENCHANT_TIMER);
         enchantmentCost = tag.getInt(UCStrings.TAG_ENCHANT_COST);
-
-        if (tag.contains("enchItem"))
-            ItemStack.of(tag.getCompound("enchItem"));
+        if (tag.contains("enchItem")) {
+            enchantItem = ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.get("enchItem")).result().orElse(ItemStack.EMPTY);
+        }
     }
 
     public enum Stage {

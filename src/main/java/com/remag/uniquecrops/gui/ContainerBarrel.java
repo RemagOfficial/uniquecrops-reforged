@@ -2,31 +2,37 @@ package com.remag.uniquecrops.gui;
 
 import com.remag.uniquecrops.blocks.tiles.TileBarrel;
 import com.remag.uniquecrops.init.UCScreens;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
 public class ContainerBarrel extends AbstractContainerMenu {
 
     TileBarrel tile;
+    private final IItemHandler inv;
 
+    @SuppressWarnings("unchecked")
     public ContainerBarrel(int windowId, Inventory playerinv, TileBarrel tile) {
 
         super(UCScreens.BARREL.get(), windowId);
         this.tile = tile;
+        // Temporary hard bridge while TileBarrel still exposes legacy handler type.
+        this.inv = (IItemHandler) (Object) tile.getInventory();
         int i;
         int j;
         Random rand = new Random();
         for (i = 0; i < 2; ++i) {
             for (j = 0; j < 2; ++j) {
-                int z = rand.nextInt(tile.getInventory().getSlots());
-                this.addSlot(new SlotItemHandler(tile.getInventory(), z, 72 + j * 18, 27 + i * 18));
+                int z = rand.nextInt(inv.getSlots());
+                this.addSlot(new SlotItemHandler(inv, z, 72 + j * 18, 27 + i * 18));
             }
         }
         for (i = 0; i < 3; ++i) {
@@ -38,17 +44,18 @@ public class ContainerBarrel extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
 
         return !(player instanceof FakePlayer);
     }
 
-    public ItemStack quickMoveStack(Player player, int slot) {
+    @Override
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int slot) {
 
         ItemStack stack = ItemStack.EMPTY;
         Slot slotto = slots.get(slot);
 
-        if (slotto != null && slotto.hasItem()) {
+        if (slotto.hasItem()) {
             ItemStack stackInSlot = slotto.getItem();
             stack = stackInSlot.copy();
 
@@ -57,7 +64,7 @@ public class ContainerBarrel extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
             } else {
                 boolean b = false;
-                for (int i = 0; i < tile.getInventory().getSlots(); i++) {
+                for (int i = 0; i < inv.getSlots(); i++) {
                     if (this.getSlot(i).mayPlace(stackInSlot)) {
                         if (this.moveItemStackTo(stackInSlot, i, i + 1, false)) {
                             b = true;

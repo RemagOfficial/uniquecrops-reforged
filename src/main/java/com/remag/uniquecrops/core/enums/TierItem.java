@@ -1,9 +1,12 @@
 package com.remag.uniquecrops.core.enums;
 
 import com.remag.uniquecrops.init.UCItems;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.util.Lazy;
 
 import java.util.function.Supplier;
 
@@ -16,7 +19,7 @@ public enum TierItem implements Tier {
     private final float efficiency;
     private final float attackDamage;
     private final int enchantability;
-    private final LazyLoadedValue<Ingredient> repairMaterial;
+    private final Lazy<Ingredient> repairMaterial;
 
     TierItem(int harvestLevelIn, int maxUsesIn, float efficiencyIn, float attackDamageIn, int enchantabilityIn, Supplier<Ingredient> repairMaterialIn) {
 
@@ -25,7 +28,7 @@ public enum TierItem implements Tier {
         this.efficiency = efficiencyIn;
         this.attackDamage = attackDamageIn;
         this.enchantability = enchantabilityIn;
-        this.repairMaterial = new LazyLoadedValue<>(repairMaterialIn);
+        this.repairMaterial = Lazy.of(repairMaterialIn);
     }
 
     @Override
@@ -47,15 +50,16 @@ public enum TierItem implements Tier {
     }
 
     @Override
-    public int getLevel() {
-
-        return this.harvestLevel;
-    }
-
-    @Override
     public int getEnchantmentValue() {
 
         return this.enchantability;
+    }
+
+    @Override
+    public TagKey<Block> getIncorrectBlocksForDrops() {
+
+        // Mirror vanilla high-tier behavior: cannot harvest blocks that require diamond tool.
+        return BlockTags.INCORRECT_FOR_DIAMOND_TOOL;
     }
 
     @Override
