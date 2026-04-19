@@ -13,6 +13,8 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class OldBow extends ItemBaseUC {
@@ -26,12 +28,24 @@ public class OldBow extends ItemBaseUC {
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player player, @NotNull InteractionHand hand) {
 
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.is(this) && player.getInventory().contains(new ItemStack(Items.ARROW))) {
+        if (stack.is(this) && (player.getInventory().contains(new ItemStack(Items.ARROW)) || player.isCreative())) {
             if (!world.isClientSide()) {
                 int charge = 15;
                 ItemStack arrowItem = player.getInventory().items.stream().filter(arr -> arr.is(Items.ARROW)).findFirst().orElse(ItemStack.EMPTY);
-                if (arrowItem.isEmpty()) return InteractionResultHolder.fail(stack);
-                float f = BowItem.getPowerForTime(charge);
+                if (arrowItem.isEmpty() && !player.isCreative()) return InteractionResultHolder.fail(stack);
+                if (arrowItem.isEmpty()) arrowItem = new ItemStack(Items.ARROW);
+                float f;
+                
+                // Fire ArrowLooseEvent using NeoForge event bus
+                boolean hasAmmo = player.isCreative() || player.getInventory().contains(new ItemStack(Items.ARROW));
+                ArrowLooseEvent event = new ArrowLooseEvent(player, stack, world, charge, hasAmmo);
+                NeoForge.EVENT_BUS.post(event);
+                if (event.isCanceled()) {
+                    return InteractionResultHolder.fail(stack);
+                }
+                
+                charge = event.getCharge();
+                f = BowItem.getPowerForTime(charge);
                 AbstractArrow arrow = ((ArrowItem)Items.ARROW).createArrow(world, arrowItem, player, stack);
                 if (player.isCreative())
                     arrow.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
@@ -45,7 +59,7 @@ public class OldBow extends ItemBaseUC {
                     if (arrowItem.isEmpty())
                         player.getInventory().removeItem(arrowItem);
                 }
-//                return InteractionResultHolder.success(stack);
+                return InteractionResultHolder.success(stack);
             }
         }
         return InteractionResultHolder.pass(stack);

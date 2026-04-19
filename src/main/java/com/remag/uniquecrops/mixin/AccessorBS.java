@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.SequencedMap;
 
-// TODO: Fix obfuscation mappings for 1.21.1
 @Mixin(MultiBufferSource.BufferSource.class)
 public interface AccessorBS {
     @Accessor("sharedBuffer")

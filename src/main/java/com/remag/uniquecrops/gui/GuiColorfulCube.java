@@ -203,7 +203,7 @@ public class GuiColorfulCube extends Screen {
 
     private void updateCube(int rotation) {
 
-        UCPacketHandler.INSTANCE.sendToServer(new PacketColorfulCube(rotation, false));
+        UCPacketHandler.sendToServer(new PacketColorfulCube(rotation, false));
         this.hasRotated = true;
     }
 
@@ -221,7 +221,7 @@ public class GuiColorfulCube extends Screen {
         ItemStack cube = getCube();
         if (!cube.isEmpty()) {
             int rot = ((RubiksCubeItem)cube.getItem()).getRotation(cube);
-            UCPacketHandler.INSTANCE.sendToServer(new PacketColorfulCube(rot, true));
+            UCPacketHandler.sendToServer(new PacketColorfulCube(rot, true));
             this.onClose();
         }
     }

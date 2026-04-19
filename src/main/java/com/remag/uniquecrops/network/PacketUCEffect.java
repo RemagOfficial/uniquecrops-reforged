@@ -2,21 +2,44 @@ package com.remag.uniquecrops.network;
 
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.core.enums.EnumParticle;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
+public class PacketUCEffect implements CustomPacketPayload {
 
-public class PacketUCEffect {
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("uniquecrops", "uc_effect");
+    public static final CustomPacketPayload.Type<PacketUCEffect> TYPE = new CustomPacketPayload.Type<>(ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketUCEffect> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public PacketUCEffect decode(RegistryFriendlyByteBuf buf) {
+            EnumParticle type = EnumParticle.values()[buf.readShort()];
+            double x = buf.readDouble();
+            double y = buf.readDouble();
+            double z = buf.readDouble();
+            int loopSize = buf.readInt();
+            return new PacketUCEffect(type, x, y, z, loopSize);
+        }
 
-    EnumParticle type;
-    double x, y, z;
-    int loopSize;
+        @Override
+        public void encode(RegistryFriendlyByteBuf buf, PacketUCEffect value) {
+            buf.writeShort(value.type.ordinal());
+            buf.writeDouble(value.x);
+            buf.writeDouble(value.y);
+            buf.writeDouble(value.z);
+            buf.writeInt(value.loopSize);
+        }
+    };
 
-    public PacketUCEffect() {}
+    private final EnumParticle type;
+    private final double x, y, z;
+    private final int loopSize;
 
     public PacketUCEffect(EnumParticle type, double x, double y, double z, int loopSize) {
-
         this.type = type;
         this.x = x;
         this.y = y;
@@ -24,41 +47,22 @@ public class PacketUCEffect {
         this.loopSize = loopSize;
     }
 
-    public static void encode(PacketUCEffect packet, FriendlyByteBuf buf) {
-
-        buf.writeShort(packet.type.ordinal());
-        buf.writeDouble(packet.x);
-        buf.writeDouble(packet.y);
-        buf.writeDouble(packet.z);
-        buf.writeInt(packet.loopSize);
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static PacketUCEffect decode(FriendlyByteBuf buf) {
-
-        EnumParticle type = EnumParticle.values()[buf.readShort()];
-        double x = buf.readDouble();
-        double y = buf.readDouble();
-        double z = buf.readDouble();
-        int loopSize = buf.readInt();
-
-        return new PacketUCEffect(type, x, y, z, loopSize);
-    }
-
-    public static void handle(PacketUCEffect msg, Supplier<UCPacketHandler.PacketContext> ctx) {
-
-        if (ctx.get().isClientSide()) {
-            ctx.get().enqueueWork(() -> {
-                Player player = UniqueCrops.proxy.getPlayer();
-                if (player == null) {
-                    return;
-                }
-                if (msg.loopSize > 0)
-                    for (int i = 0; i < msg.loopSize; i++)
-                        player.level().addParticle(msg.type.getType(), (msg.x + 0.5D) + player.level().random.nextFloat(), msg.y, (msg.z + 0.5D) + player.level().random.nextFloat(), 0, 0, 0);
-                else
-                    player.level().addParticle(msg.type.getType(), msg.x + 0.5D, msg.y, msg.z + 0.5D, 0, 0, 0);
-            });
-        }
-        ctx.get().setPacketHandled(true);
+    public static void handle(PacketUCEffect msg, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            Player player = UniqueCrops.proxy.getPlayer();
+            if (player == null) {
+                return;
+            }
+            if (msg.loopSize > 0)
+                for (int i = 0; i < msg.loopSize; i++)
+                    player.level().addParticle(msg.type.getType(), (msg.x + 0.5D) + player.level().random.nextFloat(), msg.y, (msg.z + 0.5D) + player.level().random.nextFloat(), 0, 0, 0);
+            else
+                player.level().addParticle(msg.type.getType(), msg.x + 0.5D, msg.y, msg.z + 0.5D, 0, 0, 0);
+        });
     }
 }

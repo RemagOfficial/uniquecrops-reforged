@@ -58,7 +58,6 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-import static com.remag.uniquecrops.items.LeagueBootsItem.CMONSTEPITUP;
 import static com.remag.uniquecrops.items.LeagueBootsItem.DEFAULT_SPEED;
 
 @EventBusSubscriber(modid = UniqueCrops.MOD_ID)
@@ -237,18 +236,13 @@ public class UCEventHandlerCommon {
         ItemStack stack = player.getItemBySlot(EquipmentSlot.FEET);
         if (!(stack.getItem() instanceof LeagueBootsItem leagueBootsItem)) return;
 
-        String name = getPlayerStr(player);
-        if (CMONSTEPITUP.contains(name)) {
-            if (world.isClientSide) {
-                float SPEED = NBTUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED);
-                if ((player.onGround() || player.getAbilities().flying) && player.zza > 0F && !player.isInWaterOrBubble()) {
-                    player.moveRelative(SPEED, new Vec3(0F, 0F, 1F));
-                }
-
-                leagueBootsItem.snapForward(player, stack);
+        if (world.isClientSide) {
+            float SPEED = NBTUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED);
+            if ((player.onGround() || player.getAbilities().flying) && player.zza > 0F && !player.isInWaterOrBubble()) {
+                player.moveRelative(SPEED, new Vec3(0F, 0F, 1F));
             }
-        } else {
-            CMONSTEPITUP.add(name);
+
+            leagueBootsItem.snapForward(player, stack);
         }
     }
 
@@ -265,5 +259,10 @@ public class UCEventHandlerCommon {
     @SubscribeEvent
     public static void registerBlockEntityCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, UCTiles.BARREL.get(), (be, direction) -> be.getInventory());
+    }
+
+    @SubscribeEvent
+    public static void registerItemCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerItem(com.remag.uniquecrops.capabilities.CPProvider.CROP_POWER, new com.remag.uniquecrops.capabilities.CPProvider(), com.remag.uniquecrops.init.UCItems.IMPREGNATED_LEATHER.get());
     }
 }

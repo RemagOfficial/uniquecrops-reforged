@@ -75,13 +75,13 @@ public class UniqueCrops {
         forgeBus.addListener(UCEventHandlerCommon::injectLoot);
         forgeBus.addListener(this::onServerStarting);
         forgeBus.addListener(this::registerCommands);
+        bus.addListener(UCPacketHandler::register);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
 
         event.enqueueWork(() -> {
             UCFeatures.registerOre();
-            UCPacketHandler.init();
             UCItems.registerCompostables();
         });
 

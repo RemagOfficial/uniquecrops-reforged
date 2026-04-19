@@ -2,30 +2,31 @@ package com.remag.uniquecrops.network;
 
 import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.items.GlassesPixelItem;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
+public class PacketSendKey implements CustomPacketPayload {
 
-public class PacketSendKey {
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("uniquecrops", "send_key");
+    public static final CustomPacketPayload.Type<PacketSendKey> TYPE = new CustomPacketPayload.Type<>(ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketSendKey> STREAM_CODEC = StreamCodec.unit(new PacketSendKey());
 
     public PacketSendKey() {}
 
-    public static void encode(PacketSendKey msg, FriendlyByteBuf buf) {
-
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static PacketSendKey decode(FriendlyByteBuf buf) {
-
-        return new PacketSendKey();
-    }
-
-    public static void handle(PacketSendKey msg, Supplier<UCPacketHandler.PacketContext> ctx) {
-
-        ctx.get().enqueueWork(() -> {
-
-            Player player = ctx.get().getSender();
+    public static void handle(PacketSendKey msg, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            ServerPlayer player = (ServerPlayer) ctx.player();
             if (player == null) {
                 return;
             }
@@ -33,6 +34,5 @@ public class PacketSendKey {
             if (glasses.getItem() instanceof GlassesPixelItem)
                 NBTUtils.setBoolean(glasses, "isActive", !NBTUtils.getBoolean(glasses, "isActive", false));
         });
-        ctx.get().setPacketHandled(true);
     }
 }

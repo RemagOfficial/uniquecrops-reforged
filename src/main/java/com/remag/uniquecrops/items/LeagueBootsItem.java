@@ -5,27 +5,27 @@ import com.remag.uniquecrops.core.NBTUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
 
     public static final float DEFAULT_SPEED = 0.055F;
     private static final float JUMP_FACTOR = 0.2F;
     private static final float FALL_BUFFER = 2F;
+    private static final float STEP_HEIGHT_BONUS = 1.0F;
 
-    public static final List<String> CMONSTEPITUP = new ArrayList<>();
+    private static final ResourceLocation STEP_HEIGHT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("uniquecrops", "league_boots_step_height");
 
     public LeagueBootsItem() {
 
@@ -33,7 +33,6 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
         NeoForge.EVENT_BUS.addListener(this::onPlayerJump);
         NeoForge.EVENT_BUS.addListener(this::onPlayerFall);
         NeoForge.EVENT_BUS.addListener(this::playerTick);
-        NeoForge.EVENT_BUS.addListener(this::playerLoggedOut);
     }
 
     private void onPlayerJump(LivingEvent.LivingJumpEvent event) {
@@ -61,22 +60,24 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
     private void playerTick(PlayerTickEvent.Post event) {
 
         Player player = event.getEntity();
-        String name = getPlayerStr(player);
-        if (CMONSTEPITUP.contains(name)) {
-            ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
-            if (boots.getItem() != this) {
-                // TODO NeoForge 1.21: restore direct step-height reset when a public API is available again.
-                // player.setMaxUpStep(0.6F);
-                CMONSTEPITUP.remove(name);
+        ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
+        
+        if (boots.getItem() == this) {
+            // Add step height modifier if not already present
+            if (player.getAttributes().getInstance(Attributes.STEP_HEIGHT).getModifier(STEP_HEIGHT_MODIFIER_ID) == null) {
+                AttributeModifier modifier = new AttributeModifier(
+                    STEP_HEIGHT_MODIFIER_ID,
+                    STEP_HEIGHT_BONUS,
+                    AttributeModifier.Operation.ADD_VALUE
+                );
+                player.getAttributes().getInstance(Attributes.STEP_HEIGHT).addTransientModifier(modifier);
+            }
+        } else {
+            // Remove step height modifier if boots are not equipped
+            if (player.getAttributes().getInstance(Attributes.STEP_HEIGHT).getModifier(STEP_HEIGHT_MODIFIER_ID) != null) {
+                player.getAttributes().getInstance(Attributes.STEP_HEIGHT).removeModifier(STEP_HEIGHT_MODIFIER_ID);
             }
         }
-    }
-
-    private void playerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-
-        String username = event.getEntity().getGameProfile().getName();
-        CMONSTEPITUP.remove(username + ":false");
-        CMONSTEPITUP.remove(username + ":true");
     }
 
     public void snapForward(Player player, ItemStack stack) {
@@ -109,12 +110,6 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
     public boolean isValidRepairItem(@NotNull ItemStack toRepair, @NotNull ItemStack repair) {
 
         return false;
-    }
-
-
-    private String getPlayerStr(Player player) {
-
-        return player.getGameProfile().getName() + ":" + player.level().isClientSide;
     }
 
     /*@Override

@@ -56,7 +56,7 @@ public class UCEventHandlerClient {
             if (player == null) return;
             if (player.getInventory().getArmor(3).getItem() != UCItems.GLASSES_PIXELS.get()) return;
 
-            UCPacketHandler.INSTANCE.sendToServer(new PacketSendKey());
+            UCPacketHandler.sendToServer(new PacketSendKey());
         }
     }
 

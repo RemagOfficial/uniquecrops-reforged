@@ -42,7 +42,7 @@ public class Imperia extends BaseCropsBlock {
         super(() -> Items.AIR, UCItems.IMPERIA_SEED, Properties.ofFullCopy(Blocks.WHEAT).lightLevel(s -> s.getValue(AGE) >= 7 ? 15 : 0));
         setClickHarvest(false);
         setBonemealable(false);
-        // NeoForge.EVENT_BUS.addListener(this::checkDenySpawn); // TODO: Fix event name for NeoForge 1.21
+        NeoForge.EVENT_BUS.addListener(this::checkDenySpawn);
         NeoForge.EVENT_BUS.addListener(this::checkEntityDeath);
     }
 
@@ -51,12 +51,11 @@ public class Imperia extends BaseCropsBlock {
         return true;
     }
 
-    // TODO: Fix event name for NeoForge 1.21
     private void checkDenySpawn(MobSpawnEvent.PositionCheck event) {
 
         if (event.getLevel().isClientSide())  return;
         ChunkPos cPos = new ChunkPos(event.getEntity().blockPosition());
-        if (event.getEntity().getSpawnType().equals(MobSpawnType.NATURAL) && event.getEntity() instanceof Monster || event.getEntity() instanceof Slime) {
+        if (event.getEntity().getSpawnType() != null && event.getEntity().getSpawnType().equals(MobSpawnType.NATURAL) && event.getEntity() instanceof Monster || event.getEntity() instanceof Slime) {
             if (UCProtectionHandler.getInstance().getChunkInfo(event.getEntity().level()).contains(cPos)) {
                 event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
                 // event.setSpawnCancelled(true);

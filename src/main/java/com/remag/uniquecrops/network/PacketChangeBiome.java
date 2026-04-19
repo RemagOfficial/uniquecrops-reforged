@@ -4,7 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -13,39 +15,44 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
+public class PacketChangeBiome implements CustomPacketPayload {
 
-public class PacketChangeBiome {
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("uniquecrops", "change_biome");
+    public static final CustomPacketPayload.Type<PacketChangeBiome> TYPE = new CustomPacketPayload.Type<>(ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketChangeBiome> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public PacketChangeBiome decode(RegistryFriendlyByteBuf buf) {
+            BlockPos pos = new BlockPos(buf.readInt(), 0, buf.readInt());
+            ResourceLocation biomeId = buf.readResourceLocation();
+            return new PacketChangeBiome(pos, biomeId);
+        }
+
+        @Override
+        public void encode(RegistryFriendlyByteBuf buf, PacketChangeBiome value) {
+            buf.writeInt(value.pos.getX());
+            buf.writeInt(value.pos.getZ());
+            buf.writeResourceLocation(value.biomeId);
+        }
+    };
 
     private final BlockPos pos;
     private final ResourceLocation biomeId;
 
-    public PacketChangeBiome(BlockPos pos, ResourceLocation id) {
-
+    public PacketChangeBiome(BlockPos pos, ResourceLocation biomeId) {
         this.pos = pos;
-        this.biomeId = id;
+        this.biomeId = biomeId;
     }
 
-    public void encode(FriendlyByteBuf buf) {
-
-        buf.writeInt(pos.getX());
-        buf.writeInt(pos.getZ());
-        buf.writeResourceLocation(biomeId);
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static PacketChangeBiome decode(FriendlyByteBuf buf) {
-
-        BlockPos pos = new BlockPos(buf.readInt(), 0, buf.readInt());
-        ResourceLocation biomeId = buf.readResourceLocation();
-
-        return new PacketChangeBiome(pos, biomeId);
-    }
-
-    public static void handle(PacketChangeBiome msg, Supplier<UCPacketHandler.PacketContext> ctx) {
-
-        ctx.get().enqueueWork(() -> {
-            // This whole function copied from Ars Nouveau. Open Source rulez.
+    public static void handle(PacketChangeBiome msg, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
             ClientLevel world = Minecraft.getInstance().level;
             if (world == null) {
                 return;
@@ -71,7 +78,5 @@ public class PacketChangeBiome {
             }
             world.onChunkLoaded(new ChunkPos(msg.pos));
         });
-
-        ctx.get().setPacketHandled(true);
     }
 }

@@ -3,48 +3,55 @@ package com.remag.uniquecrops.network;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.api.ICropPower;
 import com.remag.uniquecrops.capabilities.CPProvider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
+public class PacketSyncCap implements CustomPacketPayload {
 
-public class PacketSyncCap {
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("uniquecrops", "sync_cap");
+    public static final CustomPacketPayload.Type<PacketSyncCap> TYPE = new CustomPacketPayload.Type<>(ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketSyncCap> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public PacketSyncCap decode(RegistryFriendlyByteBuf buf) {
+            return new PacketSyncCap(buf.readNbt());
+        }
 
-    final CompoundTag tag;
+        @Override
+        public void encode(RegistryFriendlyByteBuf buf, PacketSyncCap value) {
+            buf.writeNbt(value.tag);
+        }
+    };
+
+    private final CompoundTag tag;
 
     public PacketSyncCap(CompoundTag tag) {
-
         this.tag = tag;
     }
 
-    public static void encode(PacketSyncCap msg, FriendlyByteBuf buf) {
-
-        buf.writeNbt(msg.tag);
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static PacketSyncCap decode(FriendlyByteBuf buf) {
+    public static void handle(PacketSyncCap msg, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            Player player = UniqueCrops.proxy.getPlayer();
+            if (player == null) {
+                return;
+            }
 
-        return new PacketSyncCap(buf.readNbt());
-    }
+            ICropPower crop = player.getMainHandItem().getCapability(CPProvider.CROP_POWER, null);
+            if (crop == null) {
+                return;
+            }
 
-    public static void handle(PacketSyncCap msg, Supplier<UCPacketHandler.PacketContext> ctx) {
-
-        if (ctx.get().isClientSide()) {
-            ctx.get().enqueueWork(() -> {
-                Player player = UniqueCrops.proxy.getPlayer();
-                if (player == null) {
-                    return;
-                }
-
-                ICropPower crop = player.getMainHandItem().getCapability(CPProvider.CROP_POWER, null);
-                if (crop == null) {
-                    return;
-                }
-
-                crop.deserializeNBT(msg.tag);
-            });
-        }
-        ctx.get().setPacketHandled(true);
+            crop.deserializeNBT(msg.tag);
+        });
     }
 }
