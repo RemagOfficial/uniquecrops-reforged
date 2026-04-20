@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.mixin;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.DataSlot;
@@ -32,7 +32,7 @@ public class MixinAnvilMenu extends MixinItemCombinerMenu {
                 (left.getItem() != Items.ENCHANTED_BOOK && right.getItem() == Items.ENCHANTED_BOOK)) {
             ItemStack output = resultSlots.getItem(0);
             ItemStack toCheck = (left.getItem() != Items.ENCHANTED_BOOK) ? left.copy() : right.copy();
-            if (!output.isEmpty() && NBTUtils.getBoolean(toCheck, UCStrings.TAG_DISCOUNT, false)) {
+            if (!output.isEmpty() && UCDataUtils.getBoolean(toCheck, UCStrings.TAG_DISCOUNT, false)) {
                 if (cost.get() >= 1) {
                     cost.set(Math.max(1, cost.get() - 5));
                     resultSlots.setItem(0, output.copy());

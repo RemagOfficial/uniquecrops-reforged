@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.items;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
 import net.minecraft.world.InteractionHand;
@@ -34,12 +34,12 @@ public class VampiricOintmentItem extends ItemBaseUC {
 
     public boolean hasTaglock(ItemStack stack) {
 
-        return NBTUtils.verifyExistance(stack, UCStrings.TAG_LOCK);
+        return UCDataUtils.verifyExistance(stack, UCStrings.TAG_LOCK);
     }
 
     public void setTaglock(ItemStack stack, LivingEntity target) {
 
         UUID id = target.getUUID();
-        NBTUtils.setString(stack, UCStrings.TAG_LOCK, id.toString());
+        UCDataUtils.setString(stack, UCStrings.TAG_LOCK, id.toString());
     }
 }

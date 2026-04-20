@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.blocks.crops;
 
 import com.remag.uniquecrops.blocks.BaseCropsBlock;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.init.UCItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -72,7 +72,7 @@ public class Knowledge extends BaseCropsBlock {
                                 WrittenBookContent tag;
                                 tag = book.get(DataComponents.WRITTEN_BOOK_CONTENT);
                                 if (!tag.pages().isEmpty()
-                                        && !NBTUtils.getBoolean(book, BOOKMARK, false)) {
+                                        && !UCDataUtils.getBoolean(book, BOOKMARK, false)) {
 
                                     List<Filterable<Component>> tagList = tag.pages();
                                     for (int j = 0; j < tagList.size(); j++) {
@@ -95,7 +95,7 @@ public class Knowledge extends BaseCropsBlock {
                                     for (Filterable<Component> page : tagList) {
                                         tag.pages().add(page);
                                     }
-                                    NBTUtils.setBoolean(book, BOOKMARK, true);
+                                    UCDataUtils.setBoolean(book, BOOKMARK, true);
                                 }
                             }
                         }

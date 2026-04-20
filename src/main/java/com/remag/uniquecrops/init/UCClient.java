@@ -2,7 +2,7 @@ package com.remag.uniquecrops.init;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.gui.GuiBarrel;
 import com.remag.uniquecrops.gui.GuiCraftyPlant;
@@ -96,7 +96,7 @@ public class UCClient {
 
     private static void registerPropertyGetters() {
         registerPropertyGetter(UCItems.DIAMONDS.get(), ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "diamonds"),
-                (stack, world, entity, seed) -> NBTUtils.getInt(stack, UCStrings.TAG_DIAMONDS, 0));
+                (stack, world, entity, seed) -> UCDataUtils.getInt(stack, UCStrings.TAG_DIAMONDS, 0));
         registerPropertyGetter(UCItems.IMPACT_SHIELD.get(), ResourceLocation.fromNamespaceAndPath(UniqueCrops.MOD_ID, "blocking"),
                 (stack, world, entity, seed) -> (entity != null && entity.getUseItem() == stack) ? 1.0F : 0.0F);
     }

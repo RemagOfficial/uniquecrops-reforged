@@ -2,7 +2,7 @@ package com.remag.uniquecrops.blocks.supercrops;
 
 import com.remag.uniquecrops.blocks.BaseSuperCropsBlock;
 import com.remag.uniquecrops.blocks.tiles.TileWeatherflesia;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumDirectional;
 import com.remag.uniquecrops.init.UCItems;
@@ -61,7 +61,7 @@ public class Weatherflesia extends BaseSuperCropsBlock implements EntityBlock {
                     ResourceLocation rl = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
 
                     //String biomeId = biome.getRegistryName().toString();
-                    NBTUtils.setString(stack, UCStrings.TAG_BIOME, rl.getPath());
+                    UCDataUtils.setString(stack, UCStrings.TAG_BIOME, rl.getPath());
                     weather.setBrush(stack);
                     player.setItemInHand(hand, ItemStack.EMPTY);
                     weather.markBlockForUpdate();

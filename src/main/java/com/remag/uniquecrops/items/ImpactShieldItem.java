@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.items;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
 import net.minecraft.sounds.SoundEvents;
@@ -90,16 +90,16 @@ public class ImpactShieldItem extends ItemBaseUC {
     private void damageImpactShield(Player player, ItemStack stack, float damage) {
 
         stack.setDamageValue(stack.getDamageValue() + 1);
-        float strength = NBTUtils.getFloat(stack, DAMAGE_POOL, 0);
+        float strength = UCDataUtils.getFloat(stack, DAMAGE_POOL, 0);
         if (stack.getDamageValue() > stack.getMaxDamage()) {
             player.level().explode(player, player.getX(), player.getY(), player.getZ(), Math.min(strength, 20F), Level.ExplosionInteraction.NONE);
 
             stack.setDamageValue(0);
             player.getCooldowns().addCooldown(this, 300);
-            NBTUtils.setFloat(stack, DAMAGE_POOL, 0);
+            UCDataUtils.setFloat(stack, DAMAGE_POOL, 0);
             player.stopUsingItem();
             return;
         }
-        NBTUtils.setFloat(stack, DAMAGE_POOL, strength + damage);
+        UCDataUtils.setFloat(stack, DAMAGE_POOL, strength + damage);
     }
 }

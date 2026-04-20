@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.network;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.items.GlassesPixelItem;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,9 +15,10 @@ public class PacketSendKey implements CustomPacketPayload {
 
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("uniquecrops", "send_key");
     public static final CustomPacketPayload.Type<PacketSendKey> TYPE = new CustomPacketPayload.Type<>(ID);
-    public static final StreamCodec<RegistryFriendlyByteBuf, PacketSendKey> STREAM_CODEC = StreamCodec.unit(new PacketSendKey());
+    public static final PacketSendKey INSTANCE = new PacketSendKey();
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketSendKey> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
-    public PacketSendKey() {}
+    private PacketSendKey() {}
 
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
@@ -32,7 +33,7 @@ public class PacketSendKey implements CustomPacketPayload {
             }
             ItemStack glasses = player.getInventory().armor.get(3);
             if (glasses.getItem() instanceof GlassesPixelItem)
-                NBTUtils.setBoolean(glasses, "isActive", !NBTUtils.getBoolean(glasses, "isActive", false));
+                UCDataUtils.setBoolean(glasses, "isActive", !UCDataUtils.getBoolean(glasses, "isActive", false));
         });
     }
 }

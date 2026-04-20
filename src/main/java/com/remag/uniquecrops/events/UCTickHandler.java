@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.events;
 
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.init.UCItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.RenderFrameEvent;
 @EventBusSubscriber(modid = UniqueCrops.MOD_ID, value = Dist.CLIENT)
 public class UCTickHandler {
 
-    public static final ResourceLocation BITS = ResourceLocation.fromNamespaceAndPath("minecraft", "shaders/post/bits.json");
+    public static final ResourceLocation BITS = ResourceLocation.fromNamespaceAndPath("uniquecrops", "shaders/post/bits.json");
 
     private UCTickHandler() {}
 
@@ -55,7 +55,7 @@ public class UCTickHandler {
 
         ItemStack glasses = player.getInventory().getArmor(3);
         if (glasses.getItem() == UCItems.GLASSES_PIXELS.get()) {
-            boolean flag = NBTUtils.getBoolean(glasses, "isActive", false);
+            boolean flag = UCDataUtils.getBoolean(glasses, "isActive", false);
             if (flag)
                 mc.gameRenderer.loadEffect(BITS);
             else if (mc.gameRenderer.currentEffect() != null && mc.gameRenderer.currentEffect().getName().equals(BITS.toString()))

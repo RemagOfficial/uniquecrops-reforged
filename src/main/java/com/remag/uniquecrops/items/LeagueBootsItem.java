@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.api.IBookUpgradeable;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
@@ -85,24 +85,24 @@ public class LeagueBootsItem extends ItemArmorUC implements IBookUpgradeable {
 //        if (player.world.provider.getDimension() == UCDimension.dimID) return;
 
         float speedMod = 0.95F;
-        int sprintTicks = NBTUtils.getInt(stack, UCStrings.SPRINTING_TICKS, 0);
+        int sprintTicks = UCDataUtils.getInt(stack, UCStrings.SPRINTING_TICKS, 0);
         if (sprintTicks > 0) {
-            NBTUtils.setInt(stack, UCStrings.SPRINTING_TICKS, sprintTicks - 1);
+            UCDataUtils.setInt(stack, UCStrings.SPRINTING_TICKS, sprintTicks - 1);
             return;
         }
         if (player.isSprinting() && !player.getAbilities().flying &&
                 !player.isSwimming() && !player.isInLava()) {
-            if (NBTUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED) == DEFAULT_SPEED) {
-                NBTUtils.setFloat(stack, UCStrings.SPEED_MODIFIER, speedMod * Math.max(getLevel(stack), 1));
+            if (UCDataUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED) == DEFAULT_SPEED) {
+                UCDataUtils.setFloat(stack, UCStrings.SPEED_MODIFIER, speedMod * Math.max(getLevel(stack), 1));
                 return;
             }
             else {
                 player.setSprinting(false);
-                NBTUtils.setInt(stack, UCStrings.SPRINTING_TICKS, 20);
+                UCDataUtils.setInt(stack, UCStrings.SPRINTING_TICKS, 20);
             }
         }
         if (!player.isSprinting()) {
-            NBTUtils.setFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED);
+            UCDataUtils.setFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.items;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.enums.EnumParticle;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.network.PacketUCEffect;
@@ -71,7 +71,7 @@ public class BrassKnucklesItem extends SwordItem {
 
     private void addHitEntity(LivingEntity target, ItemStack stack, float damage) {
 
-        ListTag tagList = NBTUtils.getList(stack, HIT_LIST, 10, false);
+        ListTag tagList = UCDataUtils.getList(stack, HIT_LIST, 10, false);
         if (tagList == null) return;
         if (tagList.size() > 4) return;
 
@@ -80,12 +80,12 @@ public class BrassKnucklesItem extends SwordItem {
         nbt.putInt(HIT_TIME, 25);
         nbt.putFloat(HIT_AMOUNT, damage);
         tagList.add(nbt);
-        NBTUtils.setList(stack, HIT_LIST, tagList);
+        UCDataUtils.setList(stack, HIT_LIST, tagList);
     }
 
     private void removeHitEntity(ItemStack stack, Level world, Player player, boolean selected) {
 
-        ListTag tagList = NBTUtils.getList(stack, HIT_LIST, 10, true);
+        ListTag tagList = UCDataUtils.getList(stack, HIT_LIST, 10, true);
         if (tagList == null || tagList.isEmpty()) return;
 
         boolean remove = false;
@@ -117,6 +117,6 @@ public class BrassKnucklesItem extends SwordItem {
             }
         }
         if (remove)
-            NBTUtils.setList(stack, HIT_LIST, tagList);
+            UCDataUtils.setList(stack, HIT_LIST, tagList);
     }
 }

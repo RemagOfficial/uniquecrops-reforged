@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.api.IBookUpgradeable;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.enums.TierItem;
 import com.remag.uniquecrops.init.UCItems;
 import net.minecraft.core.registries.Registries;
@@ -66,7 +66,7 @@ public class PrecisionPickaxeItem extends PickaxeItem implements IBookUpgradeabl
                 if (event.getLevel() instanceof Level level && !level.isClientSide()) {
                     CompoundTag tileTag = saveBlockEntity(tile, level);
                     if (tileTag != null) {
-                        NBTUtils.setCompound(stack, "Spawner", tileTag);
+                        UCDataUtils.setCompound(stack, "Spawner", tileTag);
                     }
                     Containers.dropItemStack(level, event.getPos().getX() + 0.5, event.getPos().getY() + 0.5, event.getPos().getZ() + 0.5, stack);
                 }
@@ -85,14 +85,14 @@ public class PrecisionPickaxeItem extends PickaxeItem implements IBookUpgradeabl
         if (event.getFace() == null) return;
 
         ItemStack stack = event.getEntity().getItemInHand(event.getHand());
-        if (stack.getItem() == Blocks.SPAWNER.asItem() && NBTUtils.verifyExistance(stack, "Spawner")) {
+        if (stack.getItem() == Blocks.SPAWNER.asItem() && UCDataUtils.verifyExistance(stack, "Spawner")) {
             BlockPos pos = event.getPos().relative(event.getFace());
             if (!event.getLevel().isEmptyBlock(pos))
                 return;
             BlockState spawner = Blocks.SPAWNER.defaultBlockState();
             event.getLevel().setBlockAndUpdate(pos, spawner);
             BlockEntity tile = event.getLevel().getBlockEntity(pos);
-            CompoundTag tag = NBTUtils.getCompound(stack, "Spawner", true);
+            CompoundTag tag = UCDataUtils.getCompound(stack, "Spawner", true);
             if (tag == null || tile == null) return;
             tag.putInt("x", pos.getX());
             tag.putInt("y", pos.getY());

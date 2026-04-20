@@ -18,6 +18,7 @@ public class UCStrings {
     // MISC TAGS
     public static final String BLACKLIST_EFFECT = "blacklistPotionEffect";
     public static final String TAG_LOCK = "UC_tagLock";
+    public static final String BOOKMARK = "UC_bookmark";
     public static final String TAG_GROWTHSTAGES = "UC_FeroxiaGrowth";
     public static final String TAG_ABSTRACT = "UC_tagAbstractGrowth";
     public static final String TAG_BIOME = "UC_tagSavedBiome";

@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.api.IBookUpgradeable;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
@@ -26,7 +26,7 @@ public class MagnetItem extends ItemBaseUC implements IBookUpgradeable {
     @Override
     public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean isSelected) {
 
-        if (entity instanceof Player player && !world.isClientSide && NBTUtils.getBoolean(stack, UCStrings.ITEM_ACTIVATED, false)) {
+        if (entity instanceof Player player && !world.isClientSide && UCDataUtils.getBoolean(stack, UCStrings.ITEM_ACTIVATED, false)) {
             if (player.isCreative() || player.isSpectator()) return;
 
             if (!player.isCrouching()) {
@@ -46,7 +46,7 @@ public class MagnetItem extends ItemBaseUC implements IBookUpgradeable {
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
 
         if (hand == InteractionHand.MAIN_HAND && !world.isClientSide() && player.isCrouching()) {
-            NBTUtils.setBoolean(player.getMainHandItem(), UCStrings.ITEM_ACTIVATED, !NBTUtils.getBoolean(player.getMainHandItem(), UCStrings.ITEM_ACTIVATED, false));
+            UCDataUtils.setBoolean(player.getMainHandItem(), UCStrings.ITEM_ACTIVATED, !UCDataUtils.getBoolean(player.getMainHandItem(), UCStrings.ITEM_ACTIVATED, false));
             return InteractionResultHolder.success(player.getMainHandItem());
         }
         return InteractionResultHolder.pass(player.getItemInHand(hand));
@@ -55,6 +55,6 @@ public class MagnetItem extends ItemBaseUC implements IBookUpgradeable {
     @Override
     public boolean isFoil(ItemStack stack) {
 
-        return NBTUtils.getBoolean(stack, UCStrings.ITEM_ACTIVATED, false);
+        return UCDataUtils.getBoolean(stack, UCStrings.ITEM_ACTIVATED, false);
     }
 }

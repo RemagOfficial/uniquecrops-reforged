@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCItems;
@@ -54,9 +54,9 @@ public class GuideBookItem extends ItemBaseUC {
         if (!world.isClientSide && stack.getItem() == this) {
             ListTag playerTagList = UCUtils.getServerTaglist(player.getUUID());
             if (playerTagList != null) {
-                if (NBTUtils.verifyExistance(stack, UCStrings.TAG_GROWTHSTAGES))
-                    NBTUtils.getNBT(stack).remove(UCStrings.TAG_GROWTHSTAGES);
-                NBTUtils.setList(stack, UCStrings.TAG_GROWTHSTAGES, playerTagList);
+                if (UCDataUtils.verifyExistance(stack, UCStrings.TAG_GROWTHSTAGES))
+                    UCDataUtils.getNBT(stack).remove(UCStrings.TAG_GROWTHSTAGES);
+                UCDataUtils.setList(stack, UCStrings.TAG_GROWTHSTAGES, playerTagList);
             }
         }
         if (!world.isClientSide && player instanceof ServerPlayer serverPlayer) {

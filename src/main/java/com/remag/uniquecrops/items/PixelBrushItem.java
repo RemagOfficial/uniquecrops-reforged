@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.items;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCItems;
@@ -47,8 +47,8 @@ public class PixelBrushItem extends ItemBaseUC {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 
-        if (NBTUtils.verifyExistance(stack, UCStrings.TAG_BIOME)) {
-            ResourceLocation biomeId = ResourceLocation.tryParse(NBTUtils.getString(stack, UCStrings.TAG_BIOME, ""));
+        if (UCDataUtils.verifyExistance(stack, UCStrings.TAG_BIOME)) {
+            ResourceLocation biomeId = ResourceLocation.tryParse(UCDataUtils.getString(stack, UCStrings.TAG_BIOME, ""));
             if (biomeId == null) {
                 tooltipComponents.add(Component.literal(ChatFormatting.GREEN + "Biome: " + ChatFormatting.RESET + "<NONE>"));
                 return;
@@ -70,9 +70,9 @@ public class PixelBrushItem extends ItemBaseUC {
     public @NotNull InteractionResult useOn(@NotNull UseOnContext ctx) {
 
         if (ctx.getItemInHand().getDamageValue() == ctx.getItemInHand().getMaxDamage()) return InteractionResult.PASS;
-        if (!NBTUtils.verifyExistance(ctx.getItemInHand(), UCStrings.TAG_BIOME)) return InteractionResult.PASS;
+        if (!UCDataUtils.verifyExistance(ctx.getItemInHand(), UCStrings.TAG_BIOME)) return InteractionResult.PASS;
 
-        ResourceLocation biomeId = ResourceLocation.tryParse(NBTUtils.getString(ctx.getItemInHand(), UCStrings.TAG_BIOME, ""));
+        ResourceLocation biomeId = ResourceLocation.tryParse(UCDataUtils.getString(ctx.getItemInHand(), UCStrings.TAG_BIOME, ""));
         if (biomeId == null) return InteractionResult.PASS;
         boolean flag = UCUtils.setBiome(biomeId, ctx.getLevel(), ctx.getClickedPos());
         if (!flag) return InteractionResult.PASS;

@@ -2,7 +2,7 @@
 package com.remag.uniquecrops.blocks;
 
 import com.remag.uniquecrops.blocks.tiles.TileGoblet;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.init.UCItems;
@@ -110,9 +110,9 @@ public class GobletBlock extends Block implements EntityBlock {
         if (!isFilled(state)) {
             BlockEntity tile = world.getBlockEntity(pos);
             if (tile instanceof TileGoblet && stack.getItem() == UCItems.VAMPIRIC_OINTMENT.get()) {
-                boolean flag = NBTUtils.verifyExistance(stack, UCStrings.TAG_LOCK);
+                boolean flag = UCDataUtils.verifyExistance(stack, UCStrings.TAG_LOCK);
                 if (!world.isClientSide && flag) {
-                    ((TileGoblet)tile).setTaglock(UUID.fromString(NBTUtils.getString(stack, UCStrings.TAG_LOCK, "")));
+                    ((TileGoblet)tile).setTaglock(UUID.fromString(UCDataUtils.getString(stack, UCStrings.TAG_LOCK, "")));
                     player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                     world.setBlock(pos, state.setValue(FILLED, true), 3);
                 }
@@ -130,11 +130,11 @@ public class GobletBlock extends Block implements EntityBlock {
         if (!(entity instanceof ItemEntity) || ((ItemEntity) entity).getItem().getItem() != UCItems.VAMPIRIC_OINTMENT.get()) return;
 
         ItemStack ointment = ((ItemEntity)entity).getItem();
-        if (!NBTUtils.verifyExistance(ointment, UCStrings.TAG_LOCK)) return;
+        if (!UCDataUtils.verifyExistance(ointment, UCStrings.TAG_LOCK)) return;
 
         if (!world.isClientSide) {
             world.setBlock(pos, state.setValue(FILLED, true), 3);
-            ((TileGoblet)world.getBlockEntity(pos)).setTaglock(UUID.fromString(NBTUtils.getString(ointment, UCStrings.TAG_LOCK, "")));
+            ((TileGoblet)world.getBlockEntity(pos)).setTaglock(UUID.fromString(UCDataUtils.getString(ointment, UCStrings.TAG_LOCK, "")));
             entity.discard();
         }
     }

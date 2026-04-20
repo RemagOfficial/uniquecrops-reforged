@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.api.IBookUpgradeable;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
 import net.minecraft.core.BlockPos;
@@ -98,11 +98,11 @@ public class ThunderpantzItem extends ItemArmorUC implements IBookUpgradeable {
 
     public void setCharge(ItemStack stack, float f) {
 
-        NBTUtils.setFloat(stack, TAG_CHARGE, f);
+        UCDataUtils.setFloat(stack, TAG_CHARGE, f);
     }
 
     public float getCharge(ItemStack stack) {
 
-        return NBTUtils.getFloat(stack, TAG_CHARGE, 0);
+        return UCDataUtils.getFloat(stack, TAG_CHARGE, 0);
     }
 }

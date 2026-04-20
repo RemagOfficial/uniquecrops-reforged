@@ -3,7 +3,7 @@ package com.remag.uniquecrops.events;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.remag.uniquecrops.UniqueCrops;
 import com.remag.uniquecrops.api.IBookUpgradeable;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.gui.GuiStaffOverlay;
 import com.remag.uniquecrops.init.UCBlocks;
 import com.remag.uniquecrops.init.UCClient;
@@ -56,7 +56,7 @@ public class UCEventHandlerClient {
             if (player == null) return;
             if (player.getInventory().getArmor(3).getItem() != UCItems.GLASSES_PIXELS.get()) return;
 
-            UCPacketHandler.sendToServer(new PacketSendKey());
+            UCPacketHandler.sendToServer(PacketSendKey.INSTANCE);
         }
     }
 
@@ -135,11 +135,11 @@ public class UCEventHandlerClient {
 
         ItemStack glasses = player.getInventory().getArmor(3);
         if (glasses.getItem() == UCItems.GLASSES_PIXELS.get()) {
-            boolean flag = NBTUtils.getBoolean(glasses, "isActive", false);
+            boolean flag = UCDataUtils.getBoolean(glasses, "isActive", false);
             boolean flag2 = ((IBookUpgradeable) glasses.getItem()).isMaxLevel(glasses);
 
             if (flag && flag2) {
-                BlockPos pos = BlockPos.of(NBTUtils.getLong(glasses, "orePos", BlockPos.ZERO.asLong()));
+                BlockPos pos = BlockPos.of(UCDataUtils.getLong(glasses, "orePos", BlockPos.ZERO.asLong()));
                 if (!pos.equals(BlockPos.ZERO)) {
                     if (buffers == null)
                         buffers = CustomBufferSource.initBuffers(mc.renderBuffers().bufferSource());

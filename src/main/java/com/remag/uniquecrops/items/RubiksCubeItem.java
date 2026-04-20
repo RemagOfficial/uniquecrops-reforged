@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.items;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCConfig;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.init.UCItems;
@@ -61,25 +61,25 @@ public class RubiksCubeItem extends ItemBaseUC {
 
     public void saveRotation(ItemStack stack, int rotation) {
 
-        NBTUtils.setInt(stack, UCStrings.TAG_CUBE_ROTATION, rotation);
+        UCDataUtils.setInt(stack, UCStrings.TAG_CUBE_ROTATION, rotation);
     }
 
     public int getRotation(ItemStack stack) {
 
         if (stack.isEmpty()) return 0;
-        return NBTUtils.getInt(stack, UCStrings.TAG_CUBE_ROTATION, 2);
+        return UCDataUtils.getInt(stack, UCStrings.TAG_CUBE_ROTATION, 2);
     }
 
     public void savePosition(ItemStack stack, int rotation, BlockPos pos) {
 
         CompoundTag tag = new CompoundTag();
         tag.putLong(UCStrings.TAG_CUBE_SAVEDPOS, pos.asLong());
-        NBTUtils.setCompound(stack, UCStrings.TAG_CUBE_ROTATION + rotation, tag);
+        UCDataUtils.setCompound(stack, UCStrings.TAG_CUBE_ROTATION + rotation, tag);
     }
 
     public BlockPos getSavedPosition(ItemStack stack, int rotation) {
 
-        CompoundTag tag = NBTUtils.getCompound(stack, UCStrings.TAG_CUBE_ROTATION + rotation, true);
+        CompoundTag tag = UCDataUtils.getCompound(stack, UCStrings.TAG_CUBE_ROTATION + rotation, true);
         if (tag != null && tag.contains(UCStrings.TAG_CUBE_SAVEDPOS))
             return BlockPos.of(tag.getLong(UCStrings.TAG_CUBE_SAVEDPOS));
 

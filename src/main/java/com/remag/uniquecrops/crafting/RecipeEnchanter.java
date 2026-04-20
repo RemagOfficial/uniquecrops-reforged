@@ -7,7 +7,6 @@ import com.remag.uniquecrops.api.IEnchanterRecipe;
 import com.remag.uniquecrops.init.UCRecipes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;

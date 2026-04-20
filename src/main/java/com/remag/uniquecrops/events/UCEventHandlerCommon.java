@@ -6,7 +6,7 @@ import com.remag.uniquecrops.api.ICropPower;
 import com.remag.uniquecrops.api.IMultiblockRecipe;
 import com.remag.uniquecrops.capabilities.CPProvider;
 import com.remag.uniquecrops.core.DyeUtils;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumBonemealDye;
 import com.remag.uniquecrops.core.enums.EnumLily;
@@ -92,8 +92,8 @@ public class UCEventHandlerCommon {
             ItemStack newOutput = (leftItem == UCItems.BOOK_DISCOUNT.get()) ? right.copy() : left.copy();
             if (newOutput.getItem() != Items.ENCHANTED_BOOK &&
                     (newOutput.isEnchantable() || newOutput.isEnchanted()) &&
-                    !NBTUtils.getBoolean(newOutput, UCStrings.TAG_DISCOUNT, false)) {
-                NBTUtils.setBoolean(newOutput, UCStrings.TAG_DISCOUNT, true);
+                    !UCDataUtils.getBoolean(newOutput, UCStrings.TAG_DISCOUNT, false)) {
+                UCDataUtils.setBoolean(newOutput, UCStrings.TAG_DISCOUNT, true);
                 event.setOutput(newOutput);
                 event.setCost(1);
             }
@@ -237,7 +237,7 @@ public class UCEventHandlerCommon {
         if (!(stack.getItem() instanceof LeagueBootsItem leagueBootsItem)) return;
 
         if (world.isClientSide) {
-            float SPEED = NBTUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED);
+            float SPEED = UCDataUtils.getFloat(stack, UCStrings.SPEED_MODIFIER, DEFAULT_SPEED);
             if ((player.onGround() || player.getAbilities().flying) && player.zza > 0F && !player.isInWaterOrBubble()) {
                 player.moveRelative(SPEED, new Vec3(0F, 0F, 1F));
             }

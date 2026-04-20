@@ -63,6 +63,7 @@ public class UniqueCrops {
         UCRecipes.RECIPE_SERIALIZERS.register(bus);
         UCRecipes.RECIPE_TYPES.register(bus);
         UCTab.CREATIVE_MODE_TABS.register(bus);
+        UCDataComponents.register(bus);
         bus.addListener(DataGenerators::gatherData);
 
         IEventBus forgeBus = NeoForge.EVENT_BUS;

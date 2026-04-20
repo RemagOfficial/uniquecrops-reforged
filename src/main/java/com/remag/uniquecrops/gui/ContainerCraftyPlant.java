@@ -2,7 +2,7 @@ package com.remag.uniquecrops.gui;
 
 import com.remag.uniquecrops.api.IArtisiaRecipe;
 import com.remag.uniquecrops.blocks.tiles.TileCraftyPlant;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.crafting.RecipeArtisia;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.init.UCScreens;
@@ -136,10 +136,10 @@ public class ContainerCraftyPlant extends AbstractContainerMenu {
         public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 
             if (tile.getLevel() != null && !tile.getLevel().isClientSide && indexSlot == tile.getCraftingSize()) {
-                if (stack != null && NBTUtils.detectNBT(stack)) {
-                    int cropPower = NBTUtils.getInt(stack, "UC:cropPowerCurrent", 0);
+                if (stack != null && UCDataUtils.detectNBT(stack)) {
+                    int cropPower = UCDataUtils.getInt(stack, "UC:cropPowerCurrent", 0);
                     if (cropPower >= COST) {
-                        NBTUtils.setInt(stack, "UC:cropPowerCurrent", cropPower - COST);
+                        UCDataUtils.setInt(stack, "UC:cropPowerCurrent", cropPower - COST);
                         inv.insertItem(OUTPUT_SLOT, stack.copy(), false);
                     } else {
                         IntStream.range(0, tile.getCraftingSize()).forEach(i -> {

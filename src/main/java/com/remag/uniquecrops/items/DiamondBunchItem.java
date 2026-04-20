@@ -1,6 +1,6 @@
 package com.remag.uniquecrops.items;
 
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.init.UCItems;
 import com.remag.uniquecrops.items.base.ItemBaseUC;
@@ -34,11 +34,11 @@ public class DiamondBunchItem extends ItemBaseUC {
         if (ei.getItem().getItem() == UCItems.DIAMONDS.get() && !event.getPlayer().isCreative()) {
             event.setCanceled(true);
             ItemStack eventStack = ei.getItem().copy();
-            int damage = NBTUtils.getInt(eventStack, UCStrings.TAG_DIAMONDS, 0);
-            NBTUtils.setInt(eventStack, UCStrings.TAG_DIAMONDS, damage + 1);
+            int damage = UCDataUtils.getInt(eventStack, UCStrings.TAG_DIAMONDS, 0);
+            UCDataUtils.setInt(eventStack, UCStrings.TAG_DIAMONDS, damage + 1);
             if (!event.getPlayer().level().isClientSide) {
                 int num = 1;
-                if (NBTUtils.getInt(eventStack, UCStrings.TAG_DIAMONDS, 0) <= MAX_DAMAGE - 1)
+                if (UCDataUtils.getInt(eventStack, UCStrings.TAG_DIAMONDS, 0) <= MAX_DAMAGE - 1)
                     ItemHandlerHelper.giveItemToPlayer(event.getPlayer(), eventStack);
                 else
                     num = 2;

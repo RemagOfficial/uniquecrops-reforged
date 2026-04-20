@@ -2,7 +2,10 @@ package com.remag.uniquecrops.items;
 
 import com.remag.uniquecrops.api.IBookUpgradeable;
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.*;
+import com.remag.uniquecrops.core.UCOreHandler;
+import com.remag.uniquecrops.core.UCDataUtils;
+import com.remag.uniquecrops.core.UCStrings;
+import com.remag.uniquecrops.core.UCUtils;
 import com.remag.uniquecrops.core.enums.EnumArmorMaterial;
 import com.remag.uniquecrops.items.base.ItemArmorUC;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,7 +41,7 @@ public class GlassesPixelItem extends ItemArmorUC implements IBookUpgradeable {
 
         ItemStack pixelGlasses = player.getInventory().armor.get(3);
         if (pixelGlasses.is(this)) {
-            boolean flag = NBTUtils.getBoolean(pixelGlasses, "isActive", false);
+            boolean flag = UCDataUtils.getBoolean(pixelGlasses, "isActive", false);
             boolean flag2 = isMaxLevel(pixelGlasses);
             if (flag && flag2) {
                 if (player.level().getGameTime() % 20 == 0) {
@@ -46,11 +49,11 @@ public class GlassesPixelItem extends ItemArmorUC implements IBookUpgradeable {
                     if (!player.level().isClientSide) {
                         if (UCOreHandler.getInstance().getSaveInfo().containsKey(cPos)) {
                             BlockPos pos = UCOreHandler.getInstance().getSaveInfo().get(cPos);
-                            NBTUtils.setLong(pixelGlasses, "orePos", pos.asLong());
+                            UCDataUtils.setLong(pixelGlasses, "orePos", pos.asLong());
                             UCOreHandler.getInstance().removeChunk(player.level(), BlockPos.ZERO, true);
                         }
                         else {
-                            NBTUtils.setLong(pixelGlasses, "orePos", BlockPos.ZERO.asLong());
+                            UCDataUtils.setLong(pixelGlasses, "orePos", BlockPos.ZERO.asLong());
                             UCOreHandler.getInstance().addChunk(player.level(), BlockPos.ZERO, true);
                         }
                     }
@@ -75,7 +78,7 @@ public class GlassesPixelItem extends ItemArmorUC implements IBookUpgradeable {
         Player player = event.getPlayer();
 
         if (player.getMainHandItem().isCorrectToolForDrops(event.getState()) && player.getInventory().armor.get(3).getItem() == this) {
-            boolean flag = NBTUtils.getBoolean(player.getInventory().armor.get(3), "isActive", false);
+            boolean flag = UCDataUtils.getBoolean(player.getInventory().armor.get(3), "isActive", false);
             boolean flag2 = isMaxLevel(player.getInventory().armor.get(3));
             if (flag && flag2 && event.getState().is(BlockTags.BASE_STONE_OVERWORLD)) {
                 if (UCOreHandler.getInstance().getSaveInfo().containsValue(event.getPos())) {

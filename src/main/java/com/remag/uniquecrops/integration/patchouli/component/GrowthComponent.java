@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.integration.patchouli.component;
 
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.core.UCStrings;
 import com.remag.uniquecrops.core.enums.EnumGrowthSteps;
 import com.remag.uniquecrops.init.UCItems;
@@ -41,13 +41,13 @@ public class GrowthComponent implements ICustomComponent {
         ItemStack book = mc.player.getMainHandItem();
 
         if (book.getItem() == UCItems.BOOK_GUIDE.get()) {
-            if (!NBTUtils.detectNBT(book) || !NBTUtils.getNBT(book).contains(UCStrings.TAG_GROWTHSTAGES)) {
+            if (!UCDataUtils.detectNBT(book) || !UCDataUtils.getNBT(book).contains(UCStrings.TAG_GROWTHSTAGES)) {
                 renderBlank(guiGraphics, mc.font);
                 return;
             }
 
             guiGraphics.drawString(mc.font, Component.literal("Feroxia Growth Steps"), x, y, 0, false);
-            ListTag tagList = NBTUtils.getNBT(book).getList(UCStrings.TAG_GROWTHSTAGES, 10);
+            ListTag tagList = UCDataUtils.getNBT(book).getList(UCStrings.TAG_GROWTHSTAGES, 10);
 
             for (int i = 0; i < tagList.size(); i++) {
                 CompoundTag tag = tagList.getCompound(i);

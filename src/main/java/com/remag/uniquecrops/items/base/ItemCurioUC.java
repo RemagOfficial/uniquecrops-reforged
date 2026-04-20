@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items.base;
 
 import com.remag.uniquecrops.UniqueCrops;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import com.remag.uniquecrops.init.UCItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -55,14 +55,14 @@ public abstract class ItemCurioUC extends ItemBaseUC implements ICurioItem {
 
     public UUID getCurioUUID(ItemStack stack) {
 
-        long most = NBTUtils.getLong(stack, TAG_CURIO_UUID_MOST, 0);
+        long most = UCDataUtils.getLong(stack, TAG_CURIO_UUID_MOST, 0);
         if (most == 0) {
             UUID uuid = UUID.randomUUID();
-            NBTUtils.setLong(stack, TAG_CURIO_UUID_MOST, uuid.getMostSignificantBits());
-            NBTUtils.setLong(stack, TAG_CURIO_UUID_LEAST, uuid.getLeastSignificantBits());
+            UCDataUtils.setLong(stack, TAG_CURIO_UUID_MOST, uuid.getMostSignificantBits());
+            UCDataUtils.setLong(stack, TAG_CURIO_UUID_LEAST, uuid.getLeastSignificantBits());
             return getCurioUUID(stack);
         }
-        long least = NBTUtils.getLong(stack, TAG_CURIO_UUID_LEAST, 0);
+        long least = UCDataUtils.getLong(stack, TAG_CURIO_UUID_LEAST, 0);
         return new UUID(most, least);
     }
 }

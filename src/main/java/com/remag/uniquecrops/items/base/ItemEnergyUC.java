@@ -1,7 +1,7 @@
 package com.remag.uniquecrops.items.base;
 
 import com.remag.uniquecrops.api.IItemEnergy;
-import com.remag.uniquecrops.core.NBTUtils;
+import com.remag.uniquecrops.core.UCDataUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -44,7 +44,7 @@ public class ItemEnergyUC extends ItemBaseUC implements IItemEnergy {
 
     public void setEnergyStored(ItemStack stack, int value) {
 
-        NBTUtils.setInt(stack, "UC_energy", Mth.clamp(value, 0, getCapacity(stack)));
+        UCDataUtils.setInt(stack, "UC_energy", Mth.clamp(value, 0, getCapacity(stack)));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ItemEnergyUC extends ItemBaseUC implements IItemEnergy {
     @Override
     public int getEnergy(ItemStack stack) {
 
-        return NBTUtils.getInt(stack, "UC_energy", 0);
+        return UCDataUtils.getInt(stack, "UC_energy", 0);
     }
 
     @Override
